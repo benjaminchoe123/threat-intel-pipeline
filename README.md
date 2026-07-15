@@ -112,8 +112,12 @@ Every run also exports `vault/docs/attack-layer.json`, an
 technique by how many notes cite it (Open Existing Layer → Upload from Local). It shows
 observed activity, not ATT&CK coverage in the abstract — the only claim the data supports.
 
-<!-- Screenshot: open vault/ in Obsidian → graph view → screenshot to docs/graph-view.png,
-then swap this comment for: ![Obsidian graph view of the threat vault](docs/graph-view.png) -->
+![Obsidian graph view of the threat vault](vault/docs/graph-view.png)
+
+*Threat notes (the long dated titles) linked to the ATT&CK techniques and malware families
+they cite. `T1190` sits at the centre of the KEV cluster; `Agent Tesla` and `AdaptixC2`
+pull in their own techniques. Nothing here is hand-drawn — the edges are wikilinks the
+enrichment wrote, and the stub pages were auto-created.*
 
 ## Setup
 
