@@ -5,7 +5,8 @@ import json
 from datetime import date, timedelta
 
 import feedparser
-import requests
+
+from ..http import default_session
 
 FEED_URL = "https://www.malware-traffic-analysis.net/blog-entries.rss"
 
@@ -48,7 +49,7 @@ def parse_mta(rss_text, lookback_days, today=None):
 
 
 def fetch(lookback_days, today=None, session=None):
-    http = session or requests
+    http = session or default_session()
     resp = http.get(FEED_URL, timeout=60)
     resp.raise_for_status()
     return parse_mta(resp.text, lookback_days, today)

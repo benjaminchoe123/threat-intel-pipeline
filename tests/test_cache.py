@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from pipeline.cache import ReputationCache
 from pipeline.ratelimit import RateLimiter
 
-NOW = datetime(2026, 7, 15, 12, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 7, 15, 12, 0, tzinfo=UTC)
 RESULT = {"found": True, "malicious": 12, "harmless": 60}
 
 

@@ -4,7 +4,6 @@ import pytest
 
 from pipeline import enrich, notes
 
-
 # --- _strip_code_fence ----------------------------------------------------
 
 @pytest.mark.parametrize("text", ["```", "```markdown", "   ```   "])

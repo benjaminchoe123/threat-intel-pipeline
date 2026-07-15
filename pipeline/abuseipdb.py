@@ -6,8 +6,7 @@ item's sample are ignored here (VirusTotal covers those).
 
 import logging
 
-import requests
-
+from .http import default_session
 from .ratelimit import RateLimiter
 from .vt import extract_iocs
 
@@ -46,7 +45,7 @@ def extract_ips(item, limit=MAX_IPS_PER_ITEM):
 
 def check(ip, api_key, session=None, timeout=30):
     """Fetch the abuse confidence score (0-100) and report count for one IP."""
-    http = session or requests
+    http = session or default_session()
     resp = http.get(
         API_URL,
         headers={"Key": api_key, "Accept": "application/json"},
@@ -63,7 +62,7 @@ def check(ip, api_key, session=None, timeout=30):
     try:
         data = resp.json()["data"]
     except (ValueError, KeyError, TypeError) as e:
-        raise AbuseIPDBError(f"AbuseIPDB sent an unreadable 200 for {ip!r}: {e}")
+        raise AbuseIPDBError(f"AbuseIPDB sent an unreadable 200 for {ip!r}: {e}") from e
     return {"score": data.get("abuseConfidenceScore", 0), "reports": data.get("totalReports", 0)}
 
 

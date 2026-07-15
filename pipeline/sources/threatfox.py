@@ -3,8 +3,7 @@
 import logging
 from datetime import date
 
-import requests
-
+from ..http import default_session
 from .abusech import check_query_status, family_day_items
 
 log = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ def fetch(auth_key, today=None, session=None):
     if not auth_key:
         log.warning("threatfox: no ABUSECH_AUTH_KEY set — skipping (see .env.example)")
         return []
-    http = session or requests
+    http = session or default_session()
     resp = http.post(
         API_URL,
         json={"query": "get_iocs", "days": 1},

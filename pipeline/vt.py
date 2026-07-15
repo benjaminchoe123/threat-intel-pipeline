@@ -7,10 +7,8 @@ are skipped entirely.
 
 import base64
 import logging
-import time
 
-import requests
-
+from .http import default_session
 from .ratelimit import RateLimiter
 
 log = logging.getLogger(__name__)
@@ -91,7 +89,7 @@ def _strip_port(value):
 
 def lookup(kind, value, api_key, session=None, timeout=30):
     """Fetch VirusTotal engine verdict counts for one IOC."""
-    http = session or requests
+    http = session or default_session()
     ident = value
     if kind == "url":
         # VT identifies URLs by unpadded URL-safe base64 of the URL itself.
@@ -115,7 +113,9 @@ def lookup(kind, value, api_key, session=None, timeout=30):
     except (ValueError, KeyError, TypeError) as e:
         # A 200 carrying an HTML error/captcha page used to raise a bare
         # KeyError/JSONDecodeError straight out of the run.
-        raise VirusTotalError(f"VirusTotal sent an unreadable 200 for {kind} {value!r}: {e}")
+        raise VirusTotalError(
+            f"VirusTotal sent an unreadable 200 for {kind} {value!r}: {e}"
+        ) from e
     return {
         "found": True,
         "malicious": stats.get("malicious", 0),

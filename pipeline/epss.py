@@ -17,7 +17,7 @@ import logging
 import math
 import re
 
-import requests
+from .http import default_session
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ def scores(cves, session=None, timeout=30):
     """
     if not cves:
         return {}
-    http = session or requests
+    http = session or default_session()
     out = {}
     for start in range(0, len(cves), BATCH_SIZE):
         batch = cves[start:start + BATCH_SIZE]
@@ -66,7 +66,7 @@ def scores(cves, session=None, timeout=30):
         try:
             rows = resp.json()["data"]
         except (ValueError, KeyError, TypeError) as e:
-            raise EpssError(f"EPSS sent an unreadable 200: {e}")
+            raise EpssError(f"EPSS sent an unreadable 200: {e}") from e
         for row in rows:
             try:
                 out[row["cve"].upper()] = {

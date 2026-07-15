@@ -11,7 +11,7 @@ no pacing delay, so the rate limiter only throttles genuinely new IOCs.
 
 import json
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 DEFAULT_TTL_DAYS = 7
@@ -50,7 +50,7 @@ class ReputationCache:
         ).fetchone()
         if row is None:
             return None
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         try:
             fetched_at = datetime.fromisoformat(row[1])
         except ValueError:
@@ -63,7 +63,7 @@ class ReputationCache:
             return None
 
     def put(self, service, ioc, result, now=None):
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         self._conn.execute(
             """INSERT INTO reputation_cache (service, ioc, result, fetched_at)
                VALUES (?, ?, ?, ?)

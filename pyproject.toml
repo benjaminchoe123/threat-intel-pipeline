@@ -1,0 +1,22 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# F: pyflakes (unused imports/names, real bugs)
+# E,W: pycodestyle
+# I: import sorting
+# B: bugbear (mutable defaults, and the late-binding class of mistake that let
+#    process_item capture the real `claude -p` as a default argument)
+# UP: pyupgrade
+select = ["F", "E", "W", "I", "B", "UP"]
+
+[tool.ruff.lint.isort]
+# tests/ import sibling modules directly (from test_validate import VALID_NOTE);
+# without this ruff sorts them into the third-party block.
+known-first-party = ["pipeline"]
+known-local-folder = ["test_validate", "test_vt", "test_helpers"]
+
+[tool.ruff.lint.per-file-ignores]
+# Test files assert on private helpers by design.
+"tests/*" = ["E501"]

@@ -14,6 +14,7 @@ from datetime import date
 
 from . import audit, config, enrich, navigator, notes, reputation
 from .cache import ReputationCache
+from .runlock import LockHeld, RunLock
 from .sources import kev, mta_rss, threatfox, urlhaus
 from .state import State
 
@@ -234,7 +235,14 @@ def cli(argv=None):
         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
         stream=_utf8_stream(),
     )
-    totals = main(argv)
+    try:
+        with RunLock(config.DATA_DIR / "run.lock"):
+            totals = main(argv)
+    except LockHeld as e:
+        # Not a failure: the work is already being done. Exit 0 so a scheduler
+        # catch-up landing on a manual run doesn't look like a broken pipeline.
+        log.warning("%s", e)
+        sys.exit(0)
     sys.exit(1 if totals["failed"] else 0)
 
 

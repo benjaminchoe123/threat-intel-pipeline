@@ -23,7 +23,7 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
-import requests
+from .http import default_session
 
 log = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ def name_for(tid):
 
 def refresh(session=None, timeout=120):
     """Re-download the bundle and rewrite the catalog snapshot."""
-    http = session or requests
+    http = session or default_session()
     log.info("fetching %s", BUNDLE_URL)
     resp = http.get(BUNDLE_URL, timeout=timeout)
     resp.raise_for_status()

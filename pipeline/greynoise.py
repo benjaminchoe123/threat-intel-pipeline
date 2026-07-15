@@ -16,8 +16,7 @@ disables the lookup.
 
 import logging
 
-import requests
-
+from .http import default_session
 from .ratelimit import RateLimiter
 from .vt import extract_iocs
 
@@ -45,7 +44,7 @@ def extract_ips(item, limit=MAX_IPS_PER_ITEM):
 
 def check(ip, api_key, session=None, timeout=30):
     """Classification for one IP. 404 means "not seen", which is meaningful here."""
-    http = session or requests
+    http = session or default_session()
     resp = http.get(f"{API_URL}{ip}", headers={"key": api_key, "Accept": "application/json"},
                     timeout=timeout)
     if resp.status_code == 404:
@@ -59,7 +58,7 @@ def check(ip, api_key, session=None, timeout=30):
     try:
         data = resp.json()
     except ValueError as e:
-        raise GreyNoiseError(f"GreyNoise sent an unreadable 200 for {ip!r}: {e}")
+        raise GreyNoiseError(f"GreyNoise sent an unreadable 200 for {ip!r}: {e}") from e
     return {
         "seen": bool(data.get("seen", False)),
         "classification": data.get("classification"),

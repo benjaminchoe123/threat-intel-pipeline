@@ -7,7 +7,7 @@ import hashlib
 import json
 from datetime import date, timedelta
 
-import requests
+from ..http import default_session
 
 FEED_URL = (
     "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
@@ -39,7 +39,7 @@ def parse_kev(data, lookback_days, today=None):
 
 
 def fetch(lookback_days, today=None, session=None):
-    http = session or requests
+    http = session or default_session()
     resp = http.get(FEED_URL, timeout=60)
     resp.raise_for_status()
     return parse_kev(resp.json(), lookback_days, today)

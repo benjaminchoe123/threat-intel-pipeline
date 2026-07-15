@@ -85,21 +85,23 @@ def run_claude(prompt, timeout=300):
             timeout=timeout,
             shell=False,
         )
-    except subprocess.TimeoutExpired:
-        raise EnrichmentError(f"claude -p timed out after {timeout}s")
+    except subprocess.TimeoutExpired as e:
+        raise EnrichmentError(f"claude -p timed out after {timeout}s") from e
     if result.returncode != 0:
         raise EnrichmentError(f"claude -p failed ({result.returncode}): {result.stderr[:500]}")
     try:
         payload = json.loads(result.stdout)
     except json.JSONDecodeError as e:
-        raise EnrichmentError(f"claude -p stdout was not valid JSON: {e}")
+        raise EnrichmentError(f"claude -p stdout was not valid JSON: {e}") from e
     engine_meta = {k: payload.get(k) for k in ("duration_ms", "num_turns", "total_cost_usd")}
     engine_meta["is_error"] = payload.get("is_error", False)
     if engine_meta["is_error"]:
         # is_error was captured and then ignored: `result` holds the error string,
         # which flowed into validation, failed, and burned the retry.
-        raise EnrichmentError(f"claude -p reported an error: {str(payload.get('result', ''))[:300]}")
+        detail = str(payload.get("result", ""))[:300]
+        raise EnrichmentError(f"claude -p reported an error: {detail}")
     return payload.get("result", ""), engine_meta
+
 
 REQUIRED_FIELDS = [
     "title", "type", "source", "source_url", "date", "severity",

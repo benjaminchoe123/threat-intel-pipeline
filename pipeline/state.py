@@ -7,7 +7,7 @@ check() classifies an incoming item against what previous runs recorded:
 """
 
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -63,19 +63,20 @@ class State:
         return "seen" if row[0] == content_hash else "updated"
 
     def record(self, source, external_id, content_hash):
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self._conn.execute(
             """INSERT INTO seen (source, external_id, content_hash, first_seen, last_seen)
                VALUES (?, ?, ?, ?, ?)
                ON CONFLICT(source, external_id)
-               DO UPDATE SET content_hash = excluded.content_hash, last_seen = excluded.last_seen""",
+               DO UPDATE SET content_hash = excluded.content_hash,
+                             last_seen = excluded.last_seen""",
             (source, external_id, content_hash, now, now),
         )
         self._conn.commit()
 
     def record_quarantine(self, source, external_id):
         """Count one failed enrichment attempt. Returns the new attempt total."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self._conn.execute(
             """INSERT INTO quarantine (source, external_id, attempts, last_attempt)
                VALUES (?, ?, 1, ?)
