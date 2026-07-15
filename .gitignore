@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Runtime data (state db, raw source snapshots, quarantine)
+data/
+
+# Logs and audit trail
+logs/
+
+# Unapproved report drafts — never published
+vault/reports/drafts/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Obsidian workspace state (keep vault content, not editor state)
+vault/.obsidian/workspace.json
+vault/.obsidian/workspace-mobile.json
