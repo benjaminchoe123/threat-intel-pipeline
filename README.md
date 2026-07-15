@@ -21,7 +21,8 @@ flowchart LR
     end
     feeds --> ING["Ingest + normalize<br/>(Python)"]
     ING --> DEDUPE["Dedupe<br/>(SQLite state)"]
-    DEDUPE -->|new items| ENRICH["Claude enrichment<br/>(claude -p, headless)"]
+    DEDUPE -->|new items| REP["IOC reputation<br/>(VirusTotal + AbuseIPDB)"]
+    REP --> ENRICH["Claude enrichment<br/>(claude -p, headless)"]
     ENRICH --> VALIDATE{"Schema<br/>validation"}
     VALIDATE -->|valid| VAULT["Obsidian vault<br/>threats / families /<br/>techniques / actors"]
     VALIDATE -->|invalid ×2| QUAR["Quarantine"]
@@ -52,6 +53,13 @@ flowchart LR
 - **Volume-bounded by design.** IOC firehoses (ThreatFox/URLhaus) are aggregated per
   malware-family-per-day; enrichment is capped per run with carry-over, so the vault grows
   with signal, not noise.
+- **Independent reputation context.** Before enrichment, a sample of each item's IOCs is
+  checked against VirusTotal (engine verdicts) and AbuseIPDB (community abuse scores), and
+  the results are handed to the model as explicit context — so severity calls rest on
+  multi-source evidence, not one feed's word. Lookups are capped and paced to stay inside
+  free-tier limits, recorded in the audit log, and the prompt warns that "not found" ≠
+  benign (fresh C2 infrastructure is often unknown to scanners). See `pipeline/vt.py`,
+  `pipeline/abuseipdb.py`, `pipeline/reputation.py`.
 
 ## The knowledge graph
 
@@ -68,7 +76,7 @@ then swap this comment for: ![Obsidian graph view of the threat vault](docs/grap
 git clone <this repo> && cd threat-intel-pipeline
 python -m venv .venv; .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-copy .env.example .env          # add your free abuse.ch Auth-Key (optional; KEV+RSS work without)
+copy .env.example .env          # add free API keys: abuse.ch, VirusTotal, AbuseIPDB (all optional)
 python -m pipeline.run --source kev --limit 3   # first run, bounded
 scripts\register_tasks.ps1      # daily 08:00 + Sunday 09:00 via Windows Task Scheduler
 ```
@@ -82,9 +90,9 @@ clipboard).
 
 ## Tests
 
-40+ unit tests (TDD) cover dedupe state, output validation, note/stub/dashboard
-generation, feed parsers (including the malformed-RSS regression), report drafting, and
-publish guards:
+60+ unit tests (TDD) cover dedupe state, output validation, note/stub/dashboard
+generation, feed parsers (including the malformed-RSS regression), reputation lookups
+(rate pacing, URL identifiers, not-found handling), report drafting, and publish guards:
 
 ```
 python -m pytest tests/ -q

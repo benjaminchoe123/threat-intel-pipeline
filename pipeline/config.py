@@ -20,3 +20,5 @@ SKILL_FILE = ROOT / "skills" / "threat-analyst.md"
 LOOKBACK_DAYS = int(os.getenv("LOOKBACK_DAYS", "7"))
 MAX_ENRICH_PER_RUN = int(os.getenv("MAX_ENRICH_PER_RUN", "15"))
 ABUSECH_AUTH_KEY = os.getenv("ABUSECH_AUTH_KEY", "")
+VT_API_KEY = os.getenv("VT_API_KEY", "")
+ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "")

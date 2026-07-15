@@ -14,7 +14,8 @@ drafted for human approval before publishing to GitHub + LinkedIn.
   Claude output). Never skip or weaken the audit trail.
 - Nothing publishes without explicit human approval via `python -m pipeline.publish`.
   Do not add auto-publish paths.
-- Secrets live in `.env` only (gitignored). Currently just `ABUSECH_AUTH_KEY`.
+- Secrets live in `.env` only (gitignored): `ABUSECH_AUTH_KEY`, `VT_API_KEY`,
+  `ABUSEIPDB_API_KEY`. All optional — each missing key just disables its lookup/feed.
 - `data/`, `logs/`, `.env`, `vault/reports/drafts/` are gitignored — unapproved drafts and
   raw data never reach GitHub.
 - Vault notes are machine-generated; fix generation code, don't hand-edit notes (except

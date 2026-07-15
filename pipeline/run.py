@@ -9,7 +9,7 @@ import argparse
 import json
 from datetime import date
 
-from . import audit, config, enrich, notes
+from . import audit, config, enrich, notes, reputation
 from .sources import kev, mta_rss, threatfox, urlhaus
 from .state import State
 
@@ -39,16 +39,20 @@ def _quarantine(item, note_text, errors):
     return path
 
 
-def process_item(item, state, skill_text, today, runner=enrich.run_claude):
+def process_item(item, state, skill_text, today, runner=enrich.run_claude,
+                 reputation_fn=reputation.default_reputation):
     """Enrich one new item into a vault note. Returns 'written' or 'quarantined'."""
     raw_path = _save_raw(item)
-    prompt = enrich.build_prompt(item, skill_text, today)
+    reputation_block, reputation_lookups = reputation_fn(item)
+    prompt = enrich.build_prompt(item, skill_text, today, reputation=reputation_block)
     record = {
         "source": item["source"],
         "external_id": item["external_id"],
         "content_hash": item["content_hash"],
         "raw_snapshot": str(raw_path),
     }
+    if reputation_lookups:
+        record["reputation_lookups"] = reputation_lookups
 
     note_text, engine_meta, ok, errors, meta = "", {}, False, ["not run"], {}
     for attempt in (1, 2):  # one retry on validation failure
