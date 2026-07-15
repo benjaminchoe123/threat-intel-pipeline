@@ -16,6 +16,7 @@ Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 - [[threats/2026-07-15-ScreenConnect-themed-malware-distribution-on-137.184.133.198-—-2-new-IOCs-(URLhaus,-2026-07-15)]] — **medium**
 - [[threats/2026-07-15-ScreenConnect-themed-malware-distribution-on-104.131.86.222-—-2-new-IOCs-(URLhaus,-2026-07-15)]] — **medium** ⚑ flagged
 - [[threats/2026-07-15-Oracle-E-Business-Suite-Improper-Privilege-Management-Vulnerability-(CVE-2026-46817)]] — **critical**
+- [[threats/2026-07-15-KNX-Protocol-Connection-Authorization-Flaw-Lets-Attackers-Purge-and-Lock-Building-Automation-Devices-(CVE-2023-4346)]] — **high**
 - [[threats/2026-07-15-iCagenda-Unrestricted-File-Upload-(CVE-2026-48939)]] — **high**
 - [[threats/2026-07-15-CVE-2026-56164-—-Microsoft-SharePoint-Server-unauthenticated-privilege-escalation-(KEV)]] — **critical**
 - [[threats/2026-07-15-CVE-2026-56155-—-Microsoft-AD-FS-local-privilege-escalation-(KEV)]] — **high**
@@ -32,7 +33,7 @@ See [[review-queue]] — 2 flagged item(s).
 
 | metric | value |
 |---|---|
-| total threat notes | 12 |
+| total threat notes | 13 |
 | malware families tracked | 2 |
 | ATT&CK techniques seen | 10 |
 | last run | 2026-07-15 |
