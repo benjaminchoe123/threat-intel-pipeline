@@ -82,6 +82,8 @@ def _read_frontmatter(path):
 def update_dashboards(vault_dir, today=None):
     """Regenerate home.md and review-queue.md from vault contents."""
     vault_dir = Path(vault_dir)
+    # A run in which every item failed still reaches here with no vault on disk.
+    (vault_dir / "threats").mkdir(parents=True, exist_ok=True)
     today = today or date.today()
     threats = []
     for path in sorted((vault_dir / "threats").glob("*.md"), reverse=True):

@@ -36,6 +36,15 @@ does not mean it is benign.
 """
 
 
+RETRY_SECTION = """
+
+Your previous attempt was rejected by the output validator:
+{errors}
+
+Fix exactly these problems and return the corrected note. Everything else about \
+the task is unchanged."""
+
+
 def build_prompt(item, skill_text, ingest_date, reputation=None):
     reputation_section = REPUTATION_SECTION.format(block=reputation) if reputation else ""
     return PROMPT_TEMPLATE.format(
@@ -46,6 +55,16 @@ def build_prompt(item, skill_text, ingest_date, reputation=None):
         url=item["url"],
         reputation_section=reputation_section,
     )
+
+
+def build_retry_prompt(prompt, errors):
+    """Re-ask with the validator's complaints attached.
+
+    The original retry re-sent a byte-identical prompt, so a deterministic
+    format failure failed identically twice at double the cost.
+    """
+    listed = "\n".join(f"- {e}" for e in errors)
+    return prompt + RETRY_SECTION.format(errors=listed)
 
 
 def run_claude(prompt, timeout=300):
