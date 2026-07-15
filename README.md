@@ -59,6 +59,9 @@ Each threat note wikilinks the malware families, MITRE ATT&CK techniques, and th
 actors it references; stub pages are auto-created so Obsidian's graph view shows the real
 relationships — which families use which techniques, which CVEs cluster where.
 
+<!-- Screenshot: open vault/ in Obsidian → graph view → screenshot to docs/graph-view.png,
+then swap this comment for: ![Obsidian graph view of the threat vault](docs/graph-view.png) -->
+
 ## Setup
 
 ```powershell
