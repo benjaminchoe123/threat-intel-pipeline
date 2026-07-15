@@ -72,6 +72,20 @@ def test_slug_is_length_capped():
     assert len(slug) <= notes.MAX_SLUG_LEN
 
 
+def test_a_real_kev_title_is_not_truncated():
+    """Found by a live run: an 80-char cap cut this mid-CVE, leaving a filename
+    ending in "(CVE-2026-46" — which reads as data corruption."""
+    title = "Oracle E-Business Suite Improper Privilege Management Vulnerability (CVE-2026-46817)"
+    assert notes.slugify(title).endswith("(CVE-2026-46817)")
+
+
+def test_truncation_prefers_a_word_boundary():
+    slug = notes.slugify("Some-Very-Long-Threat-Title " + "segment " * 40)
+    assert len(slug) <= notes.MAX_SLUG_LEN
+    assert not slug.endswith("-")
+    assert "segmen" not in slug.split("-")[-1] or slug.split("-")[-1] == "segment"
+
+
 def test_slug_strips_trailing_dots_and_spaces():
     # Windows silently drops these, so "x." and "x" collide on one file.
     assert not notes.slugify("Report v1.").endswith(".")

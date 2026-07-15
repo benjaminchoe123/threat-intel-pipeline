@@ -1,0 +1,94 @@
+{
+  "name": "Threat vault coverage — 2026-07-15",
+  "versions": {
+    "layer": "4.5",
+    "navigator": "5.1.0",
+    "attack": "17"
+  },
+  "domain": "enterprise-attack",
+  "description": "Techniques observed in the threat-intel vault. Score = number of threat notes citing the technique, so this shows observed activity, not ATT&CK coverage in the abstract.",
+  "filters": {
+    "platforms": []
+  },
+  "sorting": 3,
+  "layout": {
+    "layout": "side",
+    "showID": true,
+    "showName": true
+  },
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1190",
+      "score": 7,
+      "comment": "Exploit Public-Facing Application: 7 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1068",
+      "score": 3,
+      "comment": "Exploitation for Privilege Escalation: 3 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1105",
+      "score": 2,
+      "comment": "Ingress Tool Transfer: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1219",
+      "score": 2,
+      "comment": "Remote Access Tools: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1056.001",
+      "score": 1,
+      "comment": "Keylogging: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059",
+      "score": 1,
+      "comment": "Command and Scripting Interpreter: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071",
+      "score": 1,
+      "comment": "Application Layer Protocol: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.001",
+      "score": 1,
+      "comment": "Web Protocols: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1505.003",
+      "score": 1,
+      "comment": "Web Shell: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1555.003",
+      "score": 1,
+      "comment": "Credentials from Web Browsers: 1 note(s) in the vault",
+      "enabled": true
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ffe766",
+      "#ff6666"
+    ],
+    "minValue": 0,
+    "maxValue": 7
+  },
+  "legendItems": [],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#dddddd",
+  "selectTechniquesAcrossTactics": true
+}

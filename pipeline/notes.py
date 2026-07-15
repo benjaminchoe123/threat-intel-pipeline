@@ -15,7 +15,9 @@ from . import attack
 _UNSAFE = re.compile(r'[/\\:*?"<>|#^\[\]]+')
 
 FALLBACK_SLUG = "untitled"
-MAX_SLUG_LEN = 80  # keep full paths clear of Windows' MAX_PATH
+# Keeps a full path clear of Windows' 260-char MAX_PATH while leaving room for a
+# typical CVE title. An 80-char cap cut "…Vulnerability-(CVE-2026-46817)" mid-CVE.
+MAX_SLUG_LEN = 120
 
 # Reserved on Windows regardless of extension: CON.md cannot be created.
 _RESERVED = {
@@ -23,6 +25,22 @@ _RESERVED = {
     *(f"COM{n}" for n in range(1, 10)),
     *(f"LPT{n}" for n in range(1, 10)),
 }
+
+
+def _truncate(slug):
+    """Cap length, preferring a word boundary.
+
+    A hard cut left "…Vulnerability-(CVE-2026-46" — a filename ending in half a
+    CVE id reads as data corruption. Backing up to the last separator only when
+    it costs little keeps the name honest about where it stops.
+    """
+    if len(slug) <= MAX_SLUG_LEN:
+        return slug
+    cut = slug[:MAX_SLUG_LEN]
+    last_sep = cut.rfind("-")
+    if last_sep >= int(MAX_SLUG_LEN * 0.6):
+        cut = cut[:last_sep]
+    return cut.rstrip("-")
 
 
 def slugify(title):
@@ -34,8 +52,7 @@ def slugify(title):
     slug = _UNSAFE.sub(" ", str(title))
     slug = re.sub(r"\s+", "-", slug.strip())
     slug = re.sub(r"-{2,}", "-", slug)
-    if len(slug) > MAX_SLUG_LEN:
-        slug = slug[:MAX_SLUG_LEN].rstrip("-")
+    slug = _truncate(slug)
     # Windows silently drops trailing dots/spaces, so "x." and "x" collide.
     slug = slug.strip(". ")
     if not slug:
@@ -56,6 +73,7 @@ def wikilink_name(name):
     safe = safe.strip(". ")
     if len(safe) > MAX_SLUG_LEN:
         safe = safe[:MAX_SLUG_LEN].strip(" -")
+    safe = safe.strip(". ")
     if not safe:
         return FALLBACK_SLUG
     if safe.upper() in _RESERVED:
