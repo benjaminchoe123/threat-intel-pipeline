@@ -1,16 +1,21 @@
 """abuse.ch ThreatFox — recent IOCs, aggregated per malware family per day."""
 
+import logging
 from datetime import date
 
 import requests
 
-from .abusech import family_day_items
+from .abusech import check_query_status, family_day_items
+
+log = logging.getLogger(__name__)
 
 API_URL = "https://threatfox-api.abuse.ch/api/v1/"
 PORTAL_URL = "https://threatfox.abuse.ch/"
 
 
 def aggregate_threatfox(data, today=None):
+    if not check_query_status(data, "threatfox"):
+        return []
     today = today or date.today()
     day = today.isoformat()
     groups = {}
@@ -31,7 +36,7 @@ def aggregate_threatfox(data, today=None):
 
 def fetch(auth_key, today=None, session=None):
     if not auth_key:
-        print("threatfox: no ABUSECH_AUTH_KEY set — skipping (see .env.example)")
+        log.warning("threatfox: no ABUSECH_AUTH_KEY set — skipping (see .env.example)")
         return []
     http = session or requests
     resp = http.post(
