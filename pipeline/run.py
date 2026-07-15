@@ -10,10 +10,16 @@ import json
 from datetime import date
 
 from . import audit, config, enrich, notes
-from .sources import kev
+from .sources import kev, mta_rss, threatfox, urlhaus
 from .state import State
 
-SOURCES = {"kev": lambda: kev.fetch(config.LOOKBACK_DAYS)}
+# Priority order: KEV first, then analysis writeups, then IOC clusters.
+SOURCES = {
+    "kev": lambda: kev.fetch(config.LOOKBACK_DAYS),
+    "mta": lambda: mta_rss.fetch(config.LOOKBACK_DAYS),
+    "threatfox": lambda: threatfox.fetch(config.ABUSECH_AUTH_KEY),
+    "urlhaus": lambda: urlhaus.fetch(config.ABUSECH_AUTH_KEY),
+}
 
 
 def _save_raw(item):
@@ -78,7 +84,7 @@ def main(argv=None):
     skill_text = config.SKILL_FILE.read_text(encoding="utf-8")
     state = State(config.STATE_DB)
     today = date.today().isoformat()
-    sources = [args.source] if args.source else sorted(SOURCES)
+    sources = [args.source] if args.source else list(SOURCES)  # dict order = priority
 
     totals = {"written": 0, "quarantined": 0, "seen": 0, "updated": 0}
     enriched = 0
