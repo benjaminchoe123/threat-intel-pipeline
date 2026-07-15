@@ -15,7 +15,7 @@ from datetime import date
 from . import audit, config, enrich, navigator, notes, reputation
 from .cache import ReputationCache
 from .runlock import LockHeld, RunLock
-from .sources import kev, mta_rss, threatfox, urlhaus
+from .sources import kev, malwarebazaar, mta_rss, threatfox, urlhaus
 from .state import State
 
 log = logging.getLogger(__name__)
@@ -26,6 +26,7 @@ SOURCES = {
     "mta": lambda: mta_rss.fetch(config.LOOKBACK_DAYS),
     "threatfox": lambda: threatfox.fetch(config.ABUSECH_AUTH_KEY),
     "urlhaus": lambda: urlhaus.fetch(config.ABUSECH_AUTH_KEY),
+    "malwarebazaar": lambda: malwarebazaar.fetch(config.ABUSECH_AUTH_KEY),
 }
 
 # A quarantined item stays re-processable so a skill/validator fix can rescue it,
