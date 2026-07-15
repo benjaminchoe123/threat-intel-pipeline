@@ -56,6 +56,21 @@ def _save_raw(item):
     return path
 
 
+def is_enrichable(item):
+    """False for items with no usable source content.
+
+    An ingestion failure must never become a threat note. A malformed RSS entry
+    produced an empty item; the model correctly wrote "ingestion failure
+    suspected" instead of inventing a threat, but the pipeline then filed that
+    notice in vault/threats/ as a threat and recorded the item as seen. The model
+    behaved well; the pipeline did not. Catch it before spending a claude call.
+    """
+    if not str(item.get("external_id") or "").strip():
+        return False
+    raw = item.get("raw") or {}
+    return any(str(v).strip() for v in raw.values() if v is not None)
+
+
 def _quarantine(item, note_text, errors):
     config.QUARANTINE_DIR.mkdir(parents=True, exist_ok=True)
     path = config.QUARANTINE_DIR / f"{notes.slugify(item['external_id'])}.md"
@@ -96,7 +111,7 @@ def process_item(item, state, skill_text, today, runner=None, reputation_fn=None
         note_text, errors, meta = "", ["not run"], {}
         for attempt in (1, 2):
             note_text, engine_meta = runner(prompt)
-            ok, errors, meta = enrich.validate_note(note_text)
+            ok, errors, meta = enrich.validate_note(note_text, item=item, today=today)
             record["attempts"].append({
                 "attempt": attempt, "engine": engine_meta, "validation_ok": ok,
                 "validation_errors": errors, "claude_output": note_text,
@@ -155,7 +170,8 @@ def main(argv=None):
     today = date.today().isoformat()
     sources = [args.source] if args.source else list(SOURCES)  # dict order = priority
 
-    totals = {"written": 0, "quarantined": 0, "seen": 0, "updated": 0, "failed": 0}
+    totals = {"written": 0, "quarantined": 0, "seen": 0, "updated": 0, "failed": 0,
+              "skipped_empty": 0}
     enriched = 0
     with State(config.STATE_DB) as state, ReputationCache(config.STATE_DB) as rep_cache:
         reputation_fn = lambda item: reputation.default_reputation(item, cache=rep_cache)  # noqa: E731
@@ -180,6 +196,12 @@ def main(argv=None):
                     # Source edited an existing entry — record it, skip re-enrichment for now.
                     state.record(item["source"], item["external_id"], item["content_hash"])
                     totals["updated"] += 1
+                    continue
+                if not is_enrichable(item):
+                    log.warning("%s:%r has no usable source content — skipping "
+                                "(ingestion failure, not a threat)",
+                                item["source"], item["external_id"])
+                    totals["skipped_empty"] += 1
                     continue
                 if enriched >= args.limit:
                     log.info("enrichment cap (%d) reached — remaining items carry over",

@@ -67,22 +67,36 @@ def build_retry_prompt(prompt, errors):
     return prompt + RETRY_SECTION.format(errors=listed)
 
 
+class EnrichmentError(RuntimeError):
+    """The enrichment engine did not return a usable result."""
+
+
 def run_claude(prompt, timeout=300):
     """Run headless Claude Code. Returns (note_text, engine_meta)."""
-    result = subprocess.run(
-        ["claude", "-p", "--output-format", "json"],
-        input=prompt,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        timeout=timeout,
-        shell=False,
-    )
+    try:
+        result = subprocess.run(
+            ["claude", "-p", "--output-format", "json"],
+            input=prompt,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=timeout,
+            shell=False,
+        )
+    except subprocess.TimeoutExpired:
+        raise EnrichmentError(f"claude -p timed out after {timeout}s")
     if result.returncode != 0:
-        raise RuntimeError(f"claude -p failed ({result.returncode}): {result.stderr[:500]}")
-    payload = json.loads(result.stdout)
+        raise EnrichmentError(f"claude -p failed ({result.returncode}): {result.stderr[:500]}")
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as e:
+        raise EnrichmentError(f"claude -p stdout was not valid JSON: {e}")
     engine_meta = {k: payload.get(k) for k in ("duration_ms", "num_turns", "total_cost_usd")}
     engine_meta["is_error"] = payload.get("is_error", False)
+    if engine_meta["is_error"]:
+        # is_error was captured and then ignored: `result` holds the error string,
+        # which flowed into validation, failed, and burned the retry.
+        raise EnrichmentError(f"claude -p reported an error: {str(payload.get('result', ''))[:300]}")
     return payload.get("result", ""), engine_meta
 
 REQUIRED_FIELDS = [
@@ -98,18 +112,26 @@ LIST_FIELDS = ["cve", "family", "attack_techniques", "actors", "tags"]
 def _strip_code_fence(text):
     text = text.strip()
     if text.startswith("```"):
-        first_newline = text.index("\n")
+        # .index raised ValueError on a degenerate fence with no newline, which
+        # turned a validation failure into a run-killing exception.
+        first_newline = text.find("\n")
+        if first_newline == -1:
+            return "\n"
         text = text[first_newline + 1:]
         if text.rstrip().endswith("```"):
             text = text.rstrip()[: -3]
     return text.strip() + "\n"
 
 
-def validate_note(text):
+def validate_note(text, item=None, today=None):
     """Validate an enrichment output. Returns (ok, errors, meta).
 
     meta is the parsed frontmatter dict (possibly partial) so callers can use
     it for filenames, stubs, and audit records.
+
+    Passing item/today enables the cross-checks: `source` and `date` are only
+    tested for presence otherwise, yet both flow straight into the note filename
+    and the dashboard's 7-day window, so a hallucinated value is load-bearing.
     """
     errors = []
     text = _strip_code_fence(text)
@@ -142,6 +164,13 @@ def validate_note(text):
     for tid in meta.get("attack_techniques") or []:
         if not ATTACK_ID_RE.match(str(tid)):
             errors.append(f"invalid attack_techniques id: {tid!r} (expected T#### or T####.###)")
+
+    if item is not None and "source" in meta and meta["source"] != item["source"]:
+        errors.append(
+            f"source is {meta['source']!r} but this item came from {item['source']!r}"
+        )
+    if today is not None and "date" in meta and str(meta["date"]) != str(today):
+        errors.append(f"date is {meta['date']!r} but the ingest date is {today!r}")
 
     meta["_body"] = text
     return (not errors), errors, meta

@@ -147,15 +147,50 @@ def test_quarantine_gives_up_after_max_attempts(tmp_path):
     assert state.check("kev", "CVE-2026-1111", "abc") == "seen"
 
 
+# --- an ingestion failure is not a threat ---------------------------------
+
+def test_empty_item_is_skipped_before_spending_a_claude_call(monkeypatch):
+    """The live incident: a malformed RSS entry produced an empty item, and the
+    pipeline filed the model's "ingestion failure suspected" notice into
+    vault/threats/ as a threat note and marked the item seen."""
+    calls = []
+    monkeypatch.setattr(run, "SOURCES", {
+        "mta": lambda: [{"source": "mta", "external_id": "", "title": "", "url": "",
+                         "raw": {"title": "", "link": "", "summary": ""},
+                         "content_hash": "e3b0c4"}],
+    })
+    monkeypatch.setattr(run.enrich, "run_claude", lambda p: calls.append(1) or (VALID_NOTE, {}))
+    monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))
+
+    totals = run.main([])
+    assert calls == [], "must not spend a claude call on an empty item"
+    assert totals["skipped_empty"] == 1
+    assert totals["written"] == 0
+    assert not list((config.VAULT_DIR / "threats").glob("*.md"))
+
+
+@pytest.mark.parametrize("item,expected", [
+    ({"external_id": "CVE-1", "raw": {"cveID": "CVE-1"}}, True),
+    ({"external_id": "", "raw": {"title": "x"}}, False),
+    ({"external_id": "   ", "raw": {"title": "x"}}, False),
+    ({"external_id": "x", "raw": {}}, False),
+    ({"external_id": "x", "raw": {"title": "", "link": None}}, False),
+])
+def test_is_enrichable(item, expected):
+    assert run.is_enrichable(item) is expected
+
+
 # --- one failure never takes down the run ---------------------------------
 
 def test_one_bad_source_does_not_stop_the_others(tmp_path, monkeypatch):
     def exploding_source():
         raise RuntimeError("CISA returned 503")
 
+    # The surviving source emits a kev item because VALID_NOTE declares
+    # source: kev, and validate_note now cross-checks the two.
     monkeypatch.setattr(run, "SOURCES", {
         "kev": exploding_source,
-        "mta": lambda: [_item("mta", "https://example.com/post")],
+        "mta": lambda: [_item("kev", "CVE-2026-2222")],
     })
     monkeypatch.setattr(run.enrich, "run_claude", _ok_runner)
     monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))

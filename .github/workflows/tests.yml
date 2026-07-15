@@ -6,7 +6,14 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    # windows-latest matters more than ubuntu here: the pipeline is deployed on
+    # Windows via Task Scheduler with cp1252 stdout, so the encoding and
+    # reserved-filename bugs this suite now covers were invisible to Linux-only CI.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
