@@ -8,7 +8,7 @@ jobs:
   pytest:
     # windows-latest matters more than ubuntu here: the pipeline is deployed on
     # Windows via Task Scheduler with cp1252 stdout, so the encoding and
-    # reserved-filename bugs this suite now covers were invisible to Linux-only CI.
+    # reserved-filename bugs this suite covers were invisible to Linux-only CI.
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -21,3 +21,27 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - run: python -m pytest tests/ -q
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m ruff check pipeline/ tests/ conftest.py
+
+  secrets:
+    # This repo is public and .env holds four API keys. .gitignore is the control
+    # that keeps them out; this is the backstop for the day someone force-adds a
+    # file or pastes a key into a note. A leaked key is not recoverable by
+    # deleting the commit — scanning history is the only honest check.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # scan full history, not just the tip
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

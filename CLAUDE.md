@@ -26,5 +26,20 @@ drafted for human approval before publishing to GitHub + LinkedIn.
 - Daily run: `python -m pipeline.run` (options: `--source kev --limit 3` for testing)
 - Weekly draft: `python -m pipeline.weekly_report`
 - Publish approved report: `python -m pipeline.publish <YYYY-Wnn>`
-- Tests: `python -m pytest tests/`
+- Audit summary (cost, quarantine rate, cache hits): `python -m pipeline.stats --days 30`
+- ATT&CK Navigator layer: `python -m pipeline.navigator` → `vault/docs/attack-layer.json`
+- Refresh the ATT&CK catalog after a MITRE release: `python -m pipeline.attack --refresh`
+- Tests: `python -m pytest tests/` · Lint: `python -m ruff check pipeline/ tests/`
 - venv: `.venv\Scripts\Activate.ps1`
+
+## Invariants worth not breaking
+
+- `conftest.py` redirects every writable config path to tmp_path for all tests. Without it
+  pytest writes into the real audit log — that already happened once.
+- Reputation is prompt context, never a precondition: a provider failure must degrade the
+  note, not stop the run.
+- A feed returning zero items must be distinguishable from a feed that is broken. abuse.ch
+  signals failure in `query_status` with HTTP 200 — check the envelope, never the status.
+- Only `written` marks an item seen. `quarantined`/`failed` carry over so a fix can rescue
+  them; quarantine is a queue, not a dead end.
+- `python -m pipeline.run` takes a lock. Two concurrent runs double-enrich and double-bill.

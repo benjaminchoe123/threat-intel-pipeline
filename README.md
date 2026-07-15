@@ -17,6 +17,7 @@ flowchart LR
         KEV["CISA KEV"]
         TF["ThreatFox"]
         UH["URLhaus"]
+        MB["MalwareBazaar"]
         MTA["MTA blog RSS"]
     end
     feeds --> ING["Ingest + normalize<br/>(Python)"]
@@ -158,7 +159,8 @@ filename bugs the suite now covers were invisible to Linux-only CI.
 **Feeds**
 
 - [CISA Known Exploited Vulnerabilities](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
-- [abuse.ch ThreatFox](https://threatfox.abuse.ch/) / [URLhaus](https://urlhaus.abuse.ch/)
+- [abuse.ch ThreatFox](https://threatfox.abuse.ch/) / [URLhaus](https://urlhaus.abuse.ch/) /
+  [MalwareBazaar](https://bazaar.abuse.ch/) — one Auth-Key drives all three
 - [Malware-Traffic-Analysis.net](https://www.malware-traffic-analysis.net/)
 
 **Enrichment**

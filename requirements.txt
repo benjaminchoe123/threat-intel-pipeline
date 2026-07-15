@@ -1,5 +1,16 @@
-requests>=2.32
-feedparser>=6.0
-PyYAML>=6.0
-python-dotenv>=1.0
-pytest>=8.0
+# Compatible-release pins (~=): patch and minor updates, including security
+# fixes, are still picked up — but a new major cannot land silently and change
+# behavior mid-run.
+#
+# Lower bounds alone (requests>=2.32) meant `pip install -r` on a fresh clone or
+# in CI could resolve to anything released since, including a breaking major. For
+# a pipeline whose output is analysis someone might act on, "it built differently
+# on a different day" is not an acceptable failure mode.
+requests~=2.34
+feedparser~=6.0
+PyYAML~=6.0
+python-dotenv~=1.2
+
+# Dev
+pytest~=9.1
+ruff~=0.15
