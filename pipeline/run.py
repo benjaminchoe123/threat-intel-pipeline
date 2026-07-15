@@ -13,6 +13,7 @@ import traceback
 from datetime import date
 
 from . import audit, config, enrich, notes, reputation
+from .cache import ReputationCache
 from .sources import kev, mta_rss, threatfox, urlhaus
 from .state import State
 
@@ -156,7 +157,8 @@ def main(argv=None):
 
     totals = {"written": 0, "quarantined": 0, "seen": 0, "updated": 0, "failed": 0}
     enriched = 0
-    with State(config.STATE_DB) as state:
+    with State(config.STATE_DB) as state, ReputationCache(config.STATE_DB) as rep_cache:
+        reputation_fn = lambda item: reputation.default_reputation(item, cache=rep_cache)  # noqa: E731
         for name in sources:
             if enriched >= args.limit:
                 break  # cap already hit: don't pay the HTTP cost of more feeds
@@ -185,7 +187,8 @@ def main(argv=None):
                     break
                 log.info("enriching %s:%s — %s", item["source"], item["external_id"],
                          item["title"])
-                totals[process_item(item, state, skill_text, today)] += 1
+                totals[process_item(item, state, skill_text, today,
+                                    reputation_fn=reputation_fn)] += 1
                 enriched += 1
 
     notes.update_dashboards(config.VAULT_DIR)
