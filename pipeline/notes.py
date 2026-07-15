@@ -10,6 +10,8 @@ from pathlib import Path
 
 import yaml
 
+from . import attack
+
 _UNSAFE = re.compile(r'[/\\:*?"<>|#^\[\]]+')
 
 FALLBACK_SLUG = "untitled"
@@ -104,6 +106,14 @@ def _technique_url(tid):
     return "https://attack.mitre.org/techniques/" + tid.replace(".", "/")
 
 
+def _technique_extra(tid):
+    """Stub body for a technique. Filename stays the bare ID so [[techniques/T1190]]
+    resolves; the official name goes in the body, where it aids reading the graph."""
+    name = attack.name_for(tid)
+    heading = f"**{name}**\n\n" if name else ""
+    return f"{heading}MITRE ATT&CK: {_technique_url(tid)}\n\n"
+
+
 def _stub(title, kind, extra=""):
     today = date.today().isoformat()
     return (
@@ -121,7 +131,7 @@ def ensure_stubs(vault_dir, meta):
     wanted = (
         [("families", name, "") for name in meta.get("family") or []]
         + [
-            ("techniques", tid, f"MITRE ATT&CK: {_technique_url(tid)}\n\n")
+            ("techniques", tid, _technique_extra(tid))
             for tid in meta.get("attack_techniques") or []
         ]
         + [("actors", name, "") for name in meta.get("actors") or []]

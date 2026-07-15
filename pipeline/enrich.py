@@ -6,6 +6,8 @@ import subprocess
 
 import yaml
 
+from . import attack
+
 PROMPT_TEMPLATE = """You are enriching one threat intelligence item for an Obsidian \
 knowledge base. Follow the analyst instructions below exactly.
 
@@ -164,6 +166,10 @@ def validate_note(text, item=None, today=None):
     for tid in meta.get("attack_techniques") or []:
         if not ATTACK_ID_RE.match(str(tid)):
             errors.append(f"invalid attack_techniques id: {tid!r} (expected T#### or T####.###)")
+        elif not attack.is_known(tid):
+            errors.append(
+                f"attack_techniques id {tid!r} is not a known MITRE ATT&CK technique"
+            )
 
     if item is not None and "source" in meta and meta["source"] != item["source"]:
         errors.append(
