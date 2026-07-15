@@ -12,7 +12,7 @@ import sys
 import traceback
 from datetime import date
 
-from . import audit, config, enrich, notes, reputation
+from . import audit, config, enrich, navigator, notes, reputation
 from .cache import ReputationCache
 from .sources import kev, mta_rss, threatfox, urlhaus
 from .state import State
@@ -214,6 +214,11 @@ def main(argv=None):
                 enriched += 1
 
     notes.update_dashboards(config.VAULT_DIR)
+    try:
+        navigator.export(config.VAULT_DIR)
+    except Exception:
+        # A visualization is not worth failing a run over.
+        log.exception("ATT&CK Navigator layer export failed")
     log.info("done: %s", totals)
     return totals
 
