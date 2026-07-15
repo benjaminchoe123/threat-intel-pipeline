@@ -101,6 +101,65 @@ def _unique_note_path(directory, base, body):
 
 _STUB_KINDS = {"families": "family", "techniques": "technique", "actors": "actor"}
 
+# Live queries over note frontmatter. Dataview is a community plugin, so until it
+# is installed these render as plain code blocks — inert, never broken. The static
+# lists above stay regardless, so the dashboard is useful either way.
+DATAVIEW_SECTION = """
+## Live queries
+
+*(These need the [Dataview](https://github.com/blacksmithgu/obsidian-dataview)
+community plugin: Settings → Community plugins → Browse → "Dataview" → Install →
+Enable. Until then they show as code blocks.)*
+
+### Everything by severity
+
+```dataview
+TABLE severity, confidence, choice(flagged, "yes", "no") AS flagged, date
+FROM "threats"
+SORT choice(severity = "critical", 0, choice(severity = "high", 1,
+     choice(severity = "medium", 2, 3))) ASC, date DESC
+```
+
+### Needs review (low confidence or flagged)
+
+```dataview
+TABLE severity, confidence, date
+FROM "threats"
+WHERE flagged = true OR confidence = "low"
+SORT date DESC
+```
+
+### High and critical in the last 30 days
+
+```dataview
+TABLE severity, family, cve, date
+FROM "threats"
+WHERE (severity = "high" OR severity = "critical")
+  AND date >= date(today) - dur(30 days)
+SORT date DESC
+```
+
+### Most-seen ATT&CK techniques
+
+```dataview
+TABLE length(rows) AS notes
+FROM "threats"
+FLATTEN attack_techniques AS technique
+GROUP BY technique
+SORT length(rows) DESC
+```
+
+### Malware families seen
+
+```dataview
+TABLE length(rows) AS notes, min(rows.date) AS "first seen"
+FROM "threats"
+FLATTEN family AS fam
+GROUP BY fam
+SORT length(rows) DESC
+```
+"""
+
 
 def _technique_url(tid):
     return "https://attack.mitre.org/techniques/" + tid.replace(".", "/")
@@ -203,6 +262,7 @@ def update_dashboards(vault_dir, today=None):
         f"| malware families tracked | {count('families')} |\n"
         f"| ATT&CK techniques seen | {count('techniques')} |\n"
         f"| last run | {today.isoformat()} |\n"
+        + DATAVIEW_SECTION
     )
     _write_atomic(vault_dir / "home.md", home)
 

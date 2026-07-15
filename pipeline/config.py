@@ -1,9 +1,12 @@
 """Central paths and tunables."""
 
+import logging
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+log = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / ".env")
@@ -17,8 +20,30 @@ LOGS_DIR = ROOT / "logs"
 AUDIT_DIR = LOGS_DIR / "audit"
 SKILL_FILE = ROOT / "skills" / "threat-analyst.md"
 
-LOOKBACK_DAYS = int(os.getenv("LOOKBACK_DAYS", "7"))
-MAX_ENRICH_PER_RUN = int(os.getenv("MAX_ENRICH_PER_RUN", "15"))
+def _positive_int(name, default):
+    """Read a positive int from the environment, falling back on nonsense.
+
+    int(os.getenv(...)) raised ValueError at *import*, so one typo in .env broke
+    every entry point including the test suite, with a traceback that pointed at
+    config.py rather than at the typo.
+    """
+    raw = os.getenv(name)
+    if raw is None or not str(raw).strip():
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        log.warning("%s=%r is not an integer — using %d", name, raw, default)
+        return default
+    if value < 1:
+        log.warning("%s=%d must be >= 1 — using %d", name, value, default)
+        return default
+    return value
+
+
+LOOKBACK_DAYS = _positive_int("LOOKBACK_DAYS", 7)
+MAX_ENRICH_PER_RUN = _positive_int("MAX_ENRICH_PER_RUN", 15)
 ABUSECH_AUTH_KEY = os.getenv("ABUSECH_AUTH_KEY", "")
 VT_API_KEY = os.getenv("VT_API_KEY", "")
 ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "")
+GREYNOISE_API_KEY = os.getenv("GREYNOISE_API_KEY", "")
