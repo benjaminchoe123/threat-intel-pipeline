@@ -13,15 +13,7 @@ ITEM = {
 }
 
 
-def _redirect_dirs(monkeypatch, tmp_path):
-    monkeypatch.setattr(config, "RAW_DIR", tmp_path / "raw")
-    monkeypatch.setattr(config, "QUARANTINE_DIR", tmp_path / "quarantine")
-    monkeypatch.setattr(config, "VAULT_DIR", tmp_path / "vault")
-    monkeypatch.setattr(config, "AUDIT_DIR", tmp_path / "audit")
-
-
-def test_process_item_embeds_reputation_block_in_prompt(tmp_path, monkeypatch):
-    _redirect_dirs(monkeypatch, tmp_path)
+def test_process_item_embeds_reputation_block_in_prompt(tmp_path):
     prompts = []
 
     def runner(prompt):
@@ -36,9 +28,7 @@ def test_process_item_embeds_reputation_block_in_prompt(tmp_path, monkeypatch):
     assert "VT-REPUTATION-BLOCK" in prompts[0]
 
 
-def test_process_item_audit_records_vt_lookups(tmp_path, monkeypatch):
-    _redirect_dirs(monkeypatch, tmp_path)
-
+def test_process_item_audit_records_vt_lookups(tmp_path):
     def runner(prompt):
         return VALID_NOTE, {"is_error": False}
 
@@ -47,12 +37,11 @@ def test_process_item_audit_records_vt_lookups(tmp_path, monkeypatch):
         ITEM, State(tmp_path / "state.db"), "skill", "2026-07-15",
         runner=runner, reputation_fn=lambda item: ("block", lookups),
     )
-    audit_text = next((tmp_path / "audit").glob("*.jsonl")).read_text(encoding="utf-8")
+    audit_text = next(config.AUDIT_DIR.glob("*.jsonl")).read_text(encoding="utf-8")
     assert '"1.2.3.4"' in audit_text
 
 
-def test_process_item_works_without_reputation(tmp_path, monkeypatch):
-    _redirect_dirs(monkeypatch, tmp_path)
+def test_process_item_works_without_reputation(tmp_path):
     prompts = []
 
     def runner(prompt):

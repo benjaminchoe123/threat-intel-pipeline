@@ -1,17 +1,21 @@
 """abuse.ch URLhaus — recent malware-distribution URLs, aggregated per family
 (first tag) per day."""
 
+import logging
 from datetime import date
 
-import requests
+from ..http import default_session
+from .abusech import check_query_status, family_day_items
 
-from .abusech import family_day_items
+log = logging.getLogger(__name__)
 
 API_URL = "https://urlhaus-api.abuse.ch/v1/urls/recent/limit/1000/"
 PORTAL_URL = "https://urlhaus.abuse.ch/"
 
 
 def aggregate_urlhaus(data, today=None):
+    if not check_query_status(data, "urlhaus"):
+        return []
     today = today or date.today()
     day = today.isoformat()
     groups = {}
@@ -33,9 +37,9 @@ def aggregate_urlhaus(data, today=None):
 
 def fetch(auth_key, today=None, session=None):
     if not auth_key:
-        print("urlhaus: no ABUSECH_AUTH_KEY set — skipping (see .env.example)")
+        log.warning("urlhaus: no ABUSECH_AUTH_KEY set — skipping (see .env.example)")
         return []
-    http = session or requests
+    http = session or default_session()
     resp = http.get(API_URL, headers={"Auth-Key": auth_key}, timeout=60)
     resp.raise_for_status()
     return aggregate_urlhaus(resp.json(), today)

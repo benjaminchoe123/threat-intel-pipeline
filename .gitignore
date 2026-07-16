@@ -1,11 +1,14 @@
 # Secrets
 .env
 
-# Runtime data (state db, raw source snapshots, quarantine)
-data/
+# Runtime data (state db, raw source snapshots, quarantine).
+# Anchored: an unanchored "data/" also matched pipeline/data/, which holds the
+# committed ATT&CK catalog — CI would have silently fallen back to regex-only
+# technique validation.
+/data/
 
 # Logs and audit trail
-logs/
+/logs/
 
 # Unapproved report drafts — never published
 vault/reports/drafts/

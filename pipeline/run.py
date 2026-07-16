@@ -7,11 +7,18 @@ Usage:
 
 import argparse
 import json
+import logging
+import sys
+import traceback
 from datetime import date
 
-from . import audit, config, enrich, notes, reputation
-from .sources import kev, mta_rss, threatfox, urlhaus
+from . import audit, config, enrich, navigator, notes, reputation
+from .cache import ReputationCache
+from .runlock import LockHeld, RunLock
+from .sources import kev, malwarebazaar, mta_rss, threatfox, urlhaus
 from .state import State
+
+log = logging.getLogger(__name__)
 
 # Priority order: KEV first, then analysis writeups, then IOC clusters.
 SOURCES = {
@@ -19,7 +26,28 @@ SOURCES = {
     "mta": lambda: mta_rss.fetch(config.LOOKBACK_DAYS),
     "threatfox": lambda: threatfox.fetch(config.ABUSECH_AUTH_KEY),
     "urlhaus": lambda: urlhaus.fetch(config.ABUSECH_AUTH_KEY),
+    "malwarebazaar": lambda: malwarebazaar.fetch(config.ABUSECH_AUTH_KEY),
 }
+
+# A quarantined item stays re-processable so a skill/validator fix can rescue it,
+# but not forever — after this many failed runs it is marked seen and left alone.
+MAX_QUARANTINE_ATTEMPTS = 3
+
+
+def _utf8_stream():
+    """Log to UTF-8 stdout.
+
+    Windows stdout here is cp1252 even when redirected, and scripts/run_daily.ps1
+    redirects. A ThreatFox family name or MTA title containing CJK, an em-dash, or
+    an emoji therefore crashed the run on the log line itself — before enrichment,
+    with nothing written anywhere.
+    """
+    stream = sys.stdout
+    try:
+        stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        pass  # not a real tty (pytest capture); the default is fine
+    return stream
 
 
 def _save_raw(item):
@@ -28,6 +56,21 @@ def _save_raw(item):
     path = raw_dir / f"{notes.slugify(item['external_id'])}.json"
     path.write_text(json.dumps(item["raw"], indent=2, ensure_ascii=False), encoding="utf-8")
     return path
+
+
+def is_enrichable(item):
+    """False for items with no usable source content.
+
+    An ingestion failure must never become a threat note. A malformed RSS entry
+    produced an empty item; the model correctly wrote "ingestion failure
+    suspected" instead of inventing a threat, but the pipeline then filed that
+    notice in vault/threats/ as a threat and recorded the item as seen. The model
+    behaved well; the pipeline did not. Catch it before spending a claude call.
+    """
+    if not str(item.get("external_id") or "").strip():
+        return False
+    raw = item.get("raw") or {}
+    return any(str(v).strip() for v in raw.values() if v is not None)
 
 
 def _quarantine(item, note_text, errors):
@@ -39,44 +82,84 @@ def _quarantine(item, note_text, errors):
     return path
 
 
-def process_item(item, state, skill_text, today, runner=enrich.run_claude,
-                 reputation_fn=reputation.default_reputation):
-    """Enrich one new item into a vault note. Returns 'written' or 'quarantined'."""
-    raw_path = _save_raw(item)
-    reputation_block, reputation_lookups = reputation_fn(item)
-    prompt = enrich.build_prompt(item, skill_text, today, reputation=reputation_block)
+def process_item(item, state, skill_text, today, runner=None, reputation_fn=None):
+    """Enrich one new item into a vault note.
+
+    Returns 'written', 'quarantined', or 'failed'. Never raises: an item that
+    blows up must not take the rest of the run with it. The audit record is
+    written in a finally, so a `claude` call that was made and billed always
+    leaves a trace — including when it is the thing that threw.
+
+    runner/reputation_fn resolve at call time, not as default arguments: bound as
+    defaults they captured the real `claude -p` at import, so monkeypatching the
+    module attribute silently had no effect and tests billed live API calls.
+    """
+    runner = runner or enrich.run_claude
+    reputation_fn = reputation_fn or reputation.default_reputation
     record = {
         "source": item["source"],
         "external_id": item["external_id"],
         "content_hash": item["content_hash"],
-        "raw_snapshot": str(raw_path),
+        "attempts": [],
     }
-    if reputation_lookups:
-        record["reputation_lookups"] = reputation_lookups
+    outcome, ok = "failed", False
+    try:
+        record["raw_snapshot"] = str(_save_raw(item))
+        reputation_block, reputation_lookups = reputation_fn(item)
+        if reputation_lookups:
+            record["reputation_lookups"] = reputation_lookups
 
-    note_text, engine_meta, ok, errors, meta = "", {}, False, ["not run"], {}
-    for attempt in (1, 2):  # one retry on validation failure
-        note_text, engine_meta = runner(prompt)
-        ok, errors, meta = enrich.validate_note(note_text)
-        record.update(
-            {"attempt": attempt, "engine": engine_meta, "validation_ok": ok,
-             "validation_errors": errors, "claude_output": note_text}
-        )
+        prompt = enrich.build_prompt(item, skill_text, today, reputation=reputation_block)
+        note_text, errors, meta = "", ["not run"], {}
+        for attempt in (1, 2):
+            note_text, engine_meta = runner(prompt)
+            ok, errors, meta = enrich.validate_note(note_text, item=item, today=today)
+            record["attempts"].append({
+                "attempt": attempt, "engine": engine_meta, "validation_ok": ok,
+                "validation_errors": errors, "claude_output": note_text,
+            })
+            if ok:
+                break
+            prompt = enrich.build_retry_prompt(prompt, errors)
+
+        record["validation_ok"] = ok
         if ok:
-            break
+            record["note_path"] = str(notes.write_threat_note(config.VAULT_DIR, meta))
+            notes.ensure_stubs(config.VAULT_DIR, meta)
+            outcome = "written"
+        else:
+            record["quarantine_path"] = str(_quarantine(item, note_text, errors))
+            outcome = "quarantined"
+    except Exception as e:
+        record["error"] = str(e)
+        record["error_type"] = type(e).__name__
+        record["traceback"] = traceback.format_exc()
+        log.exception("enrichment failed for %s:%s", item["source"], item["external_id"])
+        outcome = "failed"
+    finally:
+        record["outcome"] = outcome
+        audit.log_enrichment(config.AUDIT_DIR, record)
 
-    if ok:
-        note_path = notes.write_threat_note(config.VAULT_DIR, meta)
-        notes.ensure_stubs(config.VAULT_DIR, meta)
-        record["note_path"] = str(note_path)
-        outcome = "written"
-    else:
-        record["quarantine_path"] = str(_quarantine(item, note_text, errors))
-        outcome = "quarantined"
-
-    audit.log_enrichment(config.AUDIT_DIR, record)
-    state.record(item["source"], item["external_id"], item["content_hash"])
+    _update_state(item, state, outcome)
     return outcome
+
+
+def _update_state(item, state, outcome):
+    """Mark an item seen only once there is nothing more to try.
+
+    'failed' is transient (network, timeout) and 'quarantined' may be rescued by
+    a skill or validator fix, so neither is recorded — both carry over to the next
+    run. Previously every outcome was recorded, which made quarantine a dead end.
+    """
+    source, ext, digest = item["source"], item["external_id"], item["content_hash"]
+    if outcome == "written":
+        state.record(source, ext, digest)
+        return
+    if outcome == "quarantined":
+        attempts = state.record_quarantine(source, ext)
+        if attempts >= MAX_QUARANTINE_ATTEMPTS:
+            log.warning("%s:%s quarantined %d times — giving up", source, ext, attempts)
+            state.record(source, ext, digest)
 
 
 def main(argv=None):
@@ -86,34 +169,83 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     skill_text = config.SKILL_FILE.read_text(encoding="utf-8")
-    state = State(config.STATE_DB)
     today = date.today().isoformat()
     sources = [args.source] if args.source else list(SOURCES)  # dict order = priority
 
-    totals = {"written": 0, "quarantined": 0, "seen": 0, "updated": 0}
+    totals = {"written": 0, "quarantined": 0, "seen": 0, "updated": 0, "failed": 0,
+              "skipped_empty": 0}
     enriched = 0
-    for name in sources:
-        for item in SOURCES[name]():
-            status = state.check(item["source"], item["external_id"], item["content_hash"])
-            if status == "seen":
-                totals["seen"] += 1
-                continue
-            if status == "updated":
-                # Source edited an existing entry — record it, skip re-enrichment for now.
-                state.record(item["source"], item["external_id"], item["content_hash"])
-                totals["updated"] += 1
-                continue
+    with State(config.STATE_DB) as state, ReputationCache(config.STATE_DB) as rep_cache:
+        reputation_fn = lambda item: reputation.default_reputation(item, cache=rep_cache)  # noqa: E731
+        for name in sources:
             if enriched >= args.limit:
-                print(f"enrichment cap ({args.limit}) reached — remaining items carry over")
-                break
-            print(f"enriching {item['source']}:{item['external_id']} — {item['title']}")
-            totals[process_item(item, state, skill_text, today)] += 1
-            enriched += 1
+                break  # cap already hit: don't pay the HTTP cost of more feeds
+            try:
+                items = list(SOURCES[name]())
+            except Exception:
+                # One feed being down must not cost us the others: KEV is first in
+                # SOURCES, so a CISA 5xx used to mean nothing else ran that day.
+                log.exception("source %s failed to fetch — skipping", name)
+                totals["failed"] += 1
+                continue
+
+            for item in items:
+                status = state.check(item["source"], item["external_id"], item["content_hash"])
+                if status == "seen":
+                    totals["seen"] += 1
+                    continue
+                if status == "updated":
+                    # Source edited an existing entry — record it, skip re-enrichment for now.
+                    state.record(item["source"], item["external_id"], item["content_hash"])
+                    totals["updated"] += 1
+                    continue
+                if not is_enrichable(item):
+                    log.warning("%s:%r has no usable source content — skipping "
+                                "(ingestion failure, not a threat)",
+                                item["source"], item["external_id"])
+                    totals["skipped_empty"] += 1
+                    continue
+                if enriched >= args.limit:
+                    log.info("enrichment cap (%d) reached — remaining items carry over",
+                             args.limit)
+                    break
+                log.info("enriching %s:%s — %s", item["source"], item["external_id"],
+                         item["title"])
+                totals[process_item(item, state, skill_text, today,
+                                    reputation_fn=reputation_fn)] += 1
+                enriched += 1
 
     notes.update_dashboards(config.VAULT_DIR)
-    print(f"done: {totals}")
+    try:
+        navigator.export(config.VAULT_DIR)
+    except Exception:
+        # A visualization is not worth failing a run over.
+        log.exception("ATT&CK Navigator layer export failed")
+    log.info("done: %s", totals)
     return totals
 
 
+def cli(argv=None):
+    """Entry point: exit non-zero if anything failed, so the scheduler can tell.
+
+    main() used to return totals that __main__ discarded, so the process exited 0
+    even when every item failed — a broken run looked exactly like a quiet day.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
+        stream=_utf8_stream(),
+    )
+    try:
+        with RunLock(config.DATA_DIR / "run.lock"):
+            totals = main(argv)
+    except LockHeld as e:
+        # Not a failure: the work is already being done. Exit 0 so a scheduler
+        # catch-up landing on a manual run doesn't look like a broken pipeline.
+        log.warning("%s", e)
+        sys.exit(0)
+    sys.exit(1 if totals["failed"] else 0)
+
+
 if __name__ == "__main__":
-    main()
+    cli()

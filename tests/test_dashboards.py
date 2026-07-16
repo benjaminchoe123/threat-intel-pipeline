@@ -49,3 +49,21 @@ def test_review_queue_lists_only_flagged(tmp_path):
     queue = (tmp_path / "review-queue.md").read_text(encoding="utf-8")
     assert "[[threats/2026-07-14-Uncertain-Threat]]" in queue
     assert "Normal-Threat" not in queue
+
+
+def test_home_includes_dataview_queries(tmp_path):
+    _seed(tmp_path)
+    update_dashboards(tmp_path)
+    home = (tmp_path / "home.md").read_text(encoding="utf-8")
+    assert "```dataview" in home
+    assert 'FROM "threats"' in home
+
+
+def test_static_lists_survive_alongside_the_queries(tmp_path):
+    """Dataview is a community plugin. Until it is installed the queries are inert
+    code blocks, so the hand-built lists must still carry the dashboard."""
+    _seed(tmp_path)
+    update_dashboards(tmp_path)
+    home = (tmp_path / "home.md").read_text(encoding="utf-8")
+    assert "| total threat notes | 2 |" in home
+    assert "[[threats/2026-07-15-Normal-Threat]]" in home
