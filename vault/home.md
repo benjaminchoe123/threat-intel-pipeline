@@ -2,7 +2,7 @@
 title: Threat Intel Home
 type: dashboard
 tags: [dashboard]
-updated: 2026-07-15
+updated: 2026-07-16
 ---
 
 # Threat Intel Dashboard
@@ -36,7 +36,7 @@ See [[review-queue]] — 2 flagged item(s).
 | total threat notes | 13 |
 | malware families tracked | 2 |
 | ATT&CK techniques seen | 10 |
-| last run | 2026-07-15 |
+| last run | 2026-07-16 |
 
 ## Live queries
 

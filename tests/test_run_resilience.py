@@ -7,6 +7,7 @@ audit.log_enrichment sat after everything that could throw — left no trace of 
 """
 
 import json
+from datetime import date
 
 import pytest
 
@@ -14,6 +15,13 @@ from pipeline import config, run
 from pipeline.state import State
 
 from test_validate import VALID_NOTE
+
+# run.main() cross-checks a note's `date` against date.today(), not a fixed
+# "today" argument (unlike process_item, called directly elsewhere in this
+# file with today="2026-07-15" pinned). VALID_NOTE's date is hardcoded, so it
+# goes stale the day after it's written; tests that go through main() need a
+# copy with today's real date instead.
+VALID_NOTE_TODAY = VALID_NOTE.replace("date: 2026-07-15", f"date: {date.today().isoformat()}")
 
 ITEM = {
     "source": "kev", "external_id": "CVE-2026-1111", "title": "ExampleServer RCE",
@@ -35,7 +43,7 @@ def _audit_records():
 
 
 def _ok_runner(prompt):
-    return VALID_NOTE, {"is_error": False}
+    return VALID_NOTE_TODAY, {"is_error": False}
 
 
 def test_runner_default_resolves_at_call_time(tmp_path, monkeypatch):
@@ -207,7 +215,7 @@ def test_one_bad_item_does_not_stop_the_rest(tmp_path, monkeypatch):
         calls.append(prompt)
         if len(calls) == 1:
             raise RuntimeError("transient")
-        return VALID_NOTE, {"is_error": False}
+        return VALID_NOTE_TODAY, {"is_error": False}
 
     monkeypatch.setattr(run, "SOURCES", {
         "kev": lambda: [_item("kev", "CVE-1"), _item("kev", "CVE-2")],
