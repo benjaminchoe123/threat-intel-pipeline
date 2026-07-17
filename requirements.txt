@@ -10,6 +10,7 @@ requests~=2.34
 feedparser~=6.0
 PyYAML~=6.0
 python-dotenv~=1.2
+stix2~=3.0
 
 # Dev
 pytest~=9.1

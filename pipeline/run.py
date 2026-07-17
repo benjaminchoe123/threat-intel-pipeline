@@ -12,7 +12,7 @@ import sys
 import traceback
 from datetime import date
 
-from . import audit, config, enrich, navigator, notes, reputation
+from . import audit, config, enrich, navigator, notes, reputation, stix
 from .cache import ReputationCache
 from .runlock import LockHeld, RunLock
 from .sources import kev, malwarebazaar, mta_rss, threatfox, urlhaus
@@ -221,6 +221,11 @@ def main(argv=None):
     except Exception:
         # A visualization is not worth failing a run over.
         log.exception("ATT&CK Navigator layer export failed")
+    try:
+        stix.export(config.VAULT_DIR)
+    except Exception:
+        # Same standard: an interchange artifact is not worth failing a run over.
+        log.exception("STIX bundle export failed")
     log.info("done: %s", totals)
     return totals
 

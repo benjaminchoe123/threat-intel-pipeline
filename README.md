@@ -113,6 +113,13 @@ Every run also exports `vault/docs/attack-layer.json`, an
 technique by how many notes cite it (Open Existing Layer → Upload from Local). It shows
 observed activity, not ATT&CK coverage in the abstract — the only claim the data supports.
 
+Every run also exports one [STIX 2.1](https://oasis-open.github.io/cti-documentation/) bundle
+per threat note to `vault/docs/stix/` — Vulnerability/Malware/AttackPattern/Indicator objects
+built only from what the note already asserts (schema-validated frontmatter plus the Observed
+IOCs table), so it can feed MISP, TheHive/Cortex, or any other STIX-consuming platform.
+Malware, technique, and CVE objects get deterministic IDs (UUIDv5, not random), so the same
+family or CVE resolves to the same object across every note that cites it. See `pipeline/stix.py`.
+
 ![Obsidian graph view of the threat vault](vault/docs/graph-view.png)
 
 *Threat notes (the long dated titles) linked to the ATT&CK techniques and malware families

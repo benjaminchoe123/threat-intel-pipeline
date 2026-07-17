@@ -228,6 +228,27 @@ def test_one_bad_item_does_not_stop_the_rest(tmp_path, monkeypatch):
     assert totals["written"] == 1
 
 
+def test_run_writes_a_stix_bundle_for_a_cve_note(tmp_path, monkeypatch):
+    monkeypatch.setattr(run, "SOURCES", {"kev": lambda: [_item("kev", "CVE-1")]})
+    monkeypatch.setattr(run.enrich, "run_claude", _ok_runner)
+    monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))
+
+    run.main([])
+    bundles = list((config.VAULT_DIR / "docs" / "stix").glob("*.json"))
+    assert len(bundles) == 1
+
+
+def test_stix_export_failure_does_not_fail_the_run(tmp_path, monkeypatch):
+    monkeypatch.setattr(run, "SOURCES", {"kev": lambda: [_item("kev", "CVE-1")]})
+    monkeypatch.setattr(run.enrich, "run_claude", _ok_runner)
+    monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))
+    monkeypatch.setattr(run.stix, "export",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+
+    totals = run.main([])
+    assert totals["written"] == 1
+
+
 def test_dashboards_still_update_after_a_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(run, "SOURCES", {"kev": lambda: [_item("kev", "CVE-1")]})
     monkeypatch.setattr(run.enrich, "run_claude",

@@ -1,0 +1,113 @@
+{
+    "type": "bundle",
+    "id": "bundle--c9b6a4b6-d4ca-4000-bbee-41323968c7c5",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a",
+            "created": "2026-07-17T01:56:20.900519Z",
+            "modified": "2026-07-17T01:56:20.900519Z",
+            "name": "Agent Tesla",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d",
+            "created": "2026-07-17T01:56:20.900519Z",
+            "modified": "2026-07-17T01:56:20.900519Z",
+            "name": "Application Layer Protocol",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071",
+                    "external_id": "T1071"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--253b88e5-4766-53b1-9520-0f6c297cf933",
+            "created": "2026-07-17T01:56:20.900519Z",
+            "modified": "2026-07-17T01:56:20.900519Z",
+            "name": "Keylogging",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1056.001",
+                    "external_id": "T1056.001"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--aeebc887-2c83-5630-96de-5c6825efc46a",
+            "created": "2026-07-17T01:56:20.900519Z",
+            "modified": "2026-07-17T01:56:20.900519Z",
+            "name": "Credentials from Web Browsers",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1555.003",
+                    "external_id": "T1555.003"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--45aa323d-995a-5a3a-818b-75d1a2e648b6",
+            "created": "2026-07-17T01:56:20.901641Z",
+            "modified": "2026-07-17T01:56:20.901641Z",
+            "name": "domain: ftp.fundacionpiaz.org",
+            "description": "Botnet C2 (ThreatFox confidence 100; linked to a MalwareBazaar sample)",
+            "pattern": "[domain-name:value = 'ftp.fundacionpiaz.org']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-15T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--561cfcda-17f8-5c51-8db6-c7fd31eea614",
+            "created": "2026-07-17T01:56:20.902663Z",
+            "modified": "2026-07-17T01:56:20.902663Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--45aa323d-995a-5a3a-818b-75d1a2e648b6",
+            "target_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--505a003b-d489-5488-bab2-3b8e2cb956b8",
+            "created": "2026-07-17T01:56:20.902663Z",
+            "modified": "2026-07-17T01:56:20.902663Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a",
+            "target_ref": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--88fb6f06-4aa8-5a53-b66b-a9913b79c623",
+            "created": "2026-07-17T01:56:20.902994Z",
+            "modified": "2026-07-17T01:56:20.902994Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a",
+            "target_ref": "attack-pattern--253b88e5-4766-53b1-9520-0f6c297cf933"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--8b913d0c-0ce0-578f-a77b-21c0de0f754d",
+            "created": "2026-07-17T01:56:20.902994Z",
+            "modified": "2026-07-17T01:56:20.902994Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a",
+            "target_ref": "attack-pattern--aeebc887-2c83-5630-96de-5c6825efc46a"
+        }
+    ]
+}
