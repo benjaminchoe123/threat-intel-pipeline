@@ -13,6 +13,9 @@
 # Unapproved report drafts — never published
 vault/reports/drafts/
 
+# Upstream MISP-in-a-box, cloned locally per docs/MISP-SETUP.md — not our code
+/misp/
+
 # Python
 .venv/
 __pycache__/

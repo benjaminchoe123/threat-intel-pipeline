@@ -120,6 +120,11 @@ IOCs table), so it can feed MISP, TheHive/Cortex, or any other STIX-consuming pl
 Malware, technique, and CVE objects get deterministic IDs (UUIDv5, not random), so the same
 family or CVE resolves to the same object across every note that cites it. See `pipeline/stix.py`.
 
+Optionally, `pipeline/misp.py` pushes those same bundles into a [MISP](https://www.misp-project.org/)
+instance as events — IOCs as attributes, family/technique as tags. Off by default (unset
+`MISP_URL`/`MISP_API_KEY`, same optional-key pattern as VirusTotal/AbuseIPDB/GreyNoise); see
+`docs/MISP-SETUP.md` for standing up a local instance via Docker.
+
 ![Obsidian graph view of the threat vault](vault/docs/graph-view.png)
 
 *Threat notes (the long dated titles) linked to the ATT&CK techniques and malware families

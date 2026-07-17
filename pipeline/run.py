@@ -12,7 +12,7 @@ import sys
 import traceback
 from datetime import date
 
-from . import audit, config, enrich, navigator, notes, reputation, stix
+from . import audit, config, enrich, misp, navigator, notes, reputation, stix
 from .cache import ReputationCache
 from .runlock import LockHeld, RunLock
 from .sources import kev, malwarebazaar, mta_rss, threatfox, urlhaus
@@ -226,6 +226,12 @@ def main(argv=None):
     except Exception:
         # Same standard: an interchange artifact is not worth failing a run over.
         log.exception("STIX bundle export failed")
+    try:
+        misp.export_all(config.VAULT_DIR)
+    except Exception:
+        # MISP_URL/MISP_API_KEY unset is already a no-op inside export_all;
+        # this only catches an unexpected failure once it is configured.
+        log.exception("MISP export failed")
     log.info("done: %s", totals)
     return totals
 

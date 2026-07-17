@@ -249,6 +249,28 @@ def test_stix_export_failure_does_not_fail_the_run(tmp_path, monkeypatch):
     assert totals["written"] == 1
 
 
+def test_misp_export_is_a_noop_without_config(tmp_path, monkeypatch):
+    # MISP_URL/MISP_API_KEY unset by default in tests (conftest doesn't set
+    # them) — the run must not even attempt a network call.
+    monkeypatch.setattr(run, "SOURCES", {"kev": lambda: [_item("kev", "CVE-1")]})
+    monkeypatch.setattr(run.enrich, "run_claude", _ok_runner)
+    monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))
+
+    totals = run.main([])
+    assert totals["written"] == 1
+
+
+def test_misp_export_failure_does_not_fail_the_run(tmp_path, monkeypatch):
+    monkeypatch.setattr(run, "SOURCES", {"kev": lambda: [_item("kev", "CVE-1")]})
+    monkeypatch.setattr(run.enrich, "run_claude", _ok_runner)
+    monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))
+    monkeypatch.setattr(run.misp, "export_all",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("MISP down")))
+
+    totals = run.main([])
+    assert totals["written"] == 1
+
+
 def test_dashboards_still_update_after_a_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(run, "SOURCES", {"kev": lambda: [_item("kev", "CVE-1")]})
     monkeypatch.setattr(run.enrich, "run_claude",
