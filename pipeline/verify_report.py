@@ -106,3 +106,42 @@ def extract_and_verify_claims(draft_text, week_notes, runner=enrich.run_claude):
             "reason": c.get("reason", ""),
         })
     return results
+
+
+class VerificationResult:
+    def __init__(self, passed, entity_mismatches, claim_results, error=None):
+        self.passed = passed
+        self.entity_mismatches = entity_mismatches
+        self.claim_results = claim_results
+        self.error = error
+
+    def report(self):
+        lines = []
+        if self.error:
+            lines.append(f"verification call failed: {self.error}")
+        for m in self.entity_mismatches:
+            lines.append(f"ENTITY MISMATCH: {m}")
+        for c in self.claim_results:
+            if not c["supported"]:
+                lines.append(f"UNSUPPORTED CLAIM: {c['claim']} ({c['reason']})")
+        if not lines:
+            lines.append(
+                "verification passed: all cited IDs and claims are supported by "
+                "this week's notes."
+            )
+        return "\n".join(lines)
+
+
+def verify(draft_text, week_notes, runner=enrich.run_claude):
+    entities = extract_entities(draft_text)
+    mismatches = check_entities(entities, week_notes)
+    try:
+        claim_results = extract_and_verify_claims(draft_text, week_notes, runner=runner)
+    except VerificationError as e:
+        return VerificationResult(
+            passed=False, entity_mismatches=mismatches, claim_results=[], error=str(e)
+        )
+    unsupported = [c for c in claim_results if not c["supported"]]
+    passed = not mismatches and not unsupported
+    return VerificationResult(passed=passed, entity_mismatches=mismatches,
+                               claim_results=claim_results)
