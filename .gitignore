@@ -25,3 +25,6 @@ __pycache__/
 # Obsidian workspace state (keep vault content, not editor state)
 vault/.obsidian/workspace.json
 vault/.obsidian/workspace-mobile.json
+
+# Local git worktrees (superpowers:using-git-worktrees)
+.worktrees/
