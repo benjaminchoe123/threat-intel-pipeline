@@ -12,8 +12,14 @@ drafted for human approval before publishing to GitHub + LinkedIn.
   into every prompt. Edit it there only.
 - Every enrichment is audit-logged to `logs/audit/YYYY-MM-DD.jsonl` (source snapshot vs.
   Claude output). Never skip or weaken the audit trail.
-- Nothing publishes without explicit human approval via `python -m pipeline.publish`.
-  Do not add auto-publish paths.
+- Publishing happens two ways: explicit human approval via `python -m pipeline.publish
+  <week>`, or the unattended `python -m pipeline.publish --auto` path the Sunday scheduled
+  task runs automatically. Auto-publish is gated by `pipeline.verify_report`: every CVE/
+  ATT&CK ID the draft cites must trace to that week's real notes, and every other
+  substantive claim must be verified as supported by a Claude call before anything is
+  pushed. A verification failure blocks the push entirely and leaves the draft untouched
+  for manual review — it never fails silently. Never weaken or bypass this check, and
+  never let a broken verification call be treated as a pass.
 - Secrets live in `.env` only (gitignored): `ABUSECH_AUTH_KEY`, `VT_API_KEY`,
   `ABUSEIPDB_API_KEY`. All optional — each missing key just disables its lookup/feed.
 - `data/`, `logs/`, `.env`, `vault/reports/drafts/` are gitignored — unapproved drafts and
@@ -25,7 +31,8 @@ drafted for human approval before publishing to GitHub + LinkedIn.
 
 - Daily run: `python -m pipeline.run` (options: `--source kev --limit 3` for testing)
 - Weekly draft: `python -m pipeline.weekly_report`
-- Publish approved report: `python -m pipeline.publish <YYYY-Wnn>`
+- Publish approved report (human-reviewed): `python -m pipeline.publish <YYYY-Wnn>`
+- Auto-publish (verification-gated, unattended): `python -m pipeline.publish --auto`
 - Audit summary (cost, quarantine rate, cache hits): `python -m pipeline.stats --days 30`
 - ATT&CK Navigator layer: `python -m pipeline.navigator` → `vault/docs/attack-layer.json`
 - STIX 2.1 bundles (one per threat note): `python -m pipeline.stix` → `vault/docs/stix/`
