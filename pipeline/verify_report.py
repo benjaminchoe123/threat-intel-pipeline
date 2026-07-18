@@ -13,7 +13,10 @@ threat notes), so verification means checking claims against that reference,
 not sampling the model against itself.
 """
 
+import json
 import re
+
+from . import enrich
 
 CVE_RE = re.compile(r"CVE-\d{4}-\d{4,7}")
 ATTACK_ID_RE = re.compile(r"\bT\d{4}(?:\.\d{3})?\b")
@@ -43,3 +46,57 @@ def check_entities(entities, week_notes):
     for tid in sorted(entities["attack_techniques"] - known_techniques):
         mismatches.append(f"draft cites {tid}, which is not in any of this week's notes")
     return mismatches
+
+
+CLAIM_VERIFICATION_PROMPT = """You are fact-checking a draft weekly threat intelligence \
+report against the source threat notes it was supposed to be drafted from. Identify the \
+report's substantive claims (recommendations, "what changed" statements, severity framing, \
+any other assertion beyond a bare structured ID) and judge whether each is directly \
+supported by the source notes below.
+
+<source-notes count="{count}">
+{notes_blob}
+</source-notes>
+
+<draft-report>
+{draft_text}
+</draft-report>
+
+Return ONLY a JSON array, no markdown fence, no commentary. Each element:
+{{"claim": "<the atomic claim, quoted or closely paraphrased from the report>", \
+"supported": true or false, "reason": "<one sentence: what supports it, or why it doesn't>"}}
+
+If the report makes no claims beyond what the source notes already state, return []."""
+
+
+class VerificationError(RuntimeError):
+    """The verification call did not return a usable result.
+
+    Raised, never swallowed into a default pass — a broken checker must look
+    like a failed check, not like a clean one."""
+
+
+def extract_and_verify_claims(draft_text, week_notes, runner=enrich.run_claude):
+    notes_blob = "\n\n---\n\n".join(n["_body"] for n in week_notes)
+    prompt = CLAIM_VERIFICATION_PROMPT.format(
+        count=len(week_notes), notes_blob=notes_blob, draft_text=draft_text
+    )
+    response_text, _ = runner(prompt)
+    text = enrich._strip_code_fence(response_text)
+    try:
+        claims = json.loads(text)
+    except json.JSONDecodeError as e:
+        raise VerificationError(f"claim verification response was not valid JSON: {e}") from e
+    if not isinstance(claims, list):
+        raise VerificationError("claim verification response was not a JSON array")
+
+    results = []
+    for c in claims:
+        if not isinstance(c, dict) or "claim" not in c or "supported" not in c:
+            raise VerificationError(f"malformed claim entry: {c!r}")
+        results.append({
+            "claim": c["claim"],
+            "supported": bool(c["supported"]),
+            "reason": c.get("reason", ""),
+        })
+    return results
