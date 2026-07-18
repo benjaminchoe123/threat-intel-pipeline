@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import config, enrich
+from . import audit, config, enrich, verify_report, weekly_report
 
 LINKEDIN_PROMPT = """Below is my approved weekly threat intelligence report. Write a LinkedIn
 post summarizing it: first person, ~120-180 words, plain English, no hashtag spam (max 3),
@@ -40,6 +40,59 @@ def _git(*args):
     if result.returncode != 0:
         raise RuntimeError(f"git {' '.join(args)} failed: {result.stderr.strip()}")
     return result.stdout
+
+
+def _push_and_draft_linkedin(vault_dir, wid, git=_git, linkedin_runner=enrich.run_claude):
+    """Shared tail of both publish paths: commit, push, draft the LinkedIn text.
+
+    LinkedIn text used to only go to the clipboard via clip.exe, which needs an
+    interactive session and doesn't exist when Task Scheduler runs this
+    unattended — it's now always written to a file too.
+    """
+    final = approve_draft(vault_dir, wid)
+    git("add", str(final))
+    git("commit", "-m", f"Publish weekly threat report {wid}")
+    git("push")
+
+    post, _ = linkedin_runner(LINKEDIN_PROMPT.format(report=final.read_text(encoding="utf-8")))
+    linkedin_dir = Path(vault_dir) / "reports" / "linkedin-drafts"
+    linkedin_dir.mkdir(parents=True, exist_ok=True)
+    linkedin_path = linkedin_dir / f"{wid}.md"
+    linkedin_path.write_text(post, encoding="utf-8")
+    return final, post, linkedin_path
+
+
+def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
+                  linkedin_runner=enrich.run_claude):
+    """Unattended publish path, run right after the Sunday draft.
+
+    Never touches git unless verifier() passes — a failed check leaves the
+    draft exactly where it was (same "quarantine is a queue, not a dead end"
+    posture the rest of the pipeline uses for a bad enrichment) and logs why,
+    so a failure is never a silent no-op.
+    """
+    vault_dir = Path(vault_dir) if vault_dir else config.VAULT_DIR
+    draft = vault_dir / "reports" / "drafts" / f"{wid}-DRAFT.md"
+    if not draft.exists():
+        print(f"no draft found at {draft} — nothing to auto-publish")
+        return 0
+
+    week_notes = weekly_report.collect_week_notes(vault_dir)
+    result = verifier(draft.read_text(encoding="utf-8"), week_notes)
+    audit.log_enrichment(config.AUDIT_DIR, {
+        "type": "auto_publish_verification", "week": wid,
+        "passed": result.passed, "report": result.report(),
+    })
+    print(result.report())
+    if not result.passed:
+        print(f"verification failed — {wid} left unpublished, draft untouched")
+        return 1
+
+    final, post, linkedin_path = _push_and_draft_linkedin(
+        vault_dir, wid, git=git, linkedin_runner=linkedin_runner
+    )
+    print(f"auto-published {final.name} to GitHub; LinkedIn draft at {linkedin_path}")
+    return 0
 
 
 def main(argv=None):
