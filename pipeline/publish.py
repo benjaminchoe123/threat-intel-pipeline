@@ -7,6 +7,7 @@ Nothing in the pipeline calls this automatically — that is the point.
 
 import subprocess
 import sys
+from datetime import date
 from pathlib import Path
 
 from . import audit, config, enrich, verify_report, weekly_report
@@ -95,10 +96,14 @@ def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
     return 0
 
 
-def main(argv=None):
+def main(argv=None, confirm=input):
     argv = argv if argv is not None else sys.argv[1:]
+    if argv == ["--auto"]:
+        wid = weekly_report.week_id(date.today())
+        return auto_publish(wid)
+
     if len(argv) != 1:
-        print("usage: python -m pipeline.publish <YYYY-Wnn>")
+        print("usage: python -m pipeline.publish <YYYY-Wnn>  |  python -m pipeline.publish --auto")
         return 2
     wid = argv[0]
 
@@ -107,21 +112,22 @@ def main(argv=None):
         print(f"no draft found at {draft}")
         return 1
 
+    week_notes = weekly_report.collect_week_notes(config.VAULT_DIR)
+    result = verify_report.verify(draft.read_text(encoding="utf-8"), week_notes)
+    print("Verification:")
+    print(result.report())
+    print()
+
     print(f"About to publish {wid}: commit + push to GitHub and draft a LinkedIn post.")
     print(f"Have you reviewed and edited {draft}?")
-    if input("Type 'publish' to confirm: ").strip().lower() != "publish":
+    if confirm("Type 'publish' to confirm: ").strip().lower() != "publish":
         print("aborted — nothing published")
         return 1
 
-    final = approve_draft(config.VAULT_DIR, wid)
-    _git("add", str(final))
-    _git("commit", "-m", f"Publish weekly threat report {wid}")
-    _git("push")
-    print(f"pushed {final.name} to GitHub")
-
-    post, _ = enrich.run_claude(LINKEDIN_PROMPT.format(report=final.read_text(encoding="utf-8")))
+    final, post, linkedin_path = _push_and_draft_linkedin(config.VAULT_DIR, wid)
+    print(f"pushed {final.name} to GitHub; LinkedIn draft saved to {linkedin_path}")
     subprocess.run(["clip.exe"], input=post, text=True, encoding="utf-8")
-    print("\nLinkedIn post copied to clipboard — paste and post when ready:\n")
+    print("\nAlso copied to clipboard — paste and post when ready:\n")
     print(post)
     return 0
 

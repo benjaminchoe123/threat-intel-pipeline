@@ -1,6 +1,8 @@
+from datetime import date
+
 import pytest
 
-from pipeline import publish
+from pipeline import config, publish
 from pipeline.publish import approve_draft
 from pipeline.verify_report import VerificationResult
 
@@ -82,3 +84,67 @@ def test_auto_publish_never_touches_git_when_verification_fails(tmp_path):
     assert calls == []
     assert (tmp_path / "reports" / "drafts" / "2026-W29-DRAFT.md").exists()
     assert not (tmp_path / "reports" / "2026-W29.md").exists()
+
+
+def test_main_dispatches_auto_flag(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "VAULT_DIR", tmp_path)
+    called = {}
+
+    def fake_auto_publish(wid):
+        called["wid"] = wid
+        return 0
+
+    monkeypatch.setattr(publish, "auto_publish", fake_auto_publish)
+    code = publish.main(["--auto"])
+    assert code == 0
+    assert called["wid"] == publish.weekly_report.week_id(date.today())
+
+
+def test_main_shows_verification_before_confirming(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(config, "VAULT_DIR", tmp_path)
+    _write_draft(tmp_path, "2026-W29")
+
+    monkeypatch.setattr(
+        publish.verify_report, "verify",
+        lambda draft, notes: VerificationResult(
+            passed=False, entity_mismatches=["draft cites CVE-2099-0000, which is not in "
+                                              "any of this week's notes"],
+            claim_results=[],
+        ),
+    )
+    code = publish.main(["2026-W29"], confirm=lambda prompt: "no")
+    assert code == 1
+    assert "CVE-2099-0000" in capsys.readouterr().out
+
+
+def test_main_publishes_on_confirm_after_verification(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "VAULT_DIR", tmp_path)
+    _write_draft(tmp_path, "2026-W29")
+
+    monkeypatch.setattr(
+        publish.verify_report, "verify",
+        lambda draft, notes: VerificationResult(passed=True, entity_mismatches=[],
+                                                 claim_results=[]),
+    )
+    monkeypatch.setattr(publish, "_push_and_draft_linkedin",
+                        lambda vault_dir, wid, **kw: (
+                            tmp_path / "reports" / f"{wid}.md", "post text",
+                            tmp_path / "reports" / "linkedin-drafts" / f"{wid}.md",
+                        ))
+    monkeypatch.setattr(publish.subprocess, "run", lambda *a, **kw: None)
+
+    code = publish.main(["2026-W29"], confirm=lambda prompt: "publish")
+    assert code == 0
+
+
+def test_main_aborts_without_confirmation(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "VAULT_DIR", tmp_path)
+    _write_draft(tmp_path, "2026-W29")
+    monkeypatch.setattr(
+        publish.verify_report, "verify",
+        lambda draft, notes: VerificationResult(passed=True, entity_mismatches=[],
+                                                 claim_results=[]),
+    )
+    code = publish.main(["2026-W29"], confirm=lambda prompt: "no")
+    assert code == 1
+    assert (tmp_path / "reports" / "drafts" / "2026-W29-DRAFT.md").exists()
