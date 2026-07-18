@@ -1,0 +1,88 @@
+{
+    "type": "bundle",
+    "id": "bundle--0aa9693d-dca2-43cf-ad68-f8390cdc9286",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--cc11bf3e-05a0-5f2d-af63-2db5f54f0bff",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Evilginx",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--40570e15-1bb6-5af6-86bc-63ecd339c152",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Phishing",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1566",
+                    "external_id": "T1566"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--a96d0155-43db-5745-94f0-d89df80f013b",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Adversary-in-the-Middle",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1557",
+                    "external_id": "T1557"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--e5315584-0399-50af-8a39-7297a9f46291",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "ip:port: 194.32.142.225:3333",
+            "description": "Reported as `botnet_cc` for Evilginx, ThreatFox confidence 75%, first seen 2026-07-16 19:44:38 UTC",
+            "pattern": "[ipv4-addr:value = '194.32.142.225']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--5bc808ae-fa81-5d65-b218-3fdff7cbc8eb",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--e5315584-0399-50af-8a39-7297a9f46291",
+            "target_ref": "malware--cc11bf3e-05a0-5f2d-af63-2db5f54f0bff"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--0a4ec60e-a6b7-5e08-8fe3-d5a1f88f4592",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--cc11bf3e-05a0-5f2d-af63-2db5f54f0bff",
+            "target_ref": "attack-pattern--40570e15-1bb6-5af6-86bc-63ecd339c152"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--d26f9911-0882-5412-a594-43f2ea7c1746",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--cc11bf3e-05a0-5f2d-af63-2db5f54f0bff",
+            "target_ref": "attack-pattern--a96d0155-43db-5745-94f0-d89df80f013b"
+        }
+    ]
+}

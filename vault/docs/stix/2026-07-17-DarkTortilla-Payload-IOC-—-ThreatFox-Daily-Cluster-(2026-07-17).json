@@ -1,0 +1,40 @@
+{
+    "type": "bundle",
+    "id": "bundle--55005d1c-1455-4e40-bf18-1b104d0536f6",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--b9bade66-fff3-582f-825b-ffaa146f7e11",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "DarkTortilla",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--92cfc7e3-5d2d-5fec-bbf0-4c1043984509",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Obfuscated Files or Information",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1027",
+                    "external_id": "T1027"
+                }
+            ]
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--828f0acd-927e-5723-94b4-7b3a14c376f7",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--b9bade66-fff3-582f-825b-ffaa146f7e11",
+            "target_ref": "attack-pattern--92cfc7e3-5d2d-5fec-bbf0-4c1043984509"
+        }
+    ]
+}

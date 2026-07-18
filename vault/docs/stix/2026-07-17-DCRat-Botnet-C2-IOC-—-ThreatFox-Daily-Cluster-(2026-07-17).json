@@ -1,0 +1,63 @@
+{
+    "type": "bundle",
+    "id": "bundle--4cddd348-58fd-494a-a6cd-adbba5dae024",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--bec192de-74d7-57a7-99c3-184f1818646a",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "DCRat",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Application Layer Protocol",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071",
+                    "external_id": "T1071"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--40964913-6cfd-5720-86a7-592d39c6c30a",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "ip:port: 5.200.192.159:8848",
+            "description": "Botnet C2 for DCRat (ThreatFox confidence 75, first seen 2026-07-16 19:46:28 UTC). VirusTotal: 7/91 engines flag as malicious, 2 suspicious, 50 harmless, 32 undetected. AbuseIPDB: 0% abuse confidence, 0 reports in last 90 days.",
+            "pattern": "[ipv4-addr:value = '5.200.192.159']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--cad406f6-5729-54c1-9ad7-3f44b217197a",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--40964913-6cfd-5720-86a7-592d39c6c30a",
+            "target_ref": "malware--bec192de-74d7-57a7-99c3-184f1818646a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4ee0050f-db2a-59ef-a352-bb4b25a0a947",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--bec192de-74d7-57a7-99c3-184f1818646a",
+            "target_ref": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d"
+        }
+    ]
+}

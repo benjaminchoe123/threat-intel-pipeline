@@ -2,7 +2,7 @@
 title: Threat Intel Home
 type: dashboard
 tags: [dashboard]
-updated: 2026-07-16
+updated: 2026-07-17
 ---
 
 # Threat Intel Dashboard
@@ -11,6 +11,19 @@ Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 
 ## Last 7 days
 
+- [[threats/2026-07-17-Microsoft-SharePoint-Deserialization-Vulnerability-Actively-Exploited-(CVE-2026-58644)]] — **critical**
+- [[threats/2026-07-17-Havoc-C2-Infrastructure-—-ThreatFox-Daily-IOC-Cluster-(2026-07-17)]] — **high** ⚑ flagged
+- [[threats/2026-07-17-Ghost-RAT-Payload-IOC-—-ThreatFox-Daily-Cluster-(2026-07-17)]] — **medium** ⚑ flagged
+- [[threats/2026-07-17-Fortinet-FortiSandbox-OS-Command-Injection-Vulnerability-(CVE-2026-39808)]] — **critical**
+- [[threats/2026-07-17-FAKEUPDATES-(SocGholish)-Botnet-C2-&-Payload-Delivery-IOC-Cluster-—-ThreatFox-Daily-Cluster-(2026-07-17)]] — **high** ⚑ flagged
+- [[threats/2026-07-17-Evilginx-AiTM-Phishing-C2-—-ThreatFox-IOC-Cluster-(2026-07-17)]] — **medium** ⚑ flagged
+- [[threats/2026-07-17-DCRat-Botnet-C2-IOC-—-ThreatFox-Daily-Cluster-(2026-07-17)]] — **medium** ⚑ flagged
+- [[threats/2026-07-17-DarkTortilla-Payload-IOC-—-ThreatFox-Daily-Cluster-(2026-07-17)]] — **medium** ⚑ flagged
+- [[threats/2026-07-17-Cobalt-Strike-C2-Infrastructure-—-ThreatFox-Daily-IOC-Cluster-(2026-07-17)]] — **high** ⚑ flagged
+- [[threats/2026-07-17-ClearFake-Payload-Delivery-Domain-Cluster-—-ThreatFox-Daily-IOC-Cluster-(2026-07-17)]] — **high** ⚑ flagged
+- [[threats/2026-07-17-AsyncRAT-Botnet-C2-IOC-—-ThreatFox-Daily-Cluster-(2026-07-17)]] — **medium**
+- [[threats/2026-07-17-Aisuru-Botnet-C2-IOC-—-ThreatFox-Daily-Cluster-(2026-07-17)]] — **medium** ⚑ flagged
+- [[threats/2026-07-17-AdaptixC2-C2-Infrastructure-—-ThreatFox-Daily-IOC-Cluster-(2026-07-17)]] — **high** ⚑ flagged
 - [[threats/2026-07-15-SonicWall-SMA1000-Appliances-Server-Side-Request-Forgery-(CVE-2026-15409)]] — **high**
 - [[threats/2026-07-15-SonicWall-SMA1000-Appliances-Code-Injection-(CVE-2026-15410)]] — **high**
 - [[threats/2026-07-15-ScreenConnect-themed-malware-distribution-on-137.184.133.198-—-2-new-IOCs-(URLhaus,-2026-07-15)]] — **medium**
@@ -27,16 +40,16 @@ Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 
 ## Review queue
 
-See [[review-queue]] — 2 flagged item(s).
+See [[review-queue]] — 12 flagged item(s).
 
 ## Stats
 
 | metric | value |
 |---|---|
-| total threat notes | 13 |
-| malware families tracked | 2 |
-| ATT&CK techniques seen | 10 |
-| last run | 2026-07-16 |
+| total threat notes | 26 |
+| malware families tracked | 12 |
+| ATT&CK techniques seen | 18 |
+| last run | 2026-07-17 |
 
 ## Live queries
 

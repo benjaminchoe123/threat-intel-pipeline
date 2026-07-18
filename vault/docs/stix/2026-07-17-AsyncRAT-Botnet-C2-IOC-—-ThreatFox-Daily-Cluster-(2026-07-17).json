@@ -1,0 +1,132 @@
+{
+    "type": "bundle",
+    "id": "bundle--71cb8a94-8f79-4a45-afd1-d19b9ddb2313",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "name": "AsyncRAT",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "name": "Non-Standard Port",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1571",
+                    "external_id": "T1571"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--2ee8091d-7998-582e-b646-3a2e27444957",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "name": "ip:port: 45.32.90.122:6606",
+            "description": "botnet C2, first seen 2026-07-16 19:46:15 UTC",
+            "pattern": "[ipv4-addr:value = '45.32.90.122']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--0ea4c21d-0a04-54fb-81de-e271946394a2",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "name": "ip:port: 43.225.157.146:7707",
+            "description": "botnet C2, first seen 2026-07-16 19:46:09 UTC",
+            "pattern": "[ipv4-addr:value = '43.225.157.146']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--dd76380e-8356-5dc2-a675-33a6ba4b35b3",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "name": "ip:port: 217.60.241.10:8808",
+            "description": "botnet C2, first seen 2026-07-16 19:45:50 UTC",
+            "pattern": "[ipv4-addr:value = '217.60.241.10']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--cbdc6b5d-f93b-56e4-81d0-d3b87d0b641e",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "name": "domain: orthodontie-ge.ch",
+            "description": "botnet C2, first seen 2026-07-16 19:01:09 UTC",
+            "pattern": "[domain-name:value = 'orthodontie-ge.ch']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--1cdacdda-85ad-5f62-adc6-83dd93ab0f8d",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--2ee8091d-7998-582e-b646-3a2e27444957",
+            "target_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--c0b11c6a-8aae-5790-918a-7d5582995b9f",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--0ea4c21d-0a04-54fb-81de-e271946394a2",
+            "target_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--0228c36f-01f6-5d72-a545-5688f833f273",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--dd76380e-8356-5dc2-a675-33a6ba4b35b3",
+            "target_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--a26dae8a-6885-5bf4-a957-8feb0814ef6a",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--cbdc6b5d-f93b-56e4-81d0-d3b87d0b641e",
+            "target_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--53331c09-28b5-5e23-aabc-f0a65667937d",
+            "created": "2026-07-17T16:59:03.248593Z",
+            "modified": "2026-07-17T16:59:03.248593Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d",
+            "target_ref": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f"
+        }
+    ]
+}

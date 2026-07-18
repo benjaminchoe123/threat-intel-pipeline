@@ -1,0 +1,136 @@
+{
+    "type": "bundle",
+    "id": "bundle--8e097364-2d82-496b-81f1-98e38fde5f26",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "FAKEUPDATES",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--b28ca3fa-da51-5b72-9a41-39757e373075",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Drive-by Compromise",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1189",
+                    "external_id": "T1189"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--fa337839-f66e-5b50-90ee-420061870327",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Malicious File",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1204.002",
+                    "external_id": "T1204.002"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "Web Protocols",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071.001",
+                    "external_id": "T1071.001"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--16a07f33-3c4d-5a70-84fe-49c8be92f289",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "domain: up-to-date.paquetesparaorlando.com",
+            "description": "botnet_cc, ThreatFox confidence 100, first seen 2026-07-17 14:09:56 UTC",
+            "pattern": "[domain-name:value = 'up-to-date.paquetesparaorlando.com']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--6e0111ee-64ca-5a5d-834f-0d2ccfbd1951",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "name": "url: https://content-website-analytics.com/script.js",
+            "description": "payload_delivery, ThreatFox confidence 75, first seen 2026-07-17 06:36:21 UTC",
+            "pattern": "[url:value = 'https://content-website-analytics.com/script.js']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-17T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--79884661-faeb-55be-b11e-0df6c9b2b569",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--16a07f33-3c4d-5a70-84fe-49c8be92f289",
+            "target_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--c061b673-299e-5d22-bf5e-01a64c408064",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--6e0111ee-64ca-5a5d-834f-0d2ccfbd1951",
+            "target_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--1610e08d-75bd-5d34-9fb2-da1b78a93900",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
+            "target_ref": "attack-pattern--b28ca3fa-da51-5b72-9a41-39757e373075"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--65dd311d-12df-54c6-af64-c820051da980",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
+            "target_ref": "attack-pattern--fa337839-f66e-5b50-90ee-420061870327"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--0f328ab4-a1d1-57e2-9c4b-05fdd3722bb2",
+            "created": "2026-07-17T16:59:03.465253Z",
+            "modified": "2026-07-17T16:59:03.465253Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
+            "target_ref": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420"
+        }
+    ]
+}
