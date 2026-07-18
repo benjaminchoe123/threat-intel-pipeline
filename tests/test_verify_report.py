@@ -84,3 +84,10 @@ def test_extract_and_verify_claims_raises_on_malformed_entry():
         return ('[{"claim": "x"}]', {})  # missing "supported"
     with pytest.raises(VerificationError):
         extract_and_verify_claims("draft text", WEEK_NOTES, runner=fake_runner)
+
+
+def test_extract_and_verify_claims_raises_on_non_boolean_supported():
+    def fake_runner(prompt):
+        return ('[{"claim": "x", "supported": "false", "reason": "not a real bool"}]', {})
+    with pytest.raises(VerificationError):
+        extract_and_verify_claims("draft text", WEEK_NOTES, runner=fake_runner)

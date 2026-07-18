@@ -94,9 +94,15 @@ def extract_and_verify_claims(draft_text, week_notes, runner=enrich.run_claude):
     for c in claims:
         if not isinstance(c, dict) or "claim" not in c or "supported" not in c:
             raise VerificationError(f"malformed claim entry: {c!r}")
+        if not isinstance(c["supported"], bool):
+            supported_type = type(c["supported"]).__name__
+            raise VerificationError(
+                f"malformed claim entry: 'supported' must be a boolean, "
+                f"got {supported_type}"
+            )
         results.append({
             "claim": c["claim"],
-            "supported": bool(c["supported"]),
+            "supported": c["supported"],
             "reason": c.get("reason", ""),
         })
     return results
