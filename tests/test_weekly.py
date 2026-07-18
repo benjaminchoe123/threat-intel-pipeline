@@ -56,13 +56,14 @@ def test_draft_report_writes_draft_file(tmp_path):
 
 
 def test_draft_report_default_never_touches_real_todo(tmp_path, monkeypatch):
+    import pipeline.config as config
     import pipeline.weekly_report as wr
 
     _write(tmp_path, "recent.md", title="Recent", severity="high",
            date="2026-07-14", summary="Fresh threat.")
     sentinel = tmp_path / "real-todo.md"
     sentinel.write_text("# To-Do\n", encoding="utf-8")
-    monkeypatch.setattr(wr, "BRAIN_TODO", sentinel)
+    monkeypatch.setattr(config, "BRAIN_TODO", str(sentinel))
 
     wr.draft_report(tmp_path, today=date(2026, 7, 15),
                     runner=lambda p: ("# r\n", {}), todo_path=None)

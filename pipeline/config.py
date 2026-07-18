@@ -49,6 +49,9 @@ ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "")
 GREYNOISE_API_KEY = os.getenv("GREYNOISE_API_KEY", "")
 MISP_URL = os.getenv("MISP_URL", "")
 MISP_API_KEY = os.getenv("MISP_API_KEY", "")
+# Optional: path to a todo/task list to append a "review & publish" reminder to
+# after each weekly draft. Empty means unset — the reminder is skipped entirely.
+BRAIN_TODO = os.getenv("BRAIN_TODO", "")
 # Local/self-signed MISP deployments (e.g. the default misp-docker cert) need
 # this off; default stays True so a real cert isn't silently unverified.
 MISP_VERIFY_SSL = os.getenv("MISP_VERIFY_SSL", "true").strip().lower() not in ("false", "0", "")

@@ -4,14 +4,11 @@ Writes vault/reports/drafts/YYYY-Wnn-DRAFT.md — gitignored, so nothing reaches
 GitHub until a human approves it via pipeline.publish.
 """
 
-import os
 from datetime import date, timedelta
 from pathlib import Path
 
 from . import audit, config, enrich
 from .notes import _read_frontmatter
-
-BRAIN_TODO = Path(os.getenv("BRAIN_TODO", r"C:\Claude\Brain\todo.md"))
 
 REPORT_INSTRUCTIONS = """Draft a weekly threat intelligence report for a small-organization
 audience (an IT lead who is not a security specialist), based ONLY on the threat notes
@@ -103,4 +100,4 @@ def _add_review_todo(wid, path, todo_path):
 
 
 if __name__ == "__main__":
-    draft_report(config.VAULT_DIR, todo_path=BRAIN_TODO)
+    draft_report(config.VAULT_DIR, todo_path=Path(config.BRAIN_TODO) if config.BRAIN_TODO else None)
