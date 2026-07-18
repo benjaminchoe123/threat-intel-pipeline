@@ -1,4 +1,5 @@
-# Sunday weekly-report draft. Invoked by Task Scheduler (see register_tasks.ps1).
+# Sunday weekly-report draft, then a verification-gated auto-publish attempt.
+# Invoked by Task Scheduler (see register_tasks.ps1).
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 Set-Location $repo
@@ -12,4 +13,9 @@ $log = "$repo\logs\weekly-$(Get-Date -Format yyyy-MM-dd).log"
 "=== weekly draft started $(Get-Date -Format o) ===" | Out-File -Append -Encoding utf8 $log
 & "$repo\.venv\Scripts\python.exe" -m pipeline.weekly_report *>> $log
 "=== weekly draft finished $(Get-Date -Format o) (exit $LASTEXITCODE) ===" | Out-File -Append -Encoding utf8 $log
-exit $LASTEXITCODE
+
+"=== auto-publish started $(Get-Date -Format o) ===" | Out-File -Append -Encoding utf8 $log
+& "$repo\.venv\Scripts\python.exe" -m pipeline.publish --auto *>> $log
+$publishExit = $LASTEXITCODE
+"=== auto-publish finished $(Get-Date -Format o) (exit $publishExit) ===" | Out-File -Append -Encoding utf8 $log
+exit $publishExit
