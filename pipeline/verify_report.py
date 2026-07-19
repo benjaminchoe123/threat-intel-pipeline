@@ -137,7 +137,11 @@ def verify(draft_text, week_notes, runner=enrich.run_claude):
     mismatches = check_entities(entities, week_notes)
     try:
         claim_results = extract_and_verify_claims(draft_text, week_notes, runner=runner)
-    except VerificationError as e:
+    except Exception as e:
+        # Any failure while getting claim results -- not just a malformed-response
+        # VerificationError, but a runner exception too (e.g. enrich.EnrichmentError
+        # on a subprocess timeout/non-zero exit/is_error payload) -- must look like a
+        # failed check, never an uncaught crash that skips the audit trail.
         return VerificationResult(
             passed=False, entity_mismatches=mismatches, claim_results=[], error=str(e)
         )

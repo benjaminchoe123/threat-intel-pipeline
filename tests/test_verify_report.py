@@ -1,5 +1,6 @@
 import pytest
 
+from pipeline import enrich
 from pipeline.verify_report import (
     VerificationError,
     check_entities,
@@ -126,6 +127,18 @@ def test_verify_fails_when_claim_call_is_unusable():
     def broken_runner(prompt):
         return ("not json", {})
     result = verify("CVE-2026-1111 seen.", WEEK_NOTES, runner=broken_runner)
+    assert result.passed is False
+    assert result.error is not None
+
+
+def test_verify_fails_when_runner_raises_enrichment_error():
+    """run_claude (the real production runner) raises enrich.EnrichmentError on a
+    subprocess timeout, non-zero exit, or an is_error response payload -- not just
+    VerificationError. verify() must catch that too, or an unattended auto-publish
+    run crashes with zero audit trail instead of recording a failed check."""
+    def exploding_runner(prompt):
+        raise enrich.EnrichmentError("claude -p timed out after 300s")
+    result = verify("CVE-2026-1111 seen.", WEEK_NOTES, runner=exploding_runner)
     assert result.passed is False
     assert result.error is not None
 
