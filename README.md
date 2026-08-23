@@ -1,5 +1,9 @@
 # Threat Intel Pipeline
 
+[![tests](https://github.com/benjaminchoe123/threat-intel-pipeline/actions/workflows/tests.yml/badge.svg)](https://github.com/benjaminchoe123/threat-intel-pipeline/actions/workflows/tests.yml)
+[![codeql](https://github.com/benjaminchoe123/threat-intel-pipeline/actions/workflows/codeql.yml/badge.svg)](https://github.com/benjaminchoe123/threat-intel-pipeline/actions/workflows/codeql.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 An automated threat intelligence pipeline that ingests public threat feeds daily, uses
 Claude (headless) to enrich each item into analyst-quality notes, stores everything as a
 wikilinked knowledge graph in an Obsidian vault, and drafts a weekly analyst report that a
@@ -182,3 +186,19 @@ filename bugs the suite now covers were invisible to Linux-only CI.
 - [AbuseIPDB](https://www.abuseipdb.com/) — community abuse scores
 - [GreyNoise Community](https://www.greynoise.io/) — scanner vs. targeted infrastructure
 - [MITRE ATT&CK](https://attack.mitre.org/) — technique catalog (`python -m pipeline.attack --refresh`)
+
+## Licensing, data provenance, and handling
+
+The **code** is MIT-licensed ([LICENSE](LICENSE)). The **published vault is not mine to
+relicense** — those notes are derived from third-party feeds that keep their own terms. CISA
+KEV is public domain (CC0); abuse.ch is *not* an open license — it's free under fair-use
+principles for non-commercial use, and commercial use may require a paid subscription. This
+project runs on the non-commercial path.
+
+`vault/threats/` and `vault/docs/stix/` contain **live, in-the-wild indicators**: C2 addresses,
+malware distribution URLs, and payload hashes. Don't resolve or fetch them from a machine you
+care about, and don't read a listing here as an accusation — hosts are frequently compromised
+third parties, and indicators go stale as infrastructure is remediated.
+
+Full breakdown per source, plus how to request a correction or takedown:
+**[DATA-SOURCES.md](DATA-SOURCES.md)** · Reporting a vulnerability: **[SECURITY.md](SECURITY.md)**

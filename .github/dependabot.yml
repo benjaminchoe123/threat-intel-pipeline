@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # requirements.txt uses compatible-release pins (~=), so a breaking major can't arrive
+  # silently — but that also means a major bump needs a human. Dependabot opens the PR;
+  # CI decides whether it's safe.
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+
+  # Pinned action versions go stale quietly and are a real supply-chain surface.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"

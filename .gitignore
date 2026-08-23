@@ -31,3 +31,10 @@ vault/.obsidian/workspace-mobile.json
 
 # Subagent-driven-development scratch (progress ledger)
 .superpowers/
+
+# LinkedIn post drafts — generated marketing copy, not part of the project.
+# Kept locally by pipeline.publish; a public technical repo is the wrong home for it.
+vault/reports/linkedin-drafts/
+
+# Obsidian editor state for the repo root (the vault's own .obsidian is handled above).
+/.obsidian/
