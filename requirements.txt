@@ -15,4 +15,4 @@ pymisp~=2.5
 
 # Dev
 pytest~=9.1
-ruff~=0.15
+ruff~=0.16
