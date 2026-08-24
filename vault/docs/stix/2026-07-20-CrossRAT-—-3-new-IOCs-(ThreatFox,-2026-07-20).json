@@ -1,0 +1,84 @@
+{
+    "type": "bundle",
+    "id": "bundle--f4b61d51-ab95-4cb4-908f-ca0133fda9c3",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--dc0f38cd-92c0-5998-8269-477338f2a3dc",
+            "created": "2026-08-24T03:09:29.138795Z",
+            "modified": "2026-08-24T03:09:29.138795Z",
+            "name": "CrossRAT",
+            "is_family": true
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--e8ce67f1-4080-5d0a-be6d-73cd8922b519",
+            "created": "2026-08-24T03:09:29.138795Z",
+            "modified": "2026-08-24T03:09:29.138795Z",
+            "name": "sha256_hash: 2d1a5a0c9b43b6dbff32bd3b66d1a96c0d36773f5b7b546fcb9da93580f9246a",
+            "description": "CrossRAT payload, first seen 2026-07-20 11:22:50 UTC, ThreatFox confidence 95",
+            "pattern": "[file:hashes.'SHA-256' = '2d1a5a0c9b43b6dbff32bd3b66d1a96c0d36773f5b7b546fcb9da93580f9246a']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--019359a0-093a-5083-8a7d-75fd52f62cbe",
+            "created": "2026-08-24T03:09:29.139798Z",
+            "modified": "2026-08-24T03:09:29.139798Z",
+            "name": "sha1_hash: 50d5e712edfc416e508aaf221110d6b4a3df93e2",
+            "description": "CrossRAT payload, same first-seen timestamp \u2014 likely the same file",
+            "pattern": "[file:hashes.'SHA-1' = '50d5e712edfc416e508aaf221110d6b4a3df93e2']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--809251da-10b2-5b3a-9365-7d5ff5e8a182",
+            "created": "2026-08-24T03:09:29.139798Z",
+            "modified": "2026-08-24T03:09:29.139798Z",
+            "name": "md5_hash: 8465b5392ea382ceec662c25ea7acc34",
+            "description": "CrossRAT payload, same first-seen timestamp \u2014 likely the same file",
+            "pattern": "[file:hashes.'MD5' = '8465b5392ea382ceec662c25ea7acc34']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--de1c00bd-f98b-5d7f-8bee-4e59def4afa5",
+            "created": "2026-08-24T03:09:29.140802Z",
+            "modified": "2026-08-24T03:09:29.140802Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--e8ce67f1-4080-5d0a-be6d-73cd8922b519",
+            "target_ref": "malware--dc0f38cd-92c0-5998-8269-477338f2a3dc"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--f6451279-07fe-5ee3-b992-154015152ce2",
+            "created": "2026-08-24T03:09:29.140802Z",
+            "modified": "2026-08-24T03:09:29.140802Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--019359a0-093a-5083-8a7d-75fd52f62cbe",
+            "target_ref": "malware--dc0f38cd-92c0-5998-8269-477338f2a3dc"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--6d221100-b95f-53fa-a017-08c2440b2063",
+            "created": "2026-08-24T03:09:29.140802Z",
+            "modified": "2026-08-24T03:09:29.140802Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--809251da-10b2-5b3a-9365-7d5ff5e8a182",
+            "target_ref": "malware--dc0f38cd-92c0-5998-8269-477338f2a3dc"
+        }
+    ]
+}

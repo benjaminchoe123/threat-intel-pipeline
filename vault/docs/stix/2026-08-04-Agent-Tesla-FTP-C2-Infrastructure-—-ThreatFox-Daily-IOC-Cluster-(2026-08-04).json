@@ -1,0 +1,155 @@
+{
+    "type": "bundle",
+    "id": "bundle--c2407122-0a11-4a42-a1a0-caf76fba6a4f",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a",
+            "created": "2026-08-24T03:09:29.254811Z",
+            "modified": "2026-08-24T03:09:29.254811Z",
+            "name": "Agent Tesla",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--bf4f54ca-cd0a-5ab3-99d7-3b7748378851",
+            "created": "2026-08-24T03:09:29.254811Z",
+            "modified": "2026-08-24T03:09:29.254811Z",
+            "name": "File Transfer Protocols",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071.002",
+                    "external_id": "T1071.002"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--7ea6b1a8-1409-52e9-a0a2-0e518775808b",
+            "created": "2026-08-24T03:09:29.255814Z",
+            "modified": "2026-08-24T03:09:29.255814Z",
+            "name": "domain: ftp.gebzekamlok.com",
+            "description": "botnet_cc, confidence 100, first seen 2026-08-04 12:53:25 UTC \u00b7 VT 6 malicious / 1 suspicious",
+            "pattern": "[domain-name:value = 'ftp.gebzekamlok.com']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-04T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--fdcb109d-9ad8-5eed-ad55-9b4cf4d5ef86",
+            "created": "2026-08-24T03:09:29.255814Z",
+            "modified": "2026-08-24T03:09:29.255814Z",
+            "name": "domain: ftp.darlenemarino.cyou",
+            "description": "botnet_cc, confidence 100, first seen 2026-08-04 09:17:10 UTC \u00b7 VT 5 malicious / 3 suspicious",
+            "pattern": "[domain-name:value = 'ftp.darlenemarino.cyou']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-04T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--b29a18b4-8935-5db4-a425-8f58cc36ab5f",
+            "created": "2026-08-24T03:09:29.255814Z",
+            "modified": "2026-08-24T03:09:29.255814Z",
+            "name": "domain: ftp.melrz.com",
+            "description": "botnet_cc, confidence 100, first seen 2026-08-04 09:14:59 UTC \u00b7 VT 14 malicious / 1 suspicious",
+            "pattern": "[domain-name:value = 'ftp.melrz.com']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-04T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--2d0ffca9-e069-55c4-8ac5-98fc7085cbba",
+            "created": "2026-08-24T03:09:29.256843Z",
+            "modified": "2026-08-24T03:09:29.256843Z",
+            "name": "domain: ftp.lodenrandmarines.com",
+            "description": "botnet_cc, confidence 100, first seen 2026-08-04 09:14:00 UTC \u00b7 VT 14 malicious / 1 suspicious",
+            "pattern": "[domain-name:value = 'ftp.lodenrandmarines.com']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-04T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--fc9f2c64-1189-5c40-a536-9cf075ca67cd",
+            "created": "2026-08-24T03:09:29.256843Z",
+            "modified": "2026-08-24T03:09:29.256843Z",
+            "name": "domain: ftp.raxclopent.info",
+            "description": "botnet_cc, confidence 100, first seen 2026-08-04 09:08:27 UTC \u00b7 no VT data in this lookup",
+            "pattern": "[domain-name:value = 'ftp.raxclopent.info']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-04T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--1d8d3c8c-0f08-50d5-93c5-4df43d895e07",
+            "created": "2026-08-24T03:09:29.257845Z",
+            "modified": "2026-08-24T03:09:29.257845Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--7ea6b1a8-1409-52e9-a0a2-0e518775808b",
+            "target_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--a0849e58-2059-5265-a830-bbbad725b9fb",
+            "created": "2026-08-24T03:09:29.257845Z",
+            "modified": "2026-08-24T03:09:29.257845Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--fdcb109d-9ad8-5eed-ad55-9b4cf4d5ef86",
+            "target_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--0c07c677-448e-5639-b8ff-a3899f329641",
+            "created": "2026-08-24T03:09:29.257845Z",
+            "modified": "2026-08-24T03:09:29.257845Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--b29a18b4-8935-5db4-a425-8f58cc36ab5f",
+            "target_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--1bb38070-c5f4-5f31-aac6-cb17278528e7",
+            "created": "2026-08-24T03:09:29.257845Z",
+            "modified": "2026-08-24T03:09:29.257845Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--2d0ffca9-e069-55c4-8ac5-98fc7085cbba",
+            "target_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--c2504bf8-5c67-5f0e-b97e-eb49992ae765",
+            "created": "2026-08-24T03:09:29.257845Z",
+            "modified": "2026-08-24T03:09:29.257845Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--fc9f2c64-1189-5c40-a536-9cf075ca67cd",
+            "target_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--fcdb367e-4e61-566a-9419-3253fac549c0",
+            "created": "2026-08-24T03:09:29.257845Z",
+            "modified": "2026-08-24T03:09:29.257845Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--efb8f01b-ca04-53c6-8655-bbbe7df9bd8a",
+            "target_ref": "attack-pattern--bf4f54ca-cd0a-5ab3-99d7-3b7748378851"
+        }
+    ]
+}

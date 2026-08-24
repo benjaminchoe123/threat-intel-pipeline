@@ -1,0 +1,38 @@
+{
+    "type": "bundle",
+    "id": "bundle--4966e3fb-c49d-46e5-8d33-01b3c4ce9032",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--a8ef90bf-3819-5a8d-9035-7a37f0dd021c",
+            "created": "2026-08-24T03:09:28.786945Z",
+            "modified": "2026-08-24T03:09:28.786945Z",
+            "name": "Chaos",
+            "is_family": true
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--2ad37ee1-3ca1-5cf8-ae4c-9f02b7c10c96",
+            "created": "2026-08-24T03:09:28.786945Z",
+            "modified": "2026-08-24T03:09:28.786945Z",
+            "name": "ip:port: 89.223.24.227:52709",
+            "description": "Chaos botnet C2 server, first seen 2026-07-19 19:45:39 UTC (ThreatFox confidence 75)",
+            "pattern": "[ipv4-addr:value = '89.223.24.227']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--878a975d-6c29-5c6a-b17e-429ec63605f2",
+            "created": "2026-08-24T03:09:28.78795Z",
+            "modified": "2026-08-24T03:09:28.78795Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--2ad37ee1-3ca1-5cf8-ae4c-9f02b7c10c96",
+            "target_ref": "malware--a8ef90bf-3819-5a8d-9035-7a37f0dd021c"
+        }
+    ]
+}

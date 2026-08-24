@@ -1,0 +1,297 @@
+{
+    "type": "bundle",
+    "id": "bundle--7f3fc513-3bb6-4f94-9a0c-43c57c2fbe96",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994",
+            "created": "2026-08-24T03:09:29.162791Z",
+            "modified": "2026-08-24T03:09:29.162791Z",
+            "name": "Formbook",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--253b88e5-4766-53b1-9520-0f6c297cf933",
+            "created": "2026-08-24T03:09:29.162791Z",
+            "modified": "2026-08-24T03:09:29.162791Z",
+            "name": "Keylogging",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1056.001",
+                    "external_id": "T1056.001"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--a17d1609-3ed1-516b-b03f-84113af0487d",
+            "created": "2026-08-24T03:09:29.162791Z",
+            "modified": "2026-08-24T03:09:29.162791Z",
+            "name": "Credentials from Password Stores",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1555",
+                    "external_id": "T1555"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--5cb2420e-85ad-53f2-a625-f4677fc7b65e",
+            "created": "2026-08-24T03:09:29.163794Z",
+            "modified": "2026-08-24T03:09:29.163794Z",
+            "name": "Process Injection",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1055",
+                    "external_id": "T1055"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--f301d116-4e80-5809-832a-432ea810a70b",
+            "created": "2026-08-24T03:09:29.163794Z",
+            "modified": "2026-08-24T03:09:29.163794Z",
+            "name": "md5_hash: aac21459dc203d21c539a72d54221102",
+            "description": "Formbook payload, first seen 2026-07-20 11:23:14 UTC",
+            "pattern": "[file:hashes.'MD5' = 'aac21459dc203d21c539a72d54221102']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--88f69804-9520-5858-93e7-3accfa5f6d43",
+            "created": "2026-08-24T03:09:29.163794Z",
+            "modified": "2026-08-24T03:09:29.163794Z",
+            "name": "sha256_hash: 78e53037a3b94c1a14f4c8283f27b1b9b6a0601515fe6b4cdc28ac8fce9b938f",
+            "description": "Formbook payload, first seen 2026-07-20 11:23:13 UTC",
+            "pattern": "[file:hashes.'SHA-256' = '78e53037a3b94c1a14f4c8283f27b1b9b6a0601515fe6b4cdc28ac8fce9b938f']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--70b6f0fd-ff35-503f-b1c5-22b7d7c0c7d2",
+            "created": "2026-08-24T03:09:29.164804Z",
+            "modified": "2026-08-24T03:09:29.164804Z",
+            "name": "sha1_hash: 61a27756cba4c8be0a6465912de786b90f6f8de1",
+            "description": "Formbook payload, first seen 2026-07-20 11:23:13 UTC",
+            "pattern": "[file:hashes.'SHA-1' = '61a27756cba4c8be0a6465912de786b90f6f8de1']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--6123ea37-5647-5858-9bcc-c4d5b11f53a9",
+            "created": "2026-08-24T03:09:29.164804Z",
+            "modified": "2026-08-24T03:09:29.164804Z",
+            "name": "sha256_hash: d3adedb75d5f43ee0a1400fa5be76e4f734ec031d40b426a390ec5f453a40859",
+            "description": "Formbook payload, first seen 2026-07-20 11:22:47 UTC",
+            "pattern": "[file:hashes.'SHA-256' = 'd3adedb75d5f43ee0a1400fa5be76e4f734ec031d40b426a390ec5f453a40859']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--93daa8cc-c868-53b6-bc38-0f21da0c19c2",
+            "created": "2026-08-24T03:09:29.164804Z",
+            "modified": "2026-08-24T03:09:29.164804Z",
+            "name": "sha1_hash: 6f1cc02617b24127df7fb482c2e1c9496c0aafbc",
+            "description": "Formbook payload, first seen 2026-07-20 11:22:47 UTC",
+            "pattern": "[file:hashes.'SHA-1' = '6f1cc02617b24127df7fb482c2e1c9496c0aafbc']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--7603d58a-6c75-56f3-9b1c-da3897b150e8",
+            "created": "2026-08-24T03:09:29.165807Z",
+            "modified": "2026-08-24T03:09:29.165807Z",
+            "name": "md5_hash: 0c9381cfd85e2d1aad8ccbe8bec861ca",
+            "description": "Formbook payload, first seen 2026-07-20 11:22:47 UTC",
+            "pattern": "[file:hashes.'MD5' = '0c9381cfd85e2d1aad8ccbe8bec861ca']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--9d44bd7d-44d9-50ab-be85-1bd58d07e508",
+            "created": "2026-08-24T03:09:29.165807Z",
+            "modified": "2026-08-24T03:09:29.165807Z",
+            "name": "sha1_hash: ea88765037a10234f4558c076d3bb1805fe402f6",
+            "description": "Formbook payload, first seen 2026-07-20 11:22:44 UTC",
+            "pattern": "[file:hashes.'SHA-1' = 'ea88765037a10234f4558c076d3bb1805fe402f6']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--bbc848b7-82fc-5e2e-b8a7-fc0f05e08615",
+            "created": "2026-08-24T03:09:29.166812Z",
+            "modified": "2026-08-24T03:09:29.166812Z",
+            "name": "md5_hash: a3f6cbc6b8366c4378504eedbb2408d1",
+            "description": "Formbook payload, first seen 2026-07-20 11:22:44 UTC",
+            "pattern": "[file:hashes.'MD5' = 'a3f6cbc6b8366c4378504eedbb2408d1']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--4f43f835-2718-538f-a5d9-525fab22e0eb",
+            "created": "2026-08-24T03:09:29.166812Z",
+            "modified": "2026-08-24T03:09:29.166812Z",
+            "name": "sha256_hash: 865884c27b7ee53c1744c183ca07ce310b4485dfa085fe3ed3c658e38f7d99f2",
+            "description": "Formbook payload, first seen 2026-07-20 11:22:43 UTC",
+            "pattern": "[file:hashes.'SHA-256' = '865884c27b7ee53c1744c183ca07ce310b4485dfa085fe3ed3c658e38f7d99f2']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--9a0ba02c-442d-54a4-a431-b72828d5656d",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--f301d116-4e80-5809-832a-432ea810a70b",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--571c663c-d72d-5bd0-94f7-35bead8cd709",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--88f69804-9520-5858-93e7-3accfa5f6d43",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--f1e3c1db-50cc-50a6-a34e-70fb95a3aec8",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--70b6f0fd-ff35-503f-b1c5-22b7d7c0c7d2",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--97276799-b965-5de7-8d90-daceb7c158de",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--6123ea37-5647-5858-9bcc-c4d5b11f53a9",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--bdb824af-6d34-5f6c-b4b4-ded88d9c20f4",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--93daa8cc-c868-53b6-bc38-0f21da0c19c2",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--6aaa268f-1711-59f1-9310-cac1537d0c28",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--7603d58a-6c75-56f3-9b1c-da3897b150e8",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4ef105f8-85f3-508a-91a3-472965858098",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--9d44bd7d-44d9-50ab-be85-1bd58d07e508",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--ab59145c-0b44-5fa7-857a-5d4d2e9a71eb",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--bbc848b7-82fc-5e2e-b8a7-fc0f05e08615",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--84c55408-3071-584d-8bd1-3127074cd8cc",
+            "created": "2026-08-24T03:09:29.167814Z",
+            "modified": "2026-08-24T03:09:29.167814Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--4f43f835-2718-538f-a5d9-525fab22e0eb",
+            "target_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--bd5fc83d-e3f7-569a-97c2-ba1a9aec9784",
+            "created": "2026-08-24T03:09:29.168816Z",
+            "modified": "2026-08-24T03:09:29.168816Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994",
+            "target_ref": "attack-pattern--253b88e5-4766-53b1-9520-0f6c297cf933"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--75ce955c-7134-5fb1-aae7-63e132d3d2df",
+            "created": "2026-08-24T03:09:29.168816Z",
+            "modified": "2026-08-24T03:09:29.168816Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994",
+            "target_ref": "attack-pattern--a17d1609-3ed1-516b-b03f-84113af0487d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--cc7045ee-d64b-5b7d-8f9f-8b20b50c607a",
+            "created": "2026-08-24T03:09:29.168816Z",
+            "modified": "2026-08-24T03:09:29.168816Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--49ac3ac3-0b62-5846-b6a2-c6b517997994",
+            "target_ref": "attack-pattern--5cb2420e-85ad-53f2-a625-f4677fc7b65e"
+        }
+    ]
+}

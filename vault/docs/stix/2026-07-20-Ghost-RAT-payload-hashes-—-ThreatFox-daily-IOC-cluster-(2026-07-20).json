@@ -1,0 +1,84 @@
+{
+    "type": "bundle",
+    "id": "bundle--92d4bfed-92f4-4466-ab22-b9503e20174a",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--ce50073f-a35d-5c70-800f-ec2b488f3423",
+            "created": "2026-08-24T03:09:29.183941Z",
+            "modified": "2026-08-24T03:09:29.183941Z",
+            "name": "Ghost RAT",
+            "is_family": true
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--0e9ad056-be4e-55fd-9c64-60a89fa841b4",
+            "created": "2026-08-24T03:09:29.183941Z",
+            "modified": "2026-08-24T03:09:29.183941Z",
+            "name": "sha256_hash: 3fc95667b98c637ba785b67dff1bd15ff7a21f082d25894c3a78ec1b6206fcd7",
+            "description": "Ghost RAT payload, first seen 2026-07-20 11:23:17 UTC, ThreatFox confidence 95",
+            "pattern": "[file:hashes.'SHA-256' = '3fc95667b98c637ba785b67dff1bd15ff7a21f082d25894c3a78ec1b6206fcd7']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--e40bf3a1-d0b1-5d0c-9a92-3a7a23baf98c",
+            "created": "2026-08-24T03:09:29.184953Z",
+            "modified": "2026-08-24T03:09:29.184953Z",
+            "name": "sha1_hash: e17f76e0b4c47a5f54ca51b105be0dd29df50c7c",
+            "description": "Ghost RAT payload, same first-seen timestamp \u2014 likely the same file as the SHA-256 above",
+            "pattern": "[file:hashes.'SHA-1' = 'e17f76e0b4c47a5f54ca51b105be0dd29df50c7c']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--b4b9191c-bfd3-509a-a8d2-71280245f281",
+            "created": "2026-08-24T03:09:29.184953Z",
+            "modified": "2026-08-24T03:09:29.184953Z",
+            "name": "md5_hash: eff8675fac22c49107a2a42d3c735f10",
+            "description": "Ghost RAT payload, same first-seen timestamp \u2014 likely the same file as the SHA-256 above",
+            "pattern": "[file:hashes.'MD5' = 'eff8675fac22c49107a2a42d3c735f10']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--c86be54c-19f2-5527-aa57-fe6dfdf8525e",
+            "created": "2026-08-24T03:09:29.185955Z",
+            "modified": "2026-08-24T03:09:29.185955Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--0e9ad056-be4e-55fd-9c64-60a89fa841b4",
+            "target_ref": "malware--ce50073f-a35d-5c70-800f-ec2b488f3423"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4d0b06a7-f8da-59e4-9736-6298a576d3ab",
+            "created": "2026-08-24T03:09:29.185955Z",
+            "modified": "2026-08-24T03:09:29.185955Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--e40bf3a1-d0b1-5d0c-9a92-3a7a23baf98c",
+            "target_ref": "malware--ce50073f-a35d-5c70-800f-ec2b488f3423"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4d2efc55-75b6-5b73-9d2b-ee3e940ff85d",
+            "created": "2026-08-24T03:09:29.185955Z",
+            "modified": "2026-08-24T03:09:29.185955Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--b4b9191c-bfd3-509a-a8d2-71280245f281",
+            "target_ref": "malware--ce50073f-a35d-5c70-800f-ec2b488f3423"
+        }
+    ]
+}

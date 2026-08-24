@@ -1,5 +1,5 @@
 {
-  "name": "Threat vault coverage — 2026-07-17",
+  "name": "Threat vault coverage — 2026-08-23",
   "versions": {
     "layer": "4.5",
     "navigator": "5.1.0",
@@ -20,14 +20,44 @@
   "techniques": [
     {
       "techniqueID": "T1190",
-      "score": 9,
-      "comment": "Exploit Public-Facing Application: 9 note(s) in the vault",
+      "score": 18,
+      "comment": "Exploit Public-Facing Application: 18 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.001",
+      "score": 8,
+      "comment": "Web Protocols: 8 note(s) in the vault",
       "enabled": true
     },
     {
       "techniqueID": "T1071",
+      "score": 7,
+      "comment": "Application Layer Protocol: 7 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1571",
+      "score": 7,
+      "comment": "Non-Standard Port: 7 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1219",
       "score": 5,
-      "comment": "Application Layer Protocol: 5 note(s) in the vault",
+      "comment": "Remote Access Tools: 5 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1056.001",
+      "score": 4,
+      "comment": "Keylogging: 4 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059",
+      "score": 4,
+      "comment": "Command and Scripting Interpreter: 4 note(s) in the vault",
       "enabled": true
     },
     {
@@ -37,15 +67,9 @@
       "enabled": true
     },
     {
-      "techniqueID": "T1071.001",
+      "techniqueID": "T1189",
       "score": 3,
-      "comment": "Web Protocols: 3 note(s) in the vault",
-      "enabled": true
-    },
-    {
-      "techniqueID": "T1219",
-      "score": 3,
-      "comment": "Remote Access Tools: 3 note(s) in the vault",
+      "comment": "Drive-by Compromise: 3 note(s) in the vault",
       "enabled": true
     },
     {
@@ -55,15 +79,45 @@
       "enabled": true
     },
     {
-      "techniqueID": "T1189",
+      "techniqueID": "T1204.002",
       "score": 2,
-      "comment": "Drive-by Compromise: 2 note(s) in the vault",
+      "comment": "Malicious File: 2 note(s) in the vault",
       "enabled": true
     },
     {
-      "techniqueID": "T1571",
+      "techniqueID": "T1204.004",
       "score": 2,
-      "comment": "Non-Standard Port: 2 note(s) in the vault",
+      "comment": "Malicious Copy and Paste: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1498",
+      "score": 2,
+      "comment": "Network Denial of Service: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1555",
+      "score": 2,
+      "comment": "Credentials from Password Stores: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1555.003",
+      "score": 2,
+      "comment": "Credentials from Web Browsers: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1557",
+      "score": 2,
+      "comment": "Adversary-in-the-Middle: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1595",
+      "score": 2,
+      "comment": "Active Scanning: 2 note(s) in the vault",
       "enabled": true
     },
     {
@@ -73,15 +127,51 @@
       "enabled": true
     },
     {
-      "techniqueID": "T1056.001",
+      "techniqueID": "T1036.008",
       "score": 1,
-      "comment": "Keylogging: 1 note(s) in the vault",
+      "comment": "Masquerade File Type: 1 note(s) in the vault",
       "enabled": true
     },
     {
-      "techniqueID": "T1059",
+      "techniqueID": "T1055",
       "score": 1,
-      "comment": "Command and Scripting Interpreter: 1 note(s) in the vault",
+      "comment": "Process Injection: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059.007",
+      "score": 1,
+      "comment": "JavaScript: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.002",
+      "score": 1,
+      "comment": "File Transfer Protocols: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.003",
+      "score": 1,
+      "comment": "Mail Protocols: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1078.001",
+      "score": 1,
+      "comment": "Default Accounts: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1115",
+      "score": 1,
+      "comment": "Clipboard Data: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1204",
+      "score": 1,
+      "comment": "User Execution: 1 note(s) in the vault",
       "enabled": true
     },
     {
@@ -91,15 +181,15 @@
       "enabled": true
     },
     {
-      "techniqueID": "T1204.002",
+      "techniqueID": "T1218.005",
       "score": 1,
-      "comment": "Malicious File: 1 note(s) in the vault",
+      "comment": "Mshta: 1 note(s) in the vault",
       "enabled": true
     },
     {
-      "techniqueID": "T1498",
+      "techniqueID": "T1496",
       "score": 1,
-      "comment": "Network Denial of Service: 1 note(s) in the vault",
+      "comment": "Resource Hijacking: 1 note(s) in the vault",
       "enabled": true
     },
     {
@@ -109,21 +199,33 @@
       "enabled": true
     },
     {
-      "techniqueID": "T1555.003",
+      "techniqueID": "T1539",
       "score": 1,
-      "comment": "Credentials from Web Browsers: 1 note(s) in the vault",
+      "comment": "Steal Web Session Cookie: 1 note(s) in the vault",
       "enabled": true
     },
     {
-      "techniqueID": "T1557",
+      "techniqueID": "T1550.001",
       "score": 1,
-      "comment": "Adversary-in-the-Middle: 1 note(s) in the vault",
+      "comment": "Application Access Token: 1 note(s) in the vault",
       "enabled": true
     },
     {
       "techniqueID": "T1566",
       "score": 1,
       "comment": "Phishing: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1566.001",
+      "score": 1,
+      "comment": "Spearphishing Attachment: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1566.002",
+      "score": 1,
+      "comment": "Spearphishing Link: 1 note(s) in the vault",
       "enabled": true
     }
   ],
@@ -133,7 +235,7 @@
       "#ff6666"
     ],
     "minValue": 0,
-    "maxValue": 9
+    "maxValue": 18
   },
   "legendItems": [],
   "showTacticRowBackground": true,

@@ -1,0 +1,88 @@
+{
+    "type": "bundle",
+    "id": "bundle--0f183e80-9274-425c-a545-aa89c1efd8da",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--bec192de-74d7-57a7-99c3-184f1818646a",
+            "created": "2026-08-24T03:09:29.143817Z",
+            "modified": "2026-08-24T03:09:29.143817Z",
+            "name": "DCRat",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f",
+            "created": "2026-08-24T03:09:29.143817Z",
+            "modified": "2026-08-24T03:09:29.143817Z",
+            "name": "Non-Standard Port",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1571",
+                    "external_id": "T1571"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--d0a22cef-4723-52ec-b9a2-a3941892bfbd",
+            "created": "2026-08-24T03:09:29.143817Z",
+            "modified": "2026-08-24T03:09:29.143817Z",
+            "name": "Remote Access Tools",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1219",
+                    "external_id": "T1219"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--2f2c158b-e5c0-51d7-8269-d39ce2e6a61d",
+            "created": "2026-08-24T03:09:29.143817Z",
+            "modified": "2026-08-24T03:09:29.143817Z",
+            "name": "ip:port: 209.160.115.136:8624",
+            "description": "[[families/DCRat]] botnet C2, first seen 2026-07-19 19:44:19 UTC (ThreatFox confidence 75)",
+            "pattern": "[ipv4-addr:value = '209.160.115.136']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--3a55a8eb-f0e9-547a-8e0c-d1f8a337808f",
+            "created": "2026-08-24T03:09:29.143817Z",
+            "modified": "2026-08-24T03:09:29.143817Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--2f2c158b-e5c0-51d7-8269-d39ce2e6a61d",
+            "target_ref": "malware--bec192de-74d7-57a7-99c3-184f1818646a"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--781d28c3-cdb1-5cbc-b63f-b2cf7a7b75bd",
+            "created": "2026-08-24T03:09:29.145721Z",
+            "modified": "2026-08-24T03:09:29.145721Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--bec192de-74d7-57a7-99c3-184f1818646a",
+            "target_ref": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--ab8d044c-2000-5699-ac71-3f5eabce6561",
+            "created": "2026-08-24T03:09:29.145721Z",
+            "modified": "2026-08-24T03:09:29.145721Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--bec192de-74d7-57a7-99c3-184f1818646a",
+            "target_ref": "attack-pattern--d0a22cef-4723-52ec-b9a2-a3941892bfbd"
+        }
+    ]
+}

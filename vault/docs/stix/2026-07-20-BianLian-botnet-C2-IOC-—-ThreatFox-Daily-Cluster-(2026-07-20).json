@@ -1,0 +1,63 @@
+{
+    "type": "bundle",
+    "id": "bundle--1eabc6dd-e0eb-4129-a311-0bf34a61844f",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--3616a341-b120-51d1-969f-d99173ad3075",
+            "created": "2026-08-24T03:09:28.780884Z",
+            "modified": "2026-08-24T03:09:28.780884Z",
+            "name": "BianLian",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d",
+            "created": "2026-08-24T03:09:28.780884Z",
+            "modified": "2026-08-24T03:09:28.780884Z",
+            "name": "Application Layer Protocol",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071",
+                    "external_id": "T1071"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--171027d9-fe15-5311-b553-ca1a0a745b83",
+            "created": "2026-08-24T03:09:28.780884Z",
+            "modified": "2026-08-24T03:09:28.780884Z",
+            "name": "ip:port: 154.83.186.39:8443",
+            "description": "[[families/BianLian]] C2 server (`botnet_cc`), first seen 2026-07-20 09:43:39 UTC, ThreatFox reporter confidence 75",
+            "pattern": "[ipv4-addr:value = '154.83.186.39']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-20T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--635b4571-8488-53b2-846a-06c974ff730e",
+            "created": "2026-08-24T03:09:28.782387Z",
+            "modified": "2026-08-24T03:09:28.782387Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--171027d9-fe15-5311-b553-ca1a0a745b83",
+            "target_ref": "malware--3616a341-b120-51d1-969f-d99173ad3075"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--26012dae-7880-57ea-8403-5ed5560bba11",
+            "created": "2026-08-24T03:09:28.782387Z",
+            "modified": "2026-08-24T03:09:28.782387Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--3616a341-b120-51d1-969f-d99173ad3075",
+            "target_ref": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d"
+        }
+    ]
+}
