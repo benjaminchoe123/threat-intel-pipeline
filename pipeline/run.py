@@ -12,7 +12,7 @@ import sys
 import traceback
 from datetime import date
 
-from . import audit, config, enrich, misp, navigator, notes, reputation, stix
+from . import audit, config, enrich, health, misp, navigator, notes, reputation, stix
 from .cache import ReputationCache
 from .runlock import LockHeld, RunLock
 from .sources import kev, malwarebazaar, mta_rss, threatfox, urlhaus
@@ -215,7 +215,12 @@ def main(argv=None):
                                     reputation_fn=reputation_fn)] += 1
                 enriched += 1
 
-    notes.update_dashboards(config.VAULT_DIR)
+    # Heartbeat first, dashboard second: the banner reports on the run that is
+    # finishing, and a run where every item failed leaves no other trace on disk.
+    health.record_run(config.DATA_DIR, totals)
+    notes.update_dashboards(
+        config.VAULT_DIR, last_run=health.load_last_run(config.DATA_DIR)
+    )
     try:
         navigator.export(config.VAULT_DIR)
     except Exception:

@@ -1,5 +1,7 @@
+import json
 from datetime import date
 
+from pipeline import config, health
 from pipeline.weekly_report import collect_week_notes, draft_report, week_id
 
 NOTE = """---
@@ -74,3 +76,41 @@ def test_draft_report_refuses_empty_week(tmp_path):
     (tmp_path / "threats").mkdir(parents=True)
     path = draft_report(tmp_path, today=date(2026, 7, 15), runner=None)
     assert path is None
+
+
+def test_starved_week_is_reported_differently_from_a_quiet_one(tmp_path, capsys):
+    """2026-W31..W34 each hit the empty-week branch and said "no threat notes",
+    which reads as a quiet week. The vault held notes — they were just 19 days old
+    because enrichment was dead. The skip must name that."""
+    (tmp_path / "threats").mkdir(parents=True)
+    (tmp_path / "threats" / "2026-08-04-old.md").write_text(
+        NOTE.format(title="Old", severity="high", date="2026-08-04", summary="x"), encoding="utf-8"
+    )
+    health.record_run(config.DATA_DIR, {"written": 0, "failed": 15})
+
+    assert draft_report(tmp_path, today=date(2026, 8, 23), runner=None) is None
+
+    out = capsys.readouterr().out
+    assert "no threat notes in the last 7 days" in out
+    assert "Pipeline health: DEGRADED" in out
+    assert "2026-08-04" in out
+
+    records = list((config.AUDIT_DIR).glob("*.jsonl"))
+    assert records, "a skipped week must still leave an audit trace"
+    entry = json.loads(records[0].read_text(encoding="utf-8").splitlines()[-1])
+    assert entry["type"] == "weekly_report_skipped"
+    assert entry["health"]["status"] == "degraded"
+
+
+def test_quiet_week_with_current_notes_is_not_degraded(tmp_path, capsys):
+    """The other half: a genuinely quiet week must not cry wolf."""
+    (tmp_path / "threats").mkdir(parents=True)
+    (tmp_path / "threats" / "2026-08-22-recent.md").write_text(
+        NOTE.format(title="Recent", severity="low", date="2026-08-22", summary="x"), encoding="utf-8"
+    )
+    health.record_run(config.DATA_DIR, {"written": 2, "failed": 0})
+
+    # today - 7 days = 2026-08-24, so the 08-22 note falls outside the window but
+    # is well inside the staleness threshold.
+    assert draft_report(tmp_path, today=date(2026, 8, 31), runner=None) is None
+    assert "DEGRADED" not in capsys.readouterr().out

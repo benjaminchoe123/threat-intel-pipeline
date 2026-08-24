@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from . import attack
+from . import attack, health
 
 _UNSAFE = re.compile(r'[/\\:*?"<>|#^\[\]]+')
 
@@ -238,8 +238,13 @@ def _read_frontmatter(path):
         return {}
 
 
-def update_dashboards(vault_dir, today=None):
-    """Regenerate home.md and review-queue.md from vault contents."""
+def update_dashboards(vault_dir, today=None, last_run=None):
+    """Regenerate home.md and review-queue.md from vault contents.
+
+    last_run: the heartbeat dict from health.load_last_run(), or None. Passed in
+    rather than read here so this module stays free of config/path knowledge:
+    it takes a vault_dir and touches nothing else.
+    """
     vault_dir = Path(vault_dir)
     # A run in which every item failed still reaches here with no vault on disk.
     (vault_dir / "threats").mkdir(parents=True, exist_ok=True)
@@ -271,6 +276,8 @@ def update_dashboards(vault_dir, today=None):
         f"---\ntitle: Threat Intel Home\ntype: dashboard\ntags: [dashboard]\n"
         f"updated: {today.isoformat()}\n---\n\n"
         "# Threat Intel Dashboard\n\n"
+        + health.banner(health.assess(threats, today=today, last_run=last_run))
+        + "\n\n"
         "Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.\n\n"
         "## Last 7 days\n\n" + "\n".join(recent_lines) + "\n\n"
         f"## Review queue\n\nSee [[review-queue]] — {len(flagged)} flagged item(s).\n\n"

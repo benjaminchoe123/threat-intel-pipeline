@@ -88,7 +88,14 @@ def run_claude(prompt, timeout=300):
     except subprocess.TimeoutExpired as e:
         raise EnrichmentError(f"claude -p timed out after {timeout}s") from e
     if result.returncode != 0:
-        raise EnrichmentError(f"claude -p failed ({result.returncode}): {result.stderr[:500]}")
+        # Both streams, always. Reporting stderr alone hid the entire 2026-08
+        # enrichment outage: `claude -p --output-format json` writes its payload to
+        # stdout, error payloads included, so every failure for two weeks recorded
+        # itself as "claude -p failed (1): " with nothing after the colon.
+        raise EnrichmentError(
+            f"claude -p failed ({result.returncode}): "
+            f"stderr={result.stderr[:300]!r} stdout={result.stdout[:300]!r}"
+        )
     try:
         payload = json.loads(result.stdout)
     except json.JSONDecodeError as e:

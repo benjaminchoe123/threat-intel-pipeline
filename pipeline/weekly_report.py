@@ -7,7 +7,7 @@ GitHub until a human approves it via pipeline.publish.
 from datetime import date, timedelta
 from pathlib import Path
 
-from . import audit, config, enrich
+from . import audit, config, enrich, health
 from .notes import _read_frontmatter
 
 REPORT_INSTRUCTIONS = """Draft a weekly threat intelligence report for a small-organization
@@ -50,6 +50,15 @@ def collect_week_notes(vault_dir, today=None):
     return metas
 
 
+def _all_threat_metas(vault_dir):
+    """Every threat note's frontmatter, unfiltered by week.
+
+    Health needs the newest note overall. Asking collect_week_notes() would be
+    circular: this runs only when that window is empty.
+    """
+    return [_read_frontmatter(p) for p in (Path(vault_dir) / "threats").glob("*.md")]
+
+
 def draft_report(vault_dir, today=None, runner=enrich.run_claude, todo_path=None):
     """todo_path: where to append the human review reminder. None (the default)
     skips the reminder — only the __main__/scheduled entry point passes the real
@@ -59,7 +68,19 @@ def draft_report(vault_dir, today=None, runner=enrich.run_claude, todo_path=None
     wid = week_id(today)
     metas = collect_week_notes(vault_dir, today)
     if not metas:
+        # A quiet week and a starved pipeline both arrive here, and this line
+        # reported the second as the first for 2026-W31 through W34. Say which.
+        state = health.assess(
+            _all_threat_metas(vault_dir),
+            today=today,
+            last_run=health.load_last_run(config.DATA_DIR),
+        )
         print(f"{wid}: no threat notes in the last 7 days — no draft written")
+        print(health.banner(state))
+        audit.log_enrichment(
+            config.AUDIT_DIR,
+            {"type": "weekly_report_skipped", "week": wid, "health": state},
+        )
         return None
 
     notes_blob = "\n\n---\n\n".join(m["_body"] for m in metas)

@@ -102,6 +102,15 @@ not a guardrail on the system around it. An ingestion failure is now caught befo
 `claude` call is spent (`run.is_enrichable`), and the audit trail records every outcome,
 including the failures, in a `finally`.
 
+In August 2026 the pipeline stopped producing output for 19 days and said nothing. The exit
+code was correct, the audit trail recorded every failure, and both surfaces a human actually
+reads rendered a dead pipeline exactly like a quiet week. The failure detail was destroyed at
+the point of capture by an error message that reported `stderr` and discarded `stdout` — where
+`claude -p` writes its error payloads — so ~100 failures each recorded themselves as
+`claude -p failed (1):` with nothing after the colon. Full writeup, including the four weekly
+reports that were lost and deliberately not backfilled:
+**[Postmortem: 19 days of silent enrichment failure](docs/POSTMORTEM-2026-08-enrichment-outage.md)**.
+
 Building this also turned up that the test suite had been writing into the production
 audit log for months — 12 of 25 records were pytest artifacts. They were removed by a
 script that logs its own deletion, and `conftest.py` now makes it structurally impossible.
