@@ -11,7 +11,7 @@ health is entirely a function of elapsed time, so a floating clock here would be
 worse than no test at all.
 """
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
@@ -288,3 +288,110 @@ def test_cli_survives_a_cp1252_console(tmp_path, monkeypatch):
     assert code == 1
     buf.seek(0)
     assert "STALE" in buf.buffer.getvalue().decode("utf-8", "replace")
+
+
+# ---------------------------------------------------------------------------
+# A killed run leaves no trace.
+#
+# 2026-08-23 and 2026-08-26: the daily run was killed partway, wrote a couple of
+# notes, and vanished. Both times the scheduled task reported LastTaskResult 0,
+# and both times `last_run.json` was never touched, because it is only written
+# when a run *finishes*. So a run that died is byte-for-byte indistinguishable
+# from a run that never started, and `pipeline.health` reported OK throughout --
+# correctly, by its own rules, which is what makes it a gap rather than a bug.
+#
+# Recording the heartbeat at start as well as finish makes the difference
+# visible: a start with no matching finish, older than any plausible run, is a
+# run that died.
+# ---------------------------------------------------------------------------
+
+RUN_START = datetime(2026, 8, 26, 11, 13, tzinfo=UTC)
+
+
+def test_record_start_writes_started_at_and_preserves_the_previous_finish(tmp_path):
+    """The previous run's outcome is still the last *completed* run, and losing it
+    would trade one blind spot for another."""
+    health.record_run(tmp_path, {"written": 15, "failed": 0},
+                      when=datetime(2026, 8, 25, 17, 0, tzinfo=UTC))
+    health.record_start(tmp_path, when=RUN_START)
+
+    beat = health.load_last_run(tmp_path)
+    assert beat["started_at"] == RUN_START.isoformat()
+    assert beat["finished_at"] == datetime(2026, 8, 25, 17, 0, tzinfo=UTC).isoformat()
+    assert beat["totals"] == {"written": 15, "failed": 0}
+
+
+def test_record_start_works_with_no_previous_heartbeat(tmp_path):
+    health.record_start(tmp_path, when=RUN_START)
+    beat = health.load_last_run(tmp_path)
+    assert beat["started_at"] == RUN_START.isoformat()
+    assert beat.get("finished_at") is None
+
+
+def test_record_run_after_record_start_leaves_a_finish_newer_than_the_start(tmp_path):
+    health.record_start(tmp_path, when=RUN_START)
+    health.record_run(tmp_path, {"written": 3, "failed": 0},
+                      when=datetime(2026, 8, 26, 11, 25, tzinfo=UTC))
+
+    beat = health.load_last_run(tmp_path)
+    assert beat["started_at"] == RUN_START.isoformat()
+    assert beat["finished_at"] > beat["started_at"]
+    state = health.assess([], today=date(2026, 8, 26), last_run=beat,
+                          now=datetime(2026, 8, 26, 12, 0, tzinfo=UTC))
+    assert state["interrupted_run"] is False
+
+
+def test_assess_flags_a_start_with_no_finish_as_an_interrupted_run():
+    """The 2026-08-26 shape exactly: started 11:13, never finished."""
+    beat = {"started_at": RUN_START.isoformat(),
+            "finished_at": datetime(2026, 8, 25, 17, 0, tzinfo=UTC).isoformat(),
+            "totals": {"written": 15, "failed": 0}}
+    state = health.assess([{"date": "2026-08-26"}], today=date(2026, 8, 26), last_run=beat,
+                          now=datetime(2026, 8, 26, 23, 0, tzinfo=UTC))
+    assert state["interrupted_run"] is True
+
+
+def test_a_run_still_within_the_grace_period_is_not_called_interrupted():
+    """An in-flight run and a dead one look identical on disk. Only elapsed time
+    tells them apart, so a run that started minutes ago is presumed alive."""
+    beat = {"started_at": RUN_START.isoformat(), "finished_at": None, "totals": {}}
+    state = health.assess([{"date": "2026-08-26"}], today=date(2026, 8, 26), last_run=beat,
+                          now=RUN_START + timedelta(minutes=5))
+    assert state["interrupted_run"] is False
+
+
+def test_an_interrupted_run_is_at_least_degraded():
+    beat = {"started_at": RUN_START.isoformat(), "finished_at": None, "totals": {}}
+    state = health.assess([{"date": "2026-08-26"}], today=date(2026, 8, 26), last_run=beat,
+                          now=RUN_START + timedelta(hours=12))
+    assert state["status"] == health.DEGRADED
+
+
+def test_an_old_format_heartbeat_with_no_started_at_is_not_interrupted():
+    """Every heartbeat already on disk predates this field. Reading one must not
+    suddenly declare a healthy pipeline broken."""
+    beat = {"finished_at": datetime(2026, 8, 26, 11, 0, tzinfo=UTC).isoformat(),
+            "totals": {"written": 15, "failed": 0}}
+    state = health.assess([{"date": "2026-08-26"}], today=date(2026, 8, 26), last_run=beat,
+                          now=datetime(2026, 8, 26, 23, 0, tzinfo=UTC))
+    assert state["interrupted_run"] is False
+    assert state["status"] == health.OK
+
+
+def test_assess_survives_an_unparseable_started_at():
+    """Health reporting is the thing that must still work when everything else
+    has stopped -- a hand-edited or truncated stamp must degrade, not raise."""
+    beat = {"started_at": "not-a-timestamp", "finished_at": None, "totals": {}}
+    state = health.assess([{"date": "2026-08-26"}], today=date(2026, 8, 26), last_run=beat,
+                          now=datetime(2026, 8, 26, 23, 0, tzinfo=UTC))
+    assert state["interrupted_run"] is False
+
+
+def test_banner_names_the_interrupted_run():
+    beat = {"started_at": RUN_START.isoformat(), "finished_at": None, "totals": {}}
+    state = health.assess([{"date": "2026-08-26"}], today=date(2026, 8, 26), last_run=beat,
+                          now=RUN_START + timedelta(hours=12))
+    text = health.banner(state)
+    assert "started" in text.lower()
+    assert "never finished" in text.lower()
+    assert RUN_START.isoformat() in text

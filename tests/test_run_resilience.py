@@ -11,7 +11,7 @@ from datetime import date
 
 import pytest
 
-from pipeline import config, run
+from pipeline import config, health, run
 from pipeline.state import State
 
 from test_validate import VALID_NOTE
@@ -300,3 +300,32 @@ def test_main_exits_zero_on_a_clean_run(monkeypatch):
     with pytest.raises(SystemExit) as exc:
         run.cli([])
     assert exc.value.code == 0
+
+
+def test_run_writes_a_start_heartbeat_before_enriching(monkeypatch):
+    """A run that is killed partway must still leave evidence that it started.
+
+    Observed from inside enrichment, because that is exactly where the runs of
+    2026-08-23 and 2026-08-26 died: two items in, no `done:` line, last_run.json
+    untouched, and the scheduled task reporting success. Without a start stamp a
+    killed run is byte-for-byte identical to a run that never fired.
+    """
+    seen = {}
+
+    def spy_runner(prompt):
+        seen["heartbeat"] = health.load_last_run(config.DATA_DIR)
+        return VALID_NOTE_TODAY, {"is_error": False}
+
+    monkeypatch.setattr(run, "SOURCES", {"kev": lambda: [_item("kev", "CVE-2026-1111")]})
+    monkeypatch.setattr(run.enrich, "run_claude", spy_runner)
+    monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))
+
+    run.main([])
+
+    assert seen.get("heartbeat") is not None, "no heartbeat on disk while enrichment ran"
+    assert seen["heartbeat"].get("started_at"), "the in-flight heartbeat records no start"
+
+    finished = health.load_last_run(config.DATA_DIR)
+    assert finished["finished_at"] > finished["started_at"], (
+        "a completed run must record a finish newer than its start"
+    )

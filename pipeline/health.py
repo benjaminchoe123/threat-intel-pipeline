@@ -24,7 +24,7 @@ frontmatter rather than a directory, so it neither re-reads the vault nor import
 
 import json
 import sys
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 # Feeds are daily and the machine is a desktop that gets shut off, so one quiet
@@ -41,6 +41,12 @@ SEVERITY = [OK, STALE, DEGRADED]
 
 LAST_RUN_FILE = "last_run.json"
 
+# A run that started and never finished is indistinguishable on disk from a run
+# still in flight; only elapsed time separates them. Enrichment is capped per run
+# and each item costs tens of seconds, so a run still unfinished this long after
+# starting is dead, not busy.
+RUN_GRACE_HOURS = 6
+
 
 def record_run(data_dir, totals, when=None):
     """Write the heartbeat. Called at the end of every run, including failed ones.
@@ -48,14 +54,69 @@ def record_run(data_dir, totals, when=None):
     A run that writes zero notes leaves no trace in the vault, which is precisely
     the run we most need evidence of. Written before the dashboards so the banner
     reflects the run that is finishing, not the one before it.
+
+    Carries `started_at` forward so the completed pair stays readable: a finish
+    newer than its start is what "this run completed" looks like.
     """
     data_dir = Path(data_dir)
     data_dir.mkdir(parents=True, exist_ok=True)
     when = when or datetime.now(UTC)
+    previous = load_last_run(data_dir) or {}
     payload = {"finished_at": when.isoformat(), "totals": dict(totals)}
+    if previous.get("started_at"):
+        payload["started_at"] = previous["started_at"]
     path = data_dir / LAST_RUN_FILE
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return path
+
+
+def record_start(data_dir, when=None):
+    """Write the heartbeat at the *start* of a run.
+
+    record_run() only fires when a run completes, so a run killed partway leaves
+    last_run.json exactly as the previous run left it — byte-for-byte identical
+    to a run that never started at all. That is not hypothetical: the daily run
+    was killed mid-flight on 2026-08-23 and again on 2026-08-26, both times with
+    the scheduled task reporting success, and both times the only evidence was a
+    log file that stopped mid-sentence.
+
+    A start stamp with no matching finish is the missing evidence. The previous
+    run's finish and totals are preserved rather than overwritten — that is still
+    the last *completed* run, and dropping it would trade one blind spot for
+    another.
+    """
+    data_dir = Path(data_dir)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    when = when or datetime.now(UTC)
+    previous = load_last_run(data_dir) or {}
+    payload = {
+        "started_at": when.isoformat(),
+        "finished_at": previous.get("finished_at"),
+        "totals": previous.get("totals") or {},
+    }
+    path = data_dir / LAST_RUN_FILE
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return path
+
+
+def _interrupted_run(last_run, now, grace_hours=RUN_GRACE_HOURS):
+    """True when a run started, never recorded a finish, and is past the grace window.
+
+    Every failure mode here resolves to False. A heartbeat that cannot be read is
+    not evidence that a run died, and health reporting must not be the thing that
+    breaks when a stamp is hand-edited or truncated.
+    """
+    started = (last_run or {}).get("started_at")
+    if not started:
+        return False  # pre-existing heartbeat format: no start was ever recorded
+    try:
+        started_at = datetime.fromisoformat(started)
+        finished = (last_run or {}).get("finished_at")
+        if finished and datetime.fromisoformat(finished) >= started_at:
+            return False  # this run completed
+        return (now - started_at) >= timedelta(hours=grace_hours)
+    except (TypeError, ValueError):
+        return False
 
 
 def load_last_run(data_dir):
@@ -91,13 +152,15 @@ def _days_since_run(last_run, today):
         return None
 
 
-def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER_DAYS):
+def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER_DAYS,
+           now=None):
     """Return the health of the pipeline as a plain dict.
 
     threat_metas: parsed frontmatter of every note in vault/threats (callers
     already have this — update_dashboards parses it to build the dashboard).
     """
     today = today or date.today()
+    now = now or datetime.now(UTC)
     newest = _newest_date(threat_metas)
 
     days_stale = None
@@ -124,6 +187,14 @@ def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER
         # does not require a run — see main() — can act on this.
         status = max(status, STALE, key=SEVERITY.index)
 
+    interrupted = _interrupted_run(last_run, now)
+    if interrupted:
+        # A run that began and never ended is a malfunction, not merely quiet --
+        # and it is invisible to both other signals: notes it wrote before dying
+        # keep note-staleness happy, and `finished_at` still points at the last
+        # run that *did* complete.
+        status = max(status, DEGRADED, key=SEVERITY.index)
+
     totals = (last_run or {}).get("totals") or {}
     failed = int(totals.get("failed") or 0)
     written = int(totals.get("written") or 0)
@@ -136,6 +207,8 @@ def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER
         "newest_note_date": newest,
         "days_stale": days_stale,
         "last_run_at": (last_run or {}).get("finished_at"),
+        "run_started_at": (last_run or {}).get("started_at"),
+        "interrupted_run": interrupted,
         "days_since_run": days_since_run,
         "last_run_totals": totals or None,
         "stale_after_days": stale_after_days,
@@ -157,6 +230,11 @@ def banner(state):
             f"newest threat note is {state['newest_note_date']} "
             f"({state['days_stale']} days old, threshold {state['stale_after_days']})"
         )
+    if state.get("interrupted_run"):
+        parts.append(
+            f"a run started {state['run_started_at']} and never finished"
+        )
+
     totals = state["last_run_totals"] or {}
     if totals.get("failed"):
         parts.append(

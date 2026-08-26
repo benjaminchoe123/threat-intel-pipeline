@@ -168,6 +168,11 @@ def main(argv=None):
     parser.add_argument("--limit", type=int, default=config.MAX_ENRICH_PER_RUN)
     args = parser.parse_args(argv)
 
+    # Stamp the heartbeat before any work, so a run that is killed partway still
+    # leaves evidence that it started. Without this a killed run is identical on
+    # disk to a run that never fired.
+    health.record_start(config.DATA_DIR)
+
     skill_text = config.SKILL_FILE.read_text(encoding="utf-8")
     today = date.today().isoformat()
     sources = [args.source] if args.source else list(SOURCES)  # dict order = priority
