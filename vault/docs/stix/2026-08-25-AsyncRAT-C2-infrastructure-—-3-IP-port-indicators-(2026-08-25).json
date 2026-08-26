@@ -1,0 +1,159 @@
+{
+    "type": "bundle",
+    "id": "bundle--8ee05d67-2006-4a03-ae78-5260f30061c7",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d",
+            "created": "2026-08-25T17:00:21.111685Z",
+            "modified": "2026-08-25T17:00:21.111685Z",
+            "name": "AsyncRAT",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d",
+            "created": "2026-08-25T17:00:21.111685Z",
+            "modified": "2026-08-25T17:00:21.111685Z",
+            "name": "Application Layer Protocol",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071",
+                    "external_id": "T1071"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f",
+            "created": "2026-08-25T17:00:21.11269Z",
+            "modified": "2026-08-25T17:00:21.11269Z",
+            "name": "Non-Standard Port",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1571",
+                    "external_id": "T1571"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--d0a22cef-4723-52ec-b9a2-a3941892bfbd",
+            "created": "2026-08-25T17:00:21.11269Z",
+            "modified": "2026-08-25T17:00:21.11269Z",
+            "name": "Remote Access Tools",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1219",
+                    "external_id": "T1219"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--26c3b396-3652-57dc-8c8b-d4aaa8fdf13c",
+            "created": "2026-08-25T17:00:21.11269Z",
+            "modified": "2026-08-25T17:00:21.11269Z",
+            "name": "ip:port: 80.190.77.86:30700",
+            "description": "AsyncRAT botnet C2, ThreatFox confidence 100%, first seen 2026-08-25 13:05:08 UTC. VirusTotal: 10 malicious / 1 suspicious.",
+            "pattern": "[ipv4-addr:value = '80.190.77.86']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-25T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--a849c36c-06e9-52bc-aa08-cbd1dc375ca1",
+            "created": "2026-08-25T17:00:21.11269Z",
+            "modified": "2026-08-25T17:00:21.11269Z",
+            "name": "ip:port: 50.116.42.10:8808",
+            "description": "AsyncRAT botnet C2, ThreatFox confidence 100%, first seen 2026-08-25 12:05:05 UTC. VirusTotal: 2 malicious / 1 suspicious.",
+            "pattern": "[ipv4-addr:value = '50.116.42.10']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-25T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--aa9dfc1f-a824-5a83-a439-6052fd91eae8",
+            "created": "2026-08-25T17:00:21.113702Z",
+            "modified": "2026-08-25T17:00:21.113702Z",
+            "name": "ip:port: 160.25.140.133:443",
+            "description": "AsyncRAT botnet C2, ThreatFox confidence 50%, first seen 2026-08-25 06:48:53 UTC. VirusTotal: 2 malicious / 1 suspicious.",
+            "pattern": "[ipv4-addr:value = '160.25.140.133']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-25T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--06053797-4c70-53e5-b852-4afbd22842d3",
+            "created": "2026-08-25T17:00:21.113702Z",
+            "modified": "2026-08-25T17:00:21.113702Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--26c3b396-3652-57dc-8c8b-d4aaa8fdf13c",
+            "target_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4ad8d537-e9b8-5a9d-a5c8-85d6b640a2d0",
+            "created": "2026-08-25T17:00:21.113702Z",
+            "modified": "2026-08-25T17:00:21.113702Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--a849c36c-06e9-52bc-aa08-cbd1dc375ca1",
+            "target_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--35345df4-377f-50dd-bb53-eab4216987bf",
+            "created": "2026-08-25T17:00:21.113702Z",
+            "modified": "2026-08-25T17:00:21.113702Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--aa9dfc1f-a824-5a83-a439-6052fd91eae8",
+            "target_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--d46ebe64-1401-51f6-83b6-41f452cd6ce3",
+            "created": "2026-08-25T17:00:21.113702Z",
+            "modified": "2026-08-25T17:00:21.113702Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d",
+            "target_ref": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--53331c09-28b5-5e23-aabc-f0a65667937d",
+            "created": "2026-08-25T17:00:21.113702Z",
+            "modified": "2026-08-25T17:00:21.113702Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d",
+            "target_ref": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4743bdcc-6b95-5c47-a254-5f22a82c33d4",
+            "created": "2026-08-25T17:00:21.114706Z",
+            "modified": "2026-08-25T17:00:21.114706Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--9806fe6e-48ad-5a80-9994-f1eb88e9a48d",
+            "target_ref": "attack-pattern--d0a22cef-4723-52ec-b9a2-a3941892bfbd"
+        }
+    ]
+}

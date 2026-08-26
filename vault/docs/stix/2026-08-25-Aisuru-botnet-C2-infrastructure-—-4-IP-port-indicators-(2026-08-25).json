@@ -1,0 +1,157 @@
+{
+    "type": "bundle",
+    "id": "bundle--ad70e008-f019-4779-805c-521505b26a11",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--16046e25-1853-5016-94b8-e61d66c820a8",
+            "created": "2026-08-25T17:00:21.103579Z",
+            "modified": "2026-08-25T17:00:21.103579Z",
+            "name": "Aisuru",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d",
+            "created": "2026-08-25T17:00:21.103579Z",
+            "modified": "2026-08-25T17:00:21.103579Z",
+            "name": "Application Layer Protocol",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071",
+                    "external_id": "T1071"
+                }
+            ]
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--f064588b-e4d4-5c26-bb92-505ab2d24c5d",
+            "created": "2026-08-25T17:00:21.103579Z",
+            "modified": "2026-08-25T17:00:21.103579Z",
+            "name": "Network Denial of Service",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1498",
+                    "external_id": "T1498"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--e6b75ee3-538e-5950-95c6-370f9c79e0b1",
+            "created": "2026-08-25T17:00:21.103579Z",
+            "modified": "2026-08-25T17:00:21.103579Z",
+            "name": "ip:port: 46.101.146.87:8080",
+            "description": "Aisuru botnet C2, first seen 2026-08-25 16:29:38 UTC, confidence 100. VT: 6 malicious / 2 suspicious; AbuseIPDB 3% (1 report/90d)",
+            "pattern": "[ipv4-addr:value = '46.101.146.87']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-25T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--f5c7d553-e3f0-5817-ab5b-be510ced1c20",
+            "created": "2026-08-25T17:00:21.104584Z",
+            "modified": "2026-08-25T17:00:21.104584Z",
+            "name": "ip:port: 159.89.24.55:9035",
+            "description": "Aisuru botnet C2, first seen 2026-08-25 06:48:59 UTC, confidence 100. VT: 4 malicious / 3 suspicious; AbuseIPDB 0% (1 report/90d)",
+            "pattern": "[ipv4-addr:value = '159.89.24.55']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-25T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--b6c4f5e4-2b13-5402-a995-b0fab104681c",
+            "created": "2026-08-25T17:00:21.104584Z",
+            "modified": "2026-08-25T17:00:21.104584Z",
+            "name": "ip:port: 168.144.188.31:8080",
+            "description": "Aisuru botnet C2, first seen 2026-08-25 06:48:58 UTC, confidence 100. VT: 3 malicious / 2 suspicious; AbuseIPDB 0% (0 reports/90d)",
+            "pattern": "[ipv4-addr:value = '168.144.188.31']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-25T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--fccdd5dd-fb1f-592b-aff4-ed9c107cd462",
+            "created": "2026-08-25T17:00:21.105659Z",
+            "modified": "2026-08-25T17:00:21.105659Z",
+            "name": "ip:port: 64.227.187.82:34567",
+            "description": "Aisuru botnet C2, first seen 2026-08-25 06:48:56 UTC, confidence 100. VT: 4 malicious / 2 suspicious; AbuseIPDB 2% (1 report/90d)",
+            "pattern": "[ipv4-addr:value = '64.227.187.82']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-25T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--8b65342a-5380-53be-9658-f6d07b70b546",
+            "created": "2026-08-25T17:00:21.105659Z",
+            "modified": "2026-08-25T17:00:21.105659Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--e6b75ee3-538e-5950-95c6-370f9c79e0b1",
+            "target_ref": "malware--16046e25-1853-5016-94b8-e61d66c820a8"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--0358d10b-585f-5922-9044-2246f7d3fe06",
+            "created": "2026-08-25T17:00:21.105659Z",
+            "modified": "2026-08-25T17:00:21.105659Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--f5c7d553-e3f0-5817-ab5b-be510ced1c20",
+            "target_ref": "malware--16046e25-1853-5016-94b8-e61d66c820a8"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4e3a3b4f-1358-5edd-b0e3-851c298fe8ce",
+            "created": "2026-08-25T17:00:21.105659Z",
+            "modified": "2026-08-25T17:00:21.105659Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--b6c4f5e4-2b13-5402-a995-b0fab104681c",
+            "target_ref": "malware--16046e25-1853-5016-94b8-e61d66c820a8"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--878e8ace-c5d1-5796-9c75-f009e9aea89e",
+            "created": "2026-08-25T17:00:21.105659Z",
+            "modified": "2026-08-25T17:00:21.105659Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--fccdd5dd-fb1f-592b-aff4-ed9c107cd462",
+            "target_ref": "malware--16046e25-1853-5016-94b8-e61d66c820a8"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--c03d01de-5749-5ffc-8bbd-d808e220e32b",
+            "created": "2026-08-25T17:00:21.105659Z",
+            "modified": "2026-08-25T17:00:21.105659Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--16046e25-1853-5016-94b8-e61d66c820a8",
+            "target_ref": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--6591bdbe-b89e-5329-805d-54b42f2360b9",
+            "created": "2026-08-25T17:00:21.105659Z",
+            "modified": "2026-08-25T17:00:21.105659Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--16046e25-1853-5016-94b8-e61d66c820a8",
+            "target_ref": "attack-pattern--f064588b-e4d4-5c26-bb92-505ab2d24c5d"
+        }
+    ]
+}

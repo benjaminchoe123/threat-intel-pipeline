@@ -2,7 +2,7 @@
 title: Review Queue
 type: dashboard
 tags: [dashboard, review]
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 # Review Queue — flagged low-confidence notes
@@ -11,6 +11,17 @@ Notes where Claude flagged uncertainty instead of guessing (per the low-confiden
 rule in `skills/threat-analyst.md`). Review each, correct or confirm, then remove
 `flagged: true` from the note's frontmatter; the next run drops it from this list.
 
+- [[threats/2026-08-25-SmartApeSG-ClickFix-campaign-delivers-two-remote-access-trojans]] — confidence: low
+- [[threats/2026-08-25-FAKEUPDATES-C2-infrastructure-—-1-domain-indicator-(2026-08-25)]] — confidence: medium
+- [[threats/2026-08-25-DCRat-C2-infrastructure-—-1-IP-port-indicator-(2026-08-25)]] — confidence: medium
+- [[threats/2026-08-25-DarkComet-C2-infrastructure-—-1-IP-port-indicator-(2026-08-25)]] — confidence: low
+- [[threats/2026-08-25-CVE-2026-72529-—-TrueConf-Server-Missing-Authentication-for-Critical-Function]] — confidence: medium
+- [[threats/2026-08-25-CVE-2026-55040-—-Microsoft-SharePoint-Weak-Authentication-Vulnerability]] — confidence: medium
+- [[threats/2026-08-25-CVE-2026-33824-—-Microsoft-IKE-Service-Extensions-Double-Free-Remote-Code-Execution]] — confidence: medium
+- [[threats/2026-08-25-CVE-2026-21962-—-Oracle-HTTP-Server-and-WebLogic-Server-Proxy-Plug-in-Improper-Access-Control]] — confidence: medium
+- [[threats/2026-08-25-Cobalt-Strike-C2-infrastructure-—-27-IP-port-indicators-(2026-08-25)]] — confidence: medium
+- [[threats/2026-08-25-ClearFake-payload-delivery-infrastructure-—-121-IOCs-(2026-08-25)]] — confidence: medium
+- [[threats/2026-08-25-Aisuru-botnet-C2-infrastructure-—-4-IP-port-indicators-(2026-08-25)]] — confidence: medium
 - [[threats/2026-08-23-TrueConf-Server-Code-Injection-(CVE-2026-72530)]] — confidence: medium
 - [[threats/2026-08-04-SmartApeSG-ClickFix-campaign-pushes-unidentified-RAT]] — confidence: low
 - [[threats/2026-08-04-Seven-Days-of-Scans-and-Probes-Against-an-Internet-Facing-Web-Server-(malware-traffic-analysis.net,-2026-07-31)]] — confidence: low

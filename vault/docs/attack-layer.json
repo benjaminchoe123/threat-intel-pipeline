@@ -1,5 +1,5 @@
 {
-  "name": "Threat vault coverage — 2026-08-23",
+  "name": "Threat vault coverage — 2026-08-25",
   "versions": {
     "layer": "4.5",
     "navigator": "5.1.0",
@@ -20,32 +20,44 @@
   "techniques": [
     {
       "techniqueID": "T1190",
-      "score": 18,
-      "comment": "Exploit Public-Facing Application: 18 note(s) in the vault",
+      "score": 24,
+      "comment": "Exploit Public-Facing Application: 24 note(s) in the vault",
       "enabled": true
     },
     {
       "techniqueID": "T1071.001",
-      "score": 8,
-      "comment": "Web Protocols: 8 note(s) in the vault",
+      "score": 12,
+      "comment": "Web Protocols: 12 note(s) in the vault",
       "enabled": true
     },
     {
       "techniqueID": "T1071",
-      "score": 7,
-      "comment": "Application Layer Protocol: 7 note(s) in the vault",
+      "score": 10,
+      "comment": "Application Layer Protocol: 10 note(s) in the vault",
       "enabled": true
     },
     {
       "techniqueID": "T1571",
-      "score": 7,
-      "comment": "Non-Standard Port: 7 note(s) in the vault",
+      "score": 9,
+      "comment": "Non-Standard Port: 9 note(s) in the vault",
       "enabled": true
     },
     {
       "techniqueID": "T1219",
+      "score": 7,
+      "comment": "Remote Access Tools: 7 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059",
       "score": 5,
-      "comment": "Remote Access Tools: 5 note(s) in the vault",
+      "comment": "Command and Scripting Interpreter: 5 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1189",
+      "score": 5,
+      "comment": "Drive-by Compromise: 5 note(s) in the vault",
       "enabled": true
     },
     {
@@ -55,45 +67,33 @@
       "enabled": true
     },
     {
-      "techniqueID": "T1059",
-      "score": 4,
-      "comment": "Command and Scripting Interpreter: 4 note(s) in the vault",
-      "enabled": true
-    },
-    {
       "techniqueID": "T1068",
       "score": 3,
       "comment": "Exploitation for Privilege Escalation: 3 note(s) in the vault",
       "enabled": true
     },
     {
-      "techniqueID": "T1189",
+      "techniqueID": "T1204.002",
       "score": 3,
-      "comment": "Drive-by Compromise: 3 note(s) in the vault",
+      "comment": "Malicious File: 3 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1204.004",
+      "score": 3,
+      "comment": "Malicious Copy and Paste: 3 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1498",
+      "score": 3,
+      "comment": "Network Denial of Service: 3 note(s) in the vault",
       "enabled": true
     },
     {
       "techniqueID": "T1105",
       "score": 2,
       "comment": "Ingress Tool Transfer: 2 note(s) in the vault",
-      "enabled": true
-    },
-    {
-      "techniqueID": "T1204.002",
-      "score": 2,
-      "comment": "Malicious File: 2 note(s) in the vault",
-      "enabled": true
-    },
-    {
-      "techniqueID": "T1204.004",
-      "score": 2,
-      "comment": "Malicious Copy and Paste: 2 note(s) in the vault",
-      "enabled": true
-    },
-    {
-      "techniqueID": "T1498",
-      "score": 2,
-      "comment": "Network Denial of Service: 2 note(s) in the vault",
       "enabled": true
     },
     {
@@ -118,6 +118,12 @@
       "techniqueID": "T1595",
       "score": 2,
       "comment": "Active Scanning: 2 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1021.005",
+      "score": 1,
+      "comment": "VNC: 1 note(s) in the vault",
       "enabled": true
     },
     {
@@ -160,6 +166,12 @@
       "techniqueID": "T1078.001",
       "score": 1,
       "comment": "Default Accounts: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1102",
+      "score": 1,
+      "comment": "Web Service: 1 note(s) in the vault",
       "enabled": true
     },
     {
@@ -211,6 +223,12 @@
       "enabled": true
     },
     {
+      "techniqueID": "T1552.005",
+      "score": 1,
+      "comment": "Cloud Instance Metadata API: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
       "techniqueID": "T1566",
       "score": 1,
       "comment": "Phishing: 1 note(s) in the vault",
@@ -227,6 +245,30 @@
       "score": 1,
       "comment": "Spearphishing Link: 1 note(s) in the vault",
       "enabled": true
+    },
+    {
+      "techniqueID": "T1573.002",
+      "score": 1,
+      "comment": "Asymmetric Cryptography: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1583.001",
+      "score": 1,
+      "comment": "Domains: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1583.003",
+      "score": 1,
+      "comment": "Virtual Private Server: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1584.001",
+      "score": 1,
+      "comment": "Domains: 1 note(s) in the vault",
+      "enabled": true
     }
   ],
   "gradient": {
@@ -235,7 +277,7 @@
       "#ff6666"
     ],
     "minValue": 0,
-    "maxValue": 18
+    "maxValue": 24
   },
   "legendItems": [],
   "showTacticRowBackground": true,

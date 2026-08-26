@@ -2,32 +2,47 @@
 title: Threat Intel Home
 type: dashboard
 tags: [dashboard]
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 # Threat Intel Dashboard
 
-> **Pipeline health: OK** — newest threat note 2026-08-23.
+> **Pipeline health: OK** — newest threat note 2026-08-25.
 
 Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 
 ## Last 7 days
 
+- [[threats/2026-08-25-SmartApeSG-ClickFix-campaign-delivers-two-remote-access-trojans]] — **medium** ⚑ flagged
+- [[threats/2026-08-25-FAKEUPDATES-C2-infrastructure-—-1-domain-indicator-(2026-08-25)]] — **high** ⚑ flagged
+- [[threats/2026-08-25-DCRat-C2-infrastructure-—-1-IP-port-indicator-(2026-08-25)]] — **medium** ⚑ flagged
+- [[threats/2026-08-25-DarkComet-C2-infrastructure-—-1-IP-port-indicator-(2026-08-25)]] — **medium** ⚑ flagged
+- [[threats/2026-08-25-CVE-2026-72529-—-TrueConf-Server-Missing-Authentication-for-Critical-Function]] — **critical** ⚑ flagged
+- [[threats/2026-08-25-CVE-2026-65400-—-Apple-macOS-Improper-Authentication-in-Screen-Sharing]] — **critical**
+- [[threats/2026-08-25-CVE-2026-64849-—-MLflow-Server-Side-Request-Forgery]] — **high**
+- [[threats/2026-08-25-CVE-2026-59310-—-Broadcom-VMware-vCenter-Path-Traversal-Leading-to-Remote-Code-Execution]] — **critical**
+- [[threats/2026-08-25-CVE-2026-55040-—-Microsoft-SharePoint-Weak-Authentication-Vulnerability]] — **critical** ⚑ flagged
+- [[threats/2026-08-25-CVE-2026-33824-—-Microsoft-IKE-Service-Extensions-Double-Free-Remote-Code-Execution]] — **critical** ⚑ flagged
+- [[threats/2026-08-25-CVE-2026-21962-—-Oracle-HTTP-Server-and-WebLogic-Server-Proxy-Plug-in-Improper-Access-Control]] — **critical** ⚑ flagged
+- [[threats/2026-08-25-Cobalt-Strike-C2-infrastructure-—-27-IP-port-indicators-(2026-08-25)]] — **high** ⚑ flagged
+- [[threats/2026-08-25-ClearFake-payload-delivery-infrastructure-—-121-IOCs-(2026-08-25)]] — **high** ⚑ flagged
+- [[threats/2026-08-25-AsyncRAT-C2-infrastructure-—-3-IP-port-indicators-(2026-08-25)]] — **medium**
+- [[threats/2026-08-25-Aisuru-botnet-C2-infrastructure-—-4-IP-port-indicators-(2026-08-25)]] — **medium** ⚑ flagged
 - [[threats/2026-08-23-Zimbra-Collaboration-Suite-(ZCS)-OS-Command-Injection-(CVE-2026-73570)]] — **critical**
 - [[threats/2026-08-23-TrueConf-Server-Code-Injection-(CVE-2026-72530)]] — **high** ⚑ flagged
 
 ## Review queue
 
-See [[review-queue]] — 26 flagged item(s).
+See [[review-queue]] — 37 flagged item(s).
 
 ## Stats
 
 | metric | value |
 |---|---|
-| total threat notes | 59 |
-| malware families tracked | 22 |
-| ATT&CK techniques seen | 35 |
-| last run | 2026-08-23 |
+| total threat notes | 74 |
+| malware families tracked | 23 |
+| ATT&CK techniques seen | 42 |
+| last run | 2026-08-25 |
 
 ## Live queries
 

@@ -1,13 +1,13 @@
 {
     "type": "bundle",
-    "id": "bundle--321f38e3-286b-45a0-ac2d-dce9eca5dd23",
+    "id": "bundle--c33ca8fd-bc85-4bcb-80b0-3e37a99cceb6",
     "objects": [
         {
             "type": "malware",
             "spec_version": "2.1",
             "id": "malware--18447cb8-ef7f-5309-a8ff-50b48f0d2981",
-            "created": "2026-08-24T03:09:28.777875Z",
-            "modified": "2026-08-24T03:09:28.777875Z",
+            "created": "2026-08-25T17:00:20.621693Z",
+            "modified": "2026-08-25T17:00:20.621693Z",
             "name": "Ave Maria",
             "is_family": true
         },
@@ -15,8 +15,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f",
-            "created": "2026-08-24T03:09:28.777875Z",
-            "modified": "2026-08-24T03:09:28.777875Z",
+            "created": "2026-08-25T17:00:20.621693Z",
+            "modified": "2026-08-25T17:00:20.621693Z",
             "name": "Non-Standard Port",
             "external_references": [
                 {
@@ -30,8 +30,8 @@
             "type": "indicator",
             "spec_version": "2.1",
             "id": "indicator--6d4997fb-95ce-5966-8659-eeed62ad6e9b",
-            "created": "2026-08-24T03:09:28.778878Z",
-            "modified": "2026-08-24T03:09:28.778878Z",
+            "created": "2026-08-25T17:00:20.621693Z",
+            "modified": "2026-08-25T17:00:20.621693Z",
             "name": "ip:port: 104.245.245.146:5202",
             "description": "[[families/Ave Maria]] botnet C2, first seen 2026-07-19 20:05:03 UTC, ThreatFox confidence 100",
             "pattern": "[ipv4-addr:value = '104.245.245.146']",
@@ -43,8 +43,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--202a92bd-47b5-5a12-8603-a9748e5ab98c",
-            "created": "2026-08-24T03:09:28.778878Z",
-            "modified": "2026-08-24T03:09:28.778878Z",
+            "created": "2026-08-25T17:00:20.621693Z",
+            "modified": "2026-08-25T17:00:20.621693Z",
             "relationship_type": "indicates",
             "source_ref": "indicator--6d4997fb-95ce-5966-8659-eeed62ad6e9b",
             "target_ref": "malware--18447cb8-ef7f-5309-a8ff-50b48f0d2981"
@@ -53,8 +53,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--642aaeb1-3e67-5bc8-99fd-094860e1ac57",
-            "created": "2026-08-24T03:09:28.778878Z",
-            "modified": "2026-08-24T03:09:28.778878Z",
+            "created": "2026-08-25T17:00:20.622696Z",
+            "modified": "2026-08-25T17:00:20.622696Z",
             "relationship_type": "uses",
             "source_ref": "malware--18447cb8-ef7f-5309-a8ff-50b48f0d2981",
             "target_ref": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f"
