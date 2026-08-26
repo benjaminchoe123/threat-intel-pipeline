@@ -85,6 +85,38 @@ flowchart LR
   scanners). See `pipeline/reputation.py` and its per-service modules. All keys are
   optional; EPSS needs none.
 
+## Would any of it actually be caught?
+
+The pipeline answers one question — *what is being exploited* — and cannot answer the one that
+follows. So a companion project does: **[ruleproof](https://github.com/benjaminchoe123/ruleproof)**,
+a unit-test harness for Sigma detection rules, where a rule has to prove it fires on the attack
+it was written for and stays silent on benign lookalikes.
+
+Pointing it at this repo's ATT&CK output measures the gap between the two:
+
+```console
+$ ruleproof gap rules ../threat-intel-pipeline/vault/threats
+Observed techniques      : 43
+Demonstrated by rules    : 8
+Observed AND detected    : 13  (30%)
+Observed, NOT detected   : 30
+```
+
+That number is deliberately unflattering, and two things behind it are worth more than the
+percentage:
+
+- **The most-observed technique in this data has no detection.** T1190, *Exploit Public-Facing
+  Application*, appears in 24 threat notes — roughly three times the next most common. That is
+  partly inherent to the input, since a catalogue of exploited CVEs largely *is* T1190, and it
+  cannot be caught by one generic rule. But a coverage figure that quietly omits it is
+  flattering itself.
+- **Two of the detection rules cover techniques this data has never shown.** They were chosen
+  from general detection knowledge rather than from the evidence already sitting in this vault.
+  The two projects were not talking to each other until the gap was measured.
+
+The ranking is the useful part: it names the next rule to write. Two rules — T1571 and T1219 —
+were picked that way rather than by taste, moving coverage from 26% to 30%.
+
 ## What went wrong, and what it taught me
 
 Keeping an honest record means writing up the pipeline's own failures, not just the
