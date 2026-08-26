@@ -23,6 +23,7 @@ frontmatter rather than a directory, so it neither re-reads the vault nor import
 """
 
 import json
+import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -74,6 +75,22 @@ def _newest_date(threat_metas):
     return max(dates) if dates else None
 
 
+def _days_since_run(last_run, today):
+    """Whole days between the last heartbeat and `today`, or None if unknowable.
+
+    Never raises. A truncated or hand-edited heartbeat must degrade to "unknown"
+    rather than take the health check down — the health check is the thing that
+    is supposed to still work when everything else has stopped.
+    """
+    stamp = (last_run or {}).get("finished_at")
+    if not stamp:
+        return None
+    try:
+        return (today - datetime.fromisoformat(stamp).date()).days
+    except (TypeError, ValueError):
+        return None
+
+
 def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER_DAYS):
     """Return the health of the pipeline as a plain dict.
 
@@ -91,12 +108,21 @@ def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER
             # A hallucinated or hand-edited date must not crash the health check.
             newest, days_stale = None, None
 
+    days_since_run = _days_since_run(last_run, today)
+
     if days_stale is None:
         # No notes at all, or no parseable date on any of them. An empty vault is
         # a legitimate first-run state, so lean on the heartbeat: never run = ok.
         status = STALE if last_run else OK
     else:
         status = STALE if days_stale >= stale_after_days else OK
+
+    if days_since_run is not None and days_since_run >= stale_after_days:
+        # The signal note-staleness structurally cannot carry: the dashboard is
+        # only ever rendered *by a run*, so "no runs at all" freezes the banner
+        # mid-sentence at whatever the last healthy run wrote. Only a reader that
+        # does not require a run — see main() — can act on this.
+        status = max(status, STALE, key=SEVERITY.index)
 
     totals = (last_run or {}).get("totals") or {}
     failed = int(totals.get("failed") or 0)
@@ -110,6 +136,7 @@ def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER
         "newest_note_date": newest,
         "days_stale": days_stale,
         "last_run_at": (last_run or {}).get("finished_at"),
+        "days_since_run": days_since_run,
         "last_run_totals": totals or None,
         "stale_after_days": stale_after_days,
     }
@@ -136,7 +163,14 @@ def banner(state):
             f"last run wrote {totals.get('written', 0)} note(s) and failed "
             f"{totals['failed']}"
         )
-    if state["last_run_at"]:
+    if state.get("days_since_run") is not None and state["days_since_run"] >= state[
+        "stale_after_days"
+    ]:
+        parts.append(
+            f"no run for {state['days_since_run']} days "
+            f"(last {state['last_run_at']})"
+        )
+    elif state["last_run_at"]:
         parts.append(f"last run {state['last_run_at']}")
 
     label = "DEGRADED" if status == DEGRADED else "STALE"
@@ -145,3 +179,50 @@ def banner(state):
         "> Enrichment output has stopped. Check the newest `logs/daily-*.log` and\n"
         "> `logs/audit/*.jsonl` for the failure detail before trusting this dashboard."
     )
+
+
+def check(vault_dir, data_dir, today=None):
+    """Assess health by reading the vault directly, without running anything.
+
+    `assess()` is pure and takes already-parsed frontmatter because its in-process
+    callers already have it. This one does the reading, which is what an external
+    watchdog needs: the whole point is to answer "is the pipeline alive" at a
+    moment when the pipeline is *not* running and therefore cannot answer.
+    """
+    from .notes import _read_frontmatter  # local: notes imports this module
+
+    threats = sorted((Path(vault_dir) / "threats").glob("*.md"))
+    metas = [_read_frontmatter(p) for p in threats]
+    return assess(metas, today=today, last_run=load_last_run(data_dir))
+
+
+def main(argv=None, today=None):
+    """`python -m pipeline.health [vault_dir data_dir]` -> 0 healthy, 1 not.
+
+    Deliberately a separate entry point from `run.cli()`. A watchdog that only
+    executes as part of the run it is watching reports "fine" right up until the
+    run stops happening, and then reports nothing at all forever.
+    """
+    from . import config
+
+    argv = list(argv if argv is not None else sys.argv[1:])
+    vault_dir = argv[0] if len(argv) > 0 else config.VAULT_DIR
+    data_dir = argv[1] if len(argv) > 1 else config.DATA_DIR
+
+    # The STALE banner carries U+26A0, which cp1252 cannot encode, and Windows
+    # stdout is cp1252 even when redirected. Duplicated from run._utf8_stream()
+    # on purpose: run.py imports this module, and a watchdog that needs the whole
+    # run machinery loaded before it can print is a watchdog with a second way to
+    # fail silently.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError, ValueError):
+        pass  # not a real tty (pytest capture); the default is fine
+
+    state = check(vault_dir, data_dir, today=today)
+    print(banner(state))
+    return 0 if state["status"] == OK else 1
+
+
+if __name__ == "__main__":  # pragma: no cover - thin shell
+    sys.exit(main())

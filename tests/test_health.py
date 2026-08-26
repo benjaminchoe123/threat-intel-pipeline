@@ -160,3 +160,131 @@ def test_dashboard_without_a_heartbeat_still_flags_staleness(tmp_path):
     """No last_run.json yet (upgrading an existing install) must not mask staleness."""
     home = _home_with(["2026-08-04"], None, tmp_path)
     assert "Pipeline health: STALE" in home
+
+
+# --- run age: the watchdog that only ticked when the dog was alive ----------
+#
+# The 2026-08-25 near-miss: every surface said OK while the scheduler had not
+# fired for two days. Note staleness cannot detect "the pipeline stopped running"
+# on its own, because the only code that renders the banner runs *during a run*.
+# Stop running and the dashboard freezes mid-sentence, still saying OK. Run age
+# is the independent signal, and it is only useful to a reader that does not
+# require a run to happen first — hence the CLI below.
+
+
+def test_old_heartbeat_is_stale_even_when_notes_look_fresh():
+    state = health.assess(
+        [meta("2026-08-23")],
+        today=TODAY,
+        last_run=run(written=15, when="2026-08-18T08:00:00+00:00"),
+    )
+    assert state["days_since_run"] == 5
+    assert state["status"] == health.STALE
+
+
+def test_recent_heartbeat_is_ok():
+    state = health.assess([meta("2026-08-23")], today=TODAY, last_run=run(written=15))
+    assert state["days_since_run"] == 0
+    assert state["status"] == health.OK
+
+
+def test_run_age_tolerates_the_same_gap_as_notes():
+    """Two days is a weekend with the desktop off, for runs as much as notes."""
+    state = health.assess(
+        [meta("2026-08-23")],
+        today=TODAY,
+        last_run=run(written=15, when="2026-08-21T08:00:00+00:00"),
+    )
+    assert state["status"] == health.OK
+
+
+def test_missing_heartbeat_leaves_run_age_unknown():
+    state = health.assess([meta("2026-08-23")], today=TODAY, last_run=None)
+    assert state["days_since_run"] is None
+    assert state["status"] == health.OK
+
+
+def test_unparseable_heartbeat_timestamp_does_not_crash():
+    """A truncated write must not take the health check down with it."""
+    state = health.assess(
+        [meta("2026-08-23")],
+        today=TODAY,
+        last_run={"finished_at": "not-a-date", "totals": {}},
+    )
+    assert state["days_since_run"] is None
+    assert state["status"] == health.OK
+
+
+def test_banner_names_run_age_when_the_run_is_the_stale_thing():
+    state = health.assess(
+        [meta("2026-08-23")],
+        today=TODAY,
+        last_run=run(written=15, when="2026-08-18T08:00:00+00:00"),
+    )
+    text = health.banner(state)
+    assert "5 days" in text
+    assert "STALE" in text
+
+
+# --- external watchdog CLI -------------------------------------------------
+
+
+def _vault(tmp_path, note_date):
+    threats = tmp_path / "vault" / "threats"
+    threats.mkdir(parents=True)
+    (threats / f"{note_date}-x.md").write_text(
+        f"---\ntitle: X\ndate: {note_date}\n---\n\nbody\n", encoding="utf-8"
+    )
+    return tmp_path / "vault"
+
+
+def test_cli_exits_zero_when_healthy(tmp_path, capsys):
+    vault = _vault(tmp_path, "2026-08-23")
+    health.record_run(tmp_path / "data", {"written": 3, "failed": 0},
+                      when=datetime(2026, 8, 23, 8, tzinfo=UTC))
+    code = health.main([str(vault), str(tmp_path / "data")], today=TODAY)
+    assert code == 0
+    assert "OK" in capsys.readouterr().out
+
+
+def test_cli_exits_nonzero_when_the_scheduler_has_stopped(tmp_path, capsys):
+    """The case the dashboard structurally cannot report on itself."""
+    vault = _vault(tmp_path, "2026-08-23")
+    health.record_run(tmp_path / "data", {"written": 3, "failed": 0},
+                      when=datetime(2026, 8, 18, 8, tzinfo=UTC))
+    code = health.main([str(vault), str(tmp_path / "data")], today=TODAY)
+    assert code == 1
+    assert "STALE" in capsys.readouterr().out
+
+
+def test_cli_reports_a_never_run_pipeline_without_crashing(tmp_path, capsys):
+    vault = _vault(tmp_path, "2026-08-23")
+    code = health.main([str(vault), str(tmp_path / "data")], today=TODAY)
+    assert code == 0
+    assert "OK" in capsys.readouterr().out
+
+
+def test_cli_survives_a_cp1252_console(tmp_path, monkeypatch):
+    """The banner contains an em-dash and Windows stdout is cp1252 even when
+    redirected — scripts/run_daily.ps1 redirects. A watchdog that crashes on its
+    own output is worse than no watchdog: it fails exactly when read.
+    """
+    import io
+
+    vault = _vault(tmp_path, "2026-08-23")
+    # The STALE banner is the one that carries U+26A0 WARNING SIGN, which cp1252
+    # cannot encode. (The healthy banner's em-dash is cp1252 0x97 and encodes
+    # fine — testing that path would prove nothing.)
+    health.record_run(
+        tmp_path / "data",
+        {"written": 3, "failed": 0},
+        when=datetime(2026, 8, 18, 8, tzinfo=UTC),
+    )
+    buf = io.TextIOWrapper(io.BytesIO(), encoding="cp1252", errors="strict")
+    monkeypatch.setattr("sys.stdout", buf)
+
+    code = health.main([str(vault), str(tmp_path / "data")], today=TODAY)
+
+    assert code == 1
+    buf.seek(0)
+    assert "STALE" in buf.buffer.getvalue().decode("utf-8", "replace")
