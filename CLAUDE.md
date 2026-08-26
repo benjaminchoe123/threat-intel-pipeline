@@ -14,12 +14,29 @@ drafted for human approval before publishing to GitHub + LinkedIn.
   Claude output). Never skip or weaken the audit trail.
 - Publishing happens two ways: explicit human approval via `python -m pipeline.publish
   <week>`, or the unattended `python -m pipeline.publish --auto` path the Sunday scheduled
-  task runs automatically. Auto-publish is gated by `pipeline.verify_report`: every CVE/
-  ATT&CK ID the draft cites must trace to that week's real notes, and every other
-  substantive claim must be verified as supported by a Claude call before anything is
-  pushed. A verification failure blocks the push entirely and leaves the draft untouched
-  for manual review — it never fails silently. Never weaken or bypass this check, and
-  never let a broken verification call be treated as a pass.
+  task runs automatically. Auto-publish is gated by `pipeline.verify_report`. A verification
+  failure blocks the push entirely and leaves the draft untouched for manual review — it
+  never fails silently. Never weaken or bypass this check, and never let a broken
+  verification call be treated as a pass.
+- The gate asks **two different questions**, because the report contains two different kinds
+  of writing and judging both by one standard is what broke 2026-W35. Every CVE/ATT&CK ID
+  anywhere in the draft must trace to that week's real notes. Beyond that:
+  - **Factual sections** (TL;DR, top threats, what changed, sources) — every substantive
+    claim must be *directly supported* by the week's notes. Unchanged bar.
+  - **The recommendations section** (`## What a small organization should actually do`) —
+    checked by `ADVICE_VERIFICATION_PROMPT` instead. Advice is *expected* to go beyond the
+    notes; that is the section's purpose. It fails if it invents a fact (count, date,
+    deadline, version, exploitation status), contradicts a note, prescribes action on a
+    product the week's notes never mention, states an absolute about the world that is
+    false, or recommends something that would not reduce exposure to the threat it cites.
+  This is not a lower bar for advice — it adds a contradiction check the single-question
+  prompt never had. Do not collapse the two prompts back into one.
+- Verification runs `VERIFICATION_ROUNDS` (3) times per section and **fails on the union of
+  the rounds' objections**. A single pass was observed flagging different subsets of the same
+  draft run to run — one claim passed rounds 1-8 and was rejected on round 9 — so one pass
+  certifies "passed this roll of the dice", not "passed". A disagreement between rounds
+  resolves against publishing: the round that objected is the one that noticed something.
+  Lowering the round count or taking a majority instead of a union weakens the gate.
 - Secrets live in `.env` only (gitignored): `ABUSECH_AUTH_KEY`, `VT_API_KEY`,
   `ABUSEIPDB_API_KEY`. All optional — each missing key just disables its lookup/feed.
 - `data/`, `logs/`, `.env`, `vault/reports/drafts/` are gitignored — unapproved drafts and
