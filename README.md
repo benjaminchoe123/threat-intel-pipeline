@@ -97,25 +97,25 @@ Pointing it at this repo's ATT&CK output measures the gap between the two:
 ```console
 $ ruleproof gap rules ../threat-intel-pipeline/vault/threats
 Observed techniques      : 43
-Demonstrated by rules    : 8
-Observed AND detected    : 13  (30%)
-Observed, NOT detected   : 30
+Demonstrated by rules    : 10
+Observed AND detected    : 15  (35%)
+Observed, NOT detected   : 28
 ```
 
 That number is deliberately unflattering, and two things behind it are worth more than the
 percentage:
 
 - **The most-observed technique in this data has no detection.** T1190, *Exploit Public-Facing
-  Application*, appears in 24 threat notes — roughly three times the next most common. That is
-  partly inherent to the input, since a catalogue of exploited CVEs largely *is* T1190, and it
+  Application*, appears in 25 threat notes — over six times the next-largest undetected
+  technique, and about twice the next-most-observed one. That is partly inherent to the input, since a catalogue of exploited CVEs largely *is* T1190, and it
   cannot be caught by one generic rule. But a coverage figure that quietly omits it is
   flattering itself.
 - **Two of the detection rules cover techniques this data has never shown.** They were chosen
   from general detection knowledge rather than from the evidence already sitting in this vault.
   The two projects were not talking to each other until the gap was measured.
 
-The ranking is the useful part: it names the next rule to write. Two rules — T1571 and T1219 —
-were picked that way rather than by taste, moving coverage from 26% to 30%.
+The ranking is the useful part: it names the next rule to write. Four rules — T1571, T1219,
+T1105 and T1189 — were picked that way rather than by taste, moving coverage from 26% to 35%.
 
 ## What went wrong, and what it taught me
 
