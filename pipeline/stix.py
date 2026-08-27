@@ -17,7 +17,7 @@ import logging
 import re
 import sys
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import stix2
@@ -92,6 +92,19 @@ def _stix_id(stix_type, key):
     return f"{stix_type}--{uuid.uuid5(uuid.NAMESPACE_URL, f'{_URN}:{stix_type}:{key}')}"
 
 
+def _note_time(meta):
+    """The note's own date as the timestamp every object in its bundle carries.
+
+    Not the clock. `python -m pipeline.stix` rebuilds all bundles from scratch
+    after every ingest, so a wall-clock `created`/`modified` restamps 77
+    unchanged notes as modified today — and STIX consumers (MISP, TIPs) dedupe
+    and diff on `modified`, so that is a false claim a machine will act on, not
+    just diff noise. Raises on an unparseable date, which `export` isolates to
+    the one bad note.
+    """
+    return datetime.strptime(str(meta["date"]), "%Y-%m-%d").replace(tzinfo=UTC)
+
+
 def _read_note(path):
     text = Path(path).read_text(encoding="utf-8")
     meta = _read_frontmatter(path)
@@ -104,9 +117,12 @@ def build_bundle(meta, body):
     STIX-worthy (no CVE, no family, no technique, no parseable IOC)."""
     objects = []
     vuln_by_cve, malware_by_family, ap_by_technique = {}, {}, {}
+    seen_at = _note_time(meta) if meta.get("date") else datetime.now(UTC)
+    stamp = {"created": seen_at, "modified": seen_at}
 
     for cve in meta.get("cve") or []:
         vuln = stix2.Vulnerability(
+            **stamp,
             id=_stix_id("vulnerability", cve),
             name=cve,
             external_references=[{"source_name": "cve", "external_id": cve}],
@@ -116,6 +132,7 @@ def build_bundle(meta, body):
 
     for family in meta.get("family") or []:
         malware = stix2.Malware(
+            **stamp,
             id=_stix_id("malware", family),
             name=family,
             is_family=True,
@@ -126,6 +143,7 @@ def build_bundle(meta, body):
     for tid in meta.get("attack_techniques") or []:
         name = attack.name_for(tid) or tid
         ap = stix2.AttackPattern(
+            **stamp,
             id=_stix_id("attack-pattern", tid),
             name=name,
             external_references=[{
@@ -137,18 +155,18 @@ def build_bundle(meta, body):
         ap_by_technique[tid] = ap
         objects.append(ap)
 
-    valid_from = datetime.strptime(str(meta["date"]), "%Y-%m-%d") if meta.get("date") else None
     indicators = []
     for row in parse_ioc_table(body):
         pattern = ioc_pattern(row["type"], row["value"])
         if not pattern:
             continue
         indicators.append(stix2.Indicator(
+            **stamp,
             id=_stix_id("indicator", f"{row['type']}:{row['value']}"),
             name=f"{row['type']}: {row['value']}",
             pattern=pattern,
             pattern_type="stix",
-            valid_from=valid_from or datetime.utcnow(),
+            valid_from=seen_at,
             description=row["context"] or None,
         ))
     objects.extend(indicators)
@@ -156,24 +174,31 @@ def build_bundle(meta, body):
     for indicator in indicators:
         for malware in malware_by_family.values():
             objects.append(stix2.Relationship(
+                **stamp,
                 id=_stix_id("relationship", f"{indicator.id}:indicates:{malware.id}"),
                 relationship_type="indicates", source_ref=indicator.id, target_ref=malware.id,
             ))
     for malware in malware_by_family.values():
         for ap in ap_by_technique.values():
             objects.append(stix2.Relationship(
+                **stamp,
                 id=_stix_id("relationship", f"{malware.id}:uses:{ap.id}"),
                 relationship_type="uses", source_ref=malware.id, target_ref=ap.id,
             ))
         for vuln in vuln_by_cve.values():
             objects.append(stix2.Relationship(
+                **stamp,
                 id=_stix_id("relationship", f"{malware.id}:exploits:{vuln.id}"),
                 relationship_type="exploits", source_ref=malware.id, target_ref=vuln.id,
             ))
 
     if not objects:
         return None
-    return stix2.Bundle(objects=objects)
+    # Content-addressed, because stix2.Bundle otherwise mints a random uuid4 per
+    # call: the container's identity is what it contains, so an unchanged note
+    # re-exports to the same bundle instead of a new one every run.
+    contents = ":".join(sorted(o.id for o in objects))
+    return stix2.Bundle(id=_stix_id("bundle", contents), objects=objects)
 
 
 def export(vault_dir, out_dir=None):

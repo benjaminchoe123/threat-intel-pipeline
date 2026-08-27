@@ -1,13 +1,13 @@
 {
     "type": "bundle",
-    "id": "bundle--8a6c709f-1645-4cf7-8a6e-05b6ac24f873",
+    "id": "bundle--c63e0957-dd88-5219-b5b8-b8f56c2889f9",
     "objects": [
         {
             "type": "malware",
             "spec_version": "2.1",
             "id": "malware--8c91616c-20a4-56d0-bbe8-0f3ea62c7620",
-            "created": "2026-08-25T17:00:21.095524Z",
-            "modified": "2026-08-25T17:00:21.095524Z",
+            "created": "2026-08-04T00:00:00.000Z",
+            "modified": "2026-08-04T00:00:00.000Z",
             "name": "SmartApeSG",
             "is_family": true
         },
@@ -15,8 +15,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--4c23365b-f16e-54e5-9289-510f819dc13c",
-            "created": "2026-08-25T17:00:21.095524Z",
-            "modified": "2026-08-25T17:00:21.095524Z",
+            "created": "2026-08-04T00:00:00.000Z",
+            "modified": "2026-08-04T00:00:00.000Z",
             "name": "User Execution",
             "external_references": [
                 {
@@ -30,8 +30,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--f0c00dcf-64a0-5b86-9cb6-d7c979705e32",
-            "created": "2026-08-25T17:00:21.095524Z",
-            "modified": "2026-08-25T17:00:21.095524Z",
+            "created": "2026-08-04T00:00:00.000Z",
+            "modified": "2026-08-04T00:00:00.000Z",
             "name": "Command and Scripting Interpreter",
             "external_references": [
                 {
@@ -45,8 +45,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--2b4c3582-2fb7-54a5-970b-7bb7d17b33b6",
-            "created": "2026-08-25T17:00:21.096529Z",
-            "modified": "2026-08-25T17:00:21.096529Z",
+            "created": "2026-08-04T00:00:00.000Z",
+            "modified": "2026-08-04T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--8c91616c-20a4-56d0-bbe8-0f3ea62c7620",
             "target_ref": "attack-pattern--4c23365b-f16e-54e5-9289-510f819dc13c"
@@ -55,8 +55,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--2a418fc4-23bf-51a5-a895-b98262c3aff6",
-            "created": "2026-08-25T17:00:21.096529Z",
-            "modified": "2026-08-25T17:00:21.096529Z",
+            "created": "2026-08-04T00:00:00.000Z",
+            "modified": "2026-08-04T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--8c91616c-20a4-56d0-bbe8-0f3ea62c7620",
             "target_ref": "attack-pattern--f0c00dcf-64a0-5b86-9cb6-d7c979705e32"

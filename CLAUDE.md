@@ -69,3 +69,10 @@ drafted for human approval before publishing to GitHub + LinkedIn.
 - Only `written` marks an item seen. `quarantined`/`failed` carry over so a fix can rescue
   them; quarantine is a queue, not a dead end.
 - `python -m pipeline.run` takes a lock. Two concurrent runs double-enrich and double-bill.
+- Generated artifacts must be **byte-stable when nothing changed**. `pipeline.stix` and
+  `pipeline.navigator` rebuild every file from scratch on every ingest, so any wall-clock
+  value in the output restamps ~80 unchanged notes as modified today. That is not diff
+  noise: STIX consumers (MISP, TIPs) dedupe and diff on `modified`, so a regenerated
+  timestamp is a false claim a machine acts on. Timestamps come from the note's own date;
+  ids are derived (uuid5), never minted. `tests/test_stix.py` asserts a re-export of an
+  unchanged note is byte-identical — keep it that way.

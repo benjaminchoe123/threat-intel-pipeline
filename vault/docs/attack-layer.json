@@ -1,5 +1,5 @@
 {
-  "name": "Threat vault coverage — 2026-08-25",
+  "name": "Threat vault coverage — 2026-08-27",
   "versions": {
     "layer": "4.5",
     "navigator": "5.1.0",
@@ -20,8 +20,8 @@
   "techniques": [
     {
       "techniqueID": "T1190",
-      "score": 24,
-      "comment": "Exploit Public-Facing Application: 24 note(s) in the vault",
+      "score": 25,
+      "comment": "Exploit Public-Facing Application: 25 note(s) in the vault",
       "enabled": true
     },
     {
@@ -50,8 +50,8 @@
     },
     {
       "techniqueID": "T1059",
-      "score": 5,
-      "comment": "Command and Scripting Interpreter: 5 note(s) in the vault",
+      "score": 6,
+      "comment": "Command and Scripting Interpreter: 6 note(s) in the vault",
       "enabled": true
     },
     {
@@ -68,8 +68,8 @@
     },
     {
       "techniqueID": "T1068",
-      "score": 3,
-      "comment": "Exploitation for Privilege Escalation: 3 note(s) in the vault",
+      "score": 4,
+      "comment": "Exploitation for Privilege Escalation: 4 note(s) in the vault",
       "enabled": true
     },
     {
@@ -217,6 +217,12 @@
       "enabled": true
     },
     {
+      "techniqueID": "T1546",
+      "score": 1,
+      "comment": "Event Triggered Execution: 1 note(s) in the vault",
+      "enabled": true
+    },
+    {
       "techniqueID": "T1550.001",
       "score": 1,
       "comment": "Application Access Token: 1 note(s) in the vault",
@@ -277,7 +283,7 @@
       "#ff6666"
     ],
     "minValue": 0,
-    "maxValue": 24
+    "maxValue": 25
   },
   "legendItems": [],
   "showTacticRowBackground": true,

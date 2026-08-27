@@ -192,3 +192,26 @@ def test_export_isolates_a_note_that_blows_up_building_its_bundle(tmp_path):
     written = stix.export(tmp_path)
     assert len(written) == 1
     assert written[0].stem == "ok"
+
+
+# --- regeneration stability ------------------------------------------------
+# The vault's bundles are committed, and `python -m pipeline.stix` is rerun
+# after every ingest. If an unchanged note re-exports to different bytes, the
+# diff announces that all 77 threats changed today when two did — and STIX
+# consumers dedupe on `modified`, so the lie is machine-readable, not cosmetic.
+
+def test_re_exporting_an_unchanged_note_is_byte_identical(tmp_path):
+    _write(tmp_path, "a.md", cve="CVE-2026-1111", family="Amadey",
+           techniques="T1071", ioc_table=IOC_TABLE)
+    [path] = stix.export(tmp_path)
+    first = path.read_bytes()
+    [path] = stix.export(tmp_path)
+    assert path.read_bytes() == first
+
+
+def test_object_timestamps_come_from_the_note_date_not_the_clock(tmp_path):
+    _write(tmp_path, "a.md", cve="CVE-2026-1111")
+    [path] = stix.export(tmp_path)
+    vuln = json.loads(path.read_text(encoding="utf-8"))["objects"][0]
+    assert vuln["created"].startswith("2026-07-15T00:00:00")
+    assert vuln["modified"] == vuln["created"]

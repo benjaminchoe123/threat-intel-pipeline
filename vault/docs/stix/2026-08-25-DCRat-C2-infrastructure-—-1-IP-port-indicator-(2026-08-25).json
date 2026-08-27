@@ -1,13 +1,13 @@
 {
     "type": "bundle",
-    "id": "bundle--a8e6234d-047e-4392-a57a-ae834883b0d0",
+    "id": "bundle--9c756d65-cbd3-5a6a-b689-e96237159c46",
     "objects": [
         {
             "type": "malware",
             "spec_version": "2.1",
             "id": "malware--bec192de-74d7-57a7-99c3-184f1818646a",
-            "created": "2026-08-25T17:00:21.470454Z",
-            "modified": "2026-08-25T17:00:21.470454Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "DCRat",
             "is_family": true
         },
@@ -15,8 +15,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420",
-            "created": "2026-08-25T17:00:21.470454Z",
-            "modified": "2026-08-25T17:00:21.470454Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "Web Protocols",
             "external_references": [
                 {
@@ -30,8 +30,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--d299bbc8-6943-5123-8881-947fa397b428",
-            "created": "2026-08-25T17:00:21.470454Z",
-            "modified": "2026-08-25T17:00:21.470454Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--bec192de-74d7-57a7-99c3-184f1818646a",
             "target_ref": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420"

@@ -83,3 +83,19 @@ def test_export_writes_parseable_json(tmp_path):
 def test_export_on_an_empty_vault_does_not_crash(tmp_path):
     out = navigator.export(tmp_path, today=date(2026, 7, 15))
     assert json.loads(out.read_text(encoding="utf-8"))["techniques"] == []
+
+
+# The layer is committed and regenerated after every ingest, so its title must
+# date the *data*, not the run. Naming it after today churns the file daily
+# while claiming a coverage snapshot that did not move.
+
+def test_layer_is_named_for_the_newest_note_not_the_day_it_ran(tmp_path):
+    _write(tmp_path, "a.md", "A", "T1190")
+    out = navigator.export(tmp_path, today=date(2026, 8, 27))
+    assert "2026-07-15" in json.loads(out.read_text(encoding="utf-8"))["name"]
+
+
+def test_re_exporting_unchanged_notes_on_a_later_day_is_byte_identical(tmp_path):
+    _write(tmp_path, "a.md", "A", "T1190")
+    first = navigator.export(tmp_path, today=date(2026, 8, 27)).read_bytes()
+    assert navigator.export(tmp_path, today=date(2026, 9, 1)).read_bytes() == first

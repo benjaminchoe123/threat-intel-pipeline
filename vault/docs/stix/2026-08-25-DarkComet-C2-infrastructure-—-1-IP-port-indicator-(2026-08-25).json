@@ -1,13 +1,13 @@
 {
     "type": "bundle",
-    "id": "bundle--e4b6f931-0cc2-4fa3-a984-7bd16bb970e7",
+    "id": "bundle--be7d2f40-cf17-5462-9fdb-3d151c67f41d",
     "objects": [
         {
             "type": "malware",
             "spec_version": "2.1",
             "id": "malware--c8a2bc01-d692-5bf4-91ee-349c5d60759c",
-            "created": "2026-08-25T17:00:21.466443Z",
-            "modified": "2026-08-25T17:00:21.466443Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "DarkComet",
             "is_family": true
         },
@@ -15,8 +15,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d",
-            "created": "2026-08-25T17:00:21.466443Z",
-            "modified": "2026-08-25T17:00:21.466443Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "Application Layer Protocol",
             "external_references": [
                 {
@@ -30,8 +30,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f",
-            "created": "2026-08-25T17:00:21.466443Z",
-            "modified": "2026-08-25T17:00:21.466443Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "Non-Standard Port",
             "external_references": [
                 {
@@ -45,8 +45,8 @@
             "type": "indicator",
             "spec_version": "2.1",
             "id": "indicator--5f0929d3-7211-564e-a881-5b79808901aa",
-            "created": "2026-08-25T17:00:21.466443Z",
-            "modified": "2026-08-25T17:00:21.466443Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "ip:port: 132.243.172.182:1604",
             "description": "ThreatFox `botnet_cc` for [[families/DarkComet]]; confidence 75; first seen 2026-08-25 15:00:38 UTC; no reference URL provided",
             "pattern": "[ipv4-addr:value = '132.243.172.182']",
@@ -58,8 +58,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--97ec4ffa-735f-5117-8fd3-77b909cdac4c",
-            "created": "2026-08-25T17:00:21.467445Z",
-            "modified": "2026-08-25T17:00:21.467445Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "indicates",
             "source_ref": "indicator--5f0929d3-7211-564e-a881-5b79808901aa",
             "target_ref": "malware--c8a2bc01-d692-5bf4-91ee-349c5d60759c"
@@ -68,8 +68,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--c8b22369-58b4-5c66-90fd-163366eba463",
-            "created": "2026-08-25T17:00:21.467445Z",
-            "modified": "2026-08-25T17:00:21.467445Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--c8a2bc01-d692-5bf4-91ee-349c5d60759c",
             "target_ref": "attack-pattern--0f27537a-d387-5b6a-8c52-91a9f8132b1d"
@@ -78,8 +78,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--30b83cd3-f37e-5acb-9d89-892a26834e4a",
-            "created": "2026-08-25T17:00:21.467445Z",
-            "modified": "2026-08-25T17:00:21.467445Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--c8a2bc01-d692-5bf4-91ee-349c5d60759c",
             "target_ref": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f"

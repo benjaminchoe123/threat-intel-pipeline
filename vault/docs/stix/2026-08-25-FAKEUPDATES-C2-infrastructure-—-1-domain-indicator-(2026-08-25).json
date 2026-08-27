@@ -1,13 +1,13 @@
 {
     "type": "bundle",
-    "id": "bundle--af82024f-f3ec-4042-bc45-1eede8f3a6e6",
+    "id": "bundle--fac5b6e8-0815-53eb-ad8a-2d9ee5669fe1",
     "objects": [
         {
             "type": "malware",
             "spec_version": "2.1",
             "id": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
-            "created": "2026-08-25T17:00:21.472458Z",
-            "modified": "2026-08-25T17:00:21.472458Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "FAKEUPDATES",
             "is_family": true
         },
@@ -15,8 +15,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420",
-            "created": "2026-08-25T17:00:21.472458Z",
-            "modified": "2026-08-25T17:00:21.472458Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "Web Protocols",
             "external_references": [
                 {
@@ -30,8 +30,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--b28ca3fa-da51-5b72-9a41-39757e373075",
-            "created": "2026-08-25T17:00:21.472458Z",
-            "modified": "2026-08-25T17:00:21.472458Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "Drive-by Compromise",
             "external_references": [
                 {
@@ -45,8 +45,8 @@
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--fa337839-f66e-5b50-90ee-420061870327",
-            "created": "2026-08-25T17:00:21.473735Z",
-            "modified": "2026-08-25T17:00:21.473735Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "Malicious File",
             "external_references": [
                 {
@@ -60,8 +60,8 @@
             "type": "indicator",
             "spec_version": "2.1",
             "id": "indicator--89cdc1e0-1963-5161-b89f-0adb07e0d244",
-            "created": "2026-08-25T17:00:21.473735Z",
-            "modified": "2026-08-25T17:00:21.473735Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "name": "domain: `prime.destroythebrainonline.com`",
             "description": "FAKEUPDATES `botnet_cc`, ThreatFox confidence 100, first seen 2026-08-25 14:18:10 UTC. Reported via https://infosec.exchange/@monitorsg/117156556746728546",
             "pattern": "[domain-name:value = '`prime.destroythebrainonline.com`']",
@@ -73,8 +73,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--81331cea-74a8-54b8-b574-4633e472a06c",
-            "created": "2026-08-25T17:00:21.473735Z",
-            "modified": "2026-08-25T17:00:21.473735Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "indicates",
             "source_ref": "indicator--89cdc1e0-1963-5161-b89f-0adb07e0d244",
             "target_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa"
@@ -83,8 +83,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--0f328ab4-a1d1-57e2-9c4b-05fdd3722bb2",
-            "created": "2026-08-25T17:00:21.473735Z",
-            "modified": "2026-08-25T17:00:21.473735Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
             "target_ref": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420"
@@ -93,8 +93,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--1610e08d-75bd-5d34-9fb2-da1b78a93900",
-            "created": "2026-08-25T17:00:21.473735Z",
-            "modified": "2026-08-25T17:00:21.473735Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
             "target_ref": "attack-pattern--b28ca3fa-da51-5b72-9a41-39757e373075"
@@ -103,8 +103,8 @@
             "type": "relationship",
             "spec_version": "2.1",
             "id": "relationship--65dd311d-12df-54c6-af64-c820051da980",
-            "created": "2026-08-25T17:00:21.474742Z",
-            "modified": "2026-08-25T17:00:21.474742Z",
+            "created": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-08-25T00:00:00.000Z",
             "relationship_type": "uses",
             "source_ref": "malware--dd4c9613-f054-50c0-92f8-c1db17a293fa",
             "target_ref": "attack-pattern--fa337839-f66e-5b50-90ee-420061870327"

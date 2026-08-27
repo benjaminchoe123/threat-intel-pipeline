@@ -42,6 +42,29 @@ def collect_technique_counts(vault_dir):
     return counts
 
 
+def newest_note_date(vault_dir):
+    """The date of the most recent threat note, or None on an empty vault.
+
+    The layer is committed and rebuilt after every ingest, so naming it after
+    the run date churns the file daily while asserting a coverage snapshot that
+    did not actually move. Dating it by the data means the file changes when
+    the coverage does — and only then.
+    """
+    dates = []
+    threats = Path(vault_dir) / "threats"
+    if not threats.exists():
+        return None
+    for path in sorted(threats.glob("*.md")):
+        raw = (_read_frontmatter(path) or {}).get("date")
+        if not raw:
+            continue
+        try:
+            dates.append(date.fromisoformat(str(raw)))
+        except ValueError:
+            continue  # a malformed date dates nothing; it must not crash the layer
+    return max(dates) if dates else None
+
+
 def build_layer(counts, name=None, today=None):
     """A Navigator layer dict. Empty counts still produce a valid layer."""
     today = today or date.today()
@@ -93,7 +116,7 @@ def export(vault_dir, out_path=None, today=None):
     vault_dir = Path(vault_dir)
     out_path = Path(out_path) if out_path else vault_dir / "docs" / "attack-layer.json"
     counts = collect_technique_counts(vault_dir)
-    layer = build_layer(counts, today=today)
+    layer = build_layer(counts, today=newest_note_date(vault_dir) or today)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(layer, indent=2, ensure_ascii=False) + "\n",
                         encoding="utf-8")

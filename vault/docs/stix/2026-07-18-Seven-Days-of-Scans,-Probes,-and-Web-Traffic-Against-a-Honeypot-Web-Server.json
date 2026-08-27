@@ -1,13 +1,13 @@
 {
     "type": "bundle",
-    "id": "bundle--5ac39064-8f2f-4bd8-bc09-77c2ec6f5d2e",
+    "id": "bundle--d6cdc9ac-bd81-5956-8b20-4aa7e23b369f",
     "objects": [
         {
             "type": "attack-pattern",
             "spec_version": "2.1",
             "id": "attack-pattern--581228e6-c4e7-508f-a7d9-12fe83be2bc1",
-            "created": "2026-08-25T17:00:20.483566Z",
-            "modified": "2026-08-25T17:00:20.483566Z",
+            "created": "2026-07-18T00:00:00.000Z",
+            "modified": "2026-07-18T00:00:00.000Z",
             "name": "Active Scanning",
             "external_references": [
                 {
