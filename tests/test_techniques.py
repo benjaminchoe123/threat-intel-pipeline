@@ -114,3 +114,24 @@ def test_empty_vault_exports_nothing_rather_than_crashing(tmp_path):
     out = tmp_path / "obs.txt"
     techniques.export(tmp_path, out)
     assert _sightings(out) == []
+
+
+def test_export_names_the_technique_when_the_catalog_knows_it(tmp_path):
+    """The old hand-made sample carried names and was readable because of it.
+    This repo has the ATT&CK catalog, so annotating is free here and impossible
+    downstream -- ruleproof deliberately has no catalog to look them up in."""
+    _write(tmp_path, "a.md", "T1190")
+    out = tmp_path / "obs.txt"
+    techniques.export(tmp_path, out)
+    first = [ln for ln in out.read_text(encoding="utf-8").splitlines()
+             if ln.startswith("T1190")][0]
+    assert "Exploit Public-Facing Application" in first
+
+
+def test_an_unknown_identifier_is_left_unnamed_rather_than_guessed(tmp_path):
+    _write(tmp_path, "a.md", "T9999")
+    out = tmp_path / "obs.txt"
+    techniques.export(tmp_path, out)
+    first = [ln for ln in out.read_text(encoding="utf-8").splitlines()
+             if ln.startswith("T9999")][0]
+    assert first.strip() == "T9999  # x1"
