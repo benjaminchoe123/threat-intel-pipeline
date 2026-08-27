@@ -53,6 +53,9 @@ drafted for human approval before publishing to GitHub + LinkedIn.
 - Audit summary (cost, quarantine rate, cache hits): `python -m pipeline.stats --days 30`
 - ATT&CK Navigator layer: `python -m pipeline.navigator` → `vault/docs/attack-layer.json`
 - STIX 2.1 bundles (one per threat note): `python -m pipeline.stix` → `vault/docs/stix/`
+- Observed ATT&CK techniques, for `ruleproof gap`: `python -m pipeline.techniques`
+  (`--report` for the confirmed/flagged split, `--confirmed-only` to export just
+  the sightings from notes the enrichment did not flag)
 - MISP push (optional, needs `MISP_URL`/`MISP_API_KEY`): wired into `pipeline.run` automatically; see `docs/MISP-SETUP.md`
 - Refresh the ATT&CK catalog after a MITRE release: `python -m pipeline.attack --refresh`
 - Tests: `python -m pytest tests/` · Lint: `python -m ruff check pipeline/ tests/`
