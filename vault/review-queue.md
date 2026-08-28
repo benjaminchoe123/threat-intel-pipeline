@@ -2,7 +2,7 @@
 title: Review Queue
 type: dashboard
 tags: [dashboard, review]
-updated: 2026-08-25
+updated: 2026-08-27
 ---
 
 # Review Queue — flagged low-confidence notes
@@ -11,6 +11,7 @@ Notes where Claude flagged uncertainty instead of guessing (per the low-confiden
 rule in `skills/threat-analyst.md`). Review each, correct or confirm, then remove
 `flagged: true` from the note's frontmatter; the next run drops it from this list.
 
+- [[threats/2026-08-27-CVE-2021-23758-—-Ajax.NET-Professional-Deserialization-of-Untrusted-Data-(KEV)]] — confidence: medium
 - [[threats/2026-08-25-SmartApeSG-ClickFix-campaign-delivers-two-remote-access-trojans]] — confidence: low
 - [[threats/2026-08-25-FAKEUPDATES-C2-infrastructure-—-1-domain-indicator-(2026-08-25)]] — confidence: medium
 - [[threats/2026-08-25-DCRat-C2-infrastructure-—-1-IP-port-indicator-(2026-08-25)]] — confidence: medium

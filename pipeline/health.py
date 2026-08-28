@@ -212,6 +212,10 @@ def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER
         "days_since_run": days_since_run,
         "last_run_totals": totals or None,
         "stale_after_days": stale_after_days,
+        # The date the claim is about. A dashboard is rendered by a run and
+        # committed, so it freezes after a failed one -- an undated "OK" then
+        # asserts present-tense health it cannot know.
+        "assessed_on": today.isoformat(),
     }
 
 
@@ -220,7 +224,8 @@ def banner(state):
     status = state["status"]
     if status == OK:
         newest = state["newest_note_date"] or "—"
-        return f"> **Pipeline health: OK** — newest threat note {newest}."
+        return (f"> **Pipeline health: OK** as of {state['assessed_on']}"
+                f" — newest threat note {newest}.")
 
     parts = []
     if state["days_stale"] is None:
@@ -252,7 +257,9 @@ def banner(state):
         parts.append(f"last run {state['last_run_at']}")
 
     label = "DEGRADED" if status == DEGRADED else "STALE"
-    lines = [f"> **⚠ Pipeline health: {label}** — " + "; ".join(parts) + ".", ">"]
+    headline = (f"> **⚠ Pipeline health: {label}** as of {state['assessed_on']}"
+                f" — " + "; ".join(parts) + ".")
+    lines = [headline, ">"]
     lines += [f"> {line}" for line in _advice(state)]
     return "\n".join(lines)
 

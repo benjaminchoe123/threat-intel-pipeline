@@ -2,17 +2,24 @@
 title: Threat Intel Home
 type: dashboard
 tags: [dashboard]
-updated: 2026-08-25
+updated: 2026-08-27
 ---
 
 # Threat Intel Dashboard
 
-> **Pipeline health: OK** — newest threat note 2026-08-25.
+> **⚠ Pipeline health: DEGRADED** as of 2026-08-27 — newest threat note is 2026-08-27 (0 days old, threshold 3); a run started 2026-08-27T15:49:03.650648+00:00 and never finished; last run 2026-08-25T17:00:19.777652+00:00.
+>
+> A run was killed partway. Its unfinished items carry over to the next
+> run — only `written` marks an item seen — so the usual fix is to let
+> the next scheduled run pick them up rather than re-running by hand.
 
 Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 
 ## Last 7 days
 
+- [[threats/2026-08-27-CVE-2021-23758-—-Ajax.NET-Professional-Deserialization-of-Untrusted-Data-(KEV)]] — **high** ⚑ flagged
+- [[threats/2026-08-27-CVE-2015-3246-—-Red-Hat-Libuser-Race-Condition-Vulnerability-(KEV)]] — **high**
+- [[threats/2026-08-26-CVE-2026-60004-—-Gitea-diffpatch-Code-Injection-Allows-Git-Hook-Command-Execution]] — **high**
 - [[threats/2026-08-25-SmartApeSG-ClickFix-campaign-delivers-two-remote-access-trojans]] — **medium** ⚑ flagged
 - [[threats/2026-08-25-FAKEUPDATES-C2-infrastructure-—-1-domain-indicator-(2026-08-25)]] — **high** ⚑ flagged
 - [[threats/2026-08-25-DCRat-C2-infrastructure-—-1-IP-port-indicator-(2026-08-25)]] — **medium** ⚑ flagged
@@ -33,16 +40,16 @@ Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 
 ## Review queue
 
-See [[review-queue]] — 37 flagged item(s).
+See [[review-queue]] — 38 flagged item(s).
 
 ## Stats
 
 | metric | value |
 |---|---|
-| total threat notes | 74 |
+| total threat notes | 77 |
 | malware families tracked | 23 |
-| ATT&CK techniques seen | 42 |
-| last run | 2026-08-25 |
+| ATT&CK techniques seen | 43 |
+| last run | 2026-08-27 |
 
 ## Live queries
 

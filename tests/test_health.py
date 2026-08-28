@@ -425,3 +425,21 @@ def test_both_problems_at_once_report_both_kinds_of_advice():
     text = health.banner(state).lower()
     assert "output has stopped" in text
     assert "carry over" in text
+
+
+def test_the_ok_banner_dates_its_own_claim():
+    """A dashboard is rendered by a run and committed, so after a failed run it
+    freezes -- and a frozen banner reading "Pipeline health: OK" asserts
+    present-tense health it cannot know. On 2026-08-27 the committed home.md
+    still said OK as of 2026-08-25, two days and one killed run later. Dating the
+    claim makes the staleness visible to anyone reading it.
+    """
+    state = health.assess([{"date": "2026-08-25"}], today=date(2026, 8, 25))
+    text = health.banner(state)
+    assert "OK" in text
+    assert "2026-08-25" in text.split("newest threat note")[0]
+
+
+def test_a_degraded_banner_dates_itself_too():
+    state = health.assess([{"date": "2026-08-01"}], today=date(2026, 8, 26), last_run=None)
+    assert "2026-08-26" in health.banner(state)
