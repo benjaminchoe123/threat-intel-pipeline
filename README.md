@@ -125,6 +125,29 @@ separately and ruleproof measures against both; on confirmed evidence the figure
 Keeping an honest record means writing up the pipeline's own failures, not just the
 threats it catches.
 
+**2026-08-27 — the watchdog caught its first real one, then gave the wrong advice.** The daily
+run exited `0xC000013A` (STATUS_CONTROL_C_EXIT) about a minute in, having enriched two of three
+KEV items. The run-start heartbeat added the day before worked exactly as intended: `last_run.json`
+showed a `started_at` with no matching finish, and past the six-hour grace window
+`python -m pipeline.health` reported DEGRADED and exited 1. Before that heartbeat existed, a run
+killed partway was indistinguishable from one that never started.
+
+Then it said the wrong thing. Every non-OK banner appended one fixed line — *"Enrichment output
+has stopped"* — and the newest note was that same morning. Output had not stopped; the reader was
+being sent to hunt an outage that was not happening. A health message that misdescribes the
+failure is worse than a terse one, because it is confidently wrong at the exact moment someone is
+trusting it. The advice is now selected by what is actually wrong, and an interrupted run says
+what is true: unfinished items carry over to the next run, because only `written` marks an item
+seen.
+
+Two fixes followed from asking why it died rather than just restarting it. The committed
+dashboard had frozen at *"Pipeline health: OK — newest threat note 2026-08-25"*, so the banner now
+dates its own claim; a rendered artifact cannot assert present-tense health it has no way to know.
+And the scheduled tasks had `RestartCount 0`, so a run that died waited twenty hours for the next
+one — and for the Sunday task that would have meant no weekly report at all that week. Both tasks
+now retry twice at twenty-minute intervals, set in `scripts/register_tasks.ps1` rather than by
+hand, so re-registering cannot silently drop it.
+
 A malformed RSS entry once produced an empty item. The model behaved exactly as the
 prompt contract demands — it wrote "ingestion failure suspected" instead of inventing a
 threat. **The pipeline then filed that notice into `vault/threats/` as a threat note and
