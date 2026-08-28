@@ -97,9 +97,9 @@ Pointing it at this repo's ATT&CK output measures the gap between the two:
 ```console
 $ ruleproof gap rules ../threat-intel-pipeline/vault/threats
 Observed techniques      : 43
-Demonstrated by rules    : 10
-Observed AND detected    : 15  (35%)
-Observed, NOT detected   : 28
+Demonstrated by rules    : 11
+Observed AND detected    : 17  (40%)
+Observed, NOT detected   : 26
 ```
 
 That number is deliberately unflattering, and two things behind it are worth more than the
@@ -114,8 +114,11 @@ percentage:
   from general detection knowledge rather than from the evidence already sitting in this vault.
   The two projects were not talking to each other until the gap was measured.
 
-The ranking is the useful part: it names the next rule to write. Four rules — T1571, T1219,
-T1105 and T1189 — were picked that way rather than by taste, moving coverage from 26% to 35%.
+The ranking is the useful part: it names the next rule to write. Five rules — T1571, T1219,
+T1105, T1189 and T1555.003 — were picked that way rather than by taste, moving coverage from 26%
+to 40%. Half of this vault's technique sightings come from notes its own enrichment flagged as
+going beyond their source, so `python -m pipeline.techniques` exports the confirmed subset
+separately and ruleproof measures against both; on confirmed evidence the figure is 50%.
 
 ## What went wrong, and what it taught me
 
