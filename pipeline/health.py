@@ -252,11 +252,36 @@ def banner(state):
         parts.append(f"last run {state['last_run_at']}")
 
     label = "DEGRADED" if status == DEGRADED else "STALE"
-    return (
-        f"> **⚠ Pipeline health: {label}** — " + "; ".join(parts) + ".\n>\n"
-        "> Enrichment output has stopped. Check the newest `logs/daily-*.log` and\n"
-        "> `logs/audit/*.jsonl` for the failure detail before trusting this dashboard."
-    )
+    lines = [f"> **⚠ Pipeline health: {label}** — " + "; ".join(parts) + ".", ">"]
+    lines += [f"> {line}" for line in _advice(state)]
+    return "\n".join(lines)
+
+
+def _advice(state):
+    """What to actually do, matched to what is actually wrong.
+
+    This used to be one fixed paragraph appended to every non-OK banner, saying
+    enrichment output had stopped. On 2026-08-27 a run was killed on its third
+    item while that morning's notes were already on disk, and the banner told the
+    reader to go hunting for an outage that was not happening. A health message
+    that misdescribes the failure sends people to the wrong place, which is worse
+    than a terse one.
+    """
+    said = []
+    stale = state["days_stale"] is None or state["days_stale"] >= state["stale_after_days"]
+    if stale:
+        said.append("Enrichment output has stopped. Check the newest `logs/daily-*.log`")
+        said.append("and `logs/audit/*.jsonl` for the failure detail.")
+    if state.get("interrupted_run"):
+        said.append("A run was killed partway. Its unfinished items carry over to the next")
+        said.append("run — only `written` marks an item seen — so the usual fix is to let")
+        said.append("the next scheduled run pick them up rather than re-running by hand.")
+    totals = state["last_run_totals"] or {}
+    if totals.get("failed") and not totals.get("written"):
+        said.append("Every item in the last run failed, the 2026-08 outage signature.")
+    if not said:
+        said.append("Check the newest `logs/daily-*.log` before trusting this dashboard.")
+    return said
 
 
 def check(vault_dir, data_dir, today=None):

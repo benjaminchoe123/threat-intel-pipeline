@@ -395,3 +395,33 @@ def test_banner_names_the_interrupted_run():
     assert "started" in text.lower()
     assert "never finished" in text.lower()
     assert RUN_START.isoformat() in text
+
+
+def test_the_advice_matches_the_reason_not_a_fixed_string():
+    """The banner used to append "Enrichment output has stopped" to every
+    non-OK state. When the only problem is a run killed partway, that is false:
+    the notes are current, and it sends the reader looking for an outage that is
+    not happening. Observed on 2026-08-27, when a run died on its third item and
+    the banner said output had stopped while the newest note was that morning's.
+    """
+    beat = {"started_at": RUN_START.isoformat(), "finished_at": None, "totals": {}}
+    state = health.assess([{"date": "2026-08-26"}], today=date(2026, 8, 26), last_run=beat,
+                          now=RUN_START + timedelta(hours=12))
+    text = health.banner(state)
+    assert "output has stopped" not in text.lower()
+    assert "carry over" in text.lower()
+
+
+def test_stale_output_still_says_output_has_stopped():
+    """The original advice was right for the case it was written for."""
+    state = health.assess([{"date": "2026-08-01"}], today=date(2026, 8, 26), last_run=None)
+    assert "output has stopped" in health.banner(state).lower()
+
+
+def test_both_problems_at_once_report_both_kinds_of_advice():
+    beat = {"started_at": RUN_START.isoformat(), "finished_at": None, "totals": {}}
+    state = health.assess([{"date": "2026-08-01"}], today=date(2026, 8, 26), last_run=beat,
+                          now=RUN_START + timedelta(hours=12))
+    text = health.banner(state).lower()
+    assert "output has stopped" in text
+    assert "carry over" in text
