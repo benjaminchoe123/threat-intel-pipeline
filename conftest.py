@@ -31,3 +31,20 @@ def isolate_production_paths(tmp_path, monkeypatch):
     for attr, relative in _WRITABLE_PATHS.items():
         monkeypatch.setattr(config, attr, tmp_path.joinpath(*relative.split("/")))
     return tmp_path
+
+
+@pytest.fixture(autouse=True)
+def isolate_host_scheduler(monkeypatch):
+    """No test may read this machine's real Task Scheduler.
+
+    Same reasoning as the paths above, one layer out. `health.check()` reads the
+    OS scheduler because that is the only observer of a run killed before it
+    could write anything — but a test asserting "healthy" would then pass or
+    fail depending on whether the developer's own ThreatIntel-Daily happened to
+    die last night. It did, which is how this fixture came to exist.
+
+    Tests that care about the killed-task path inject their own reading.
+    """
+    from pipeline import scheduler
+
+    monkeypatch.setattr(scheduler, "killed_tasks", lambda *a, **kw: [])

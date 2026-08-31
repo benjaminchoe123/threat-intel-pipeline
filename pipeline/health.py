@@ -153,11 +153,17 @@ def _days_since_run(last_run, today):
 
 
 def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER_DAYS,
-           now=None):
+           now=None, killed_tasks=()):
     """Return the health of the pipeline as a plain dict.
 
     threat_metas: parsed frontmatter of every note in vault/threats (callers
     already have this — update_dashboards parses it to build the dashboard).
+
+    killed_tasks: scheduled tasks the OS says were terminated rather than
+    finished (see pipeline.scheduler). Passed in rather than read here, so this
+    stays pure — and so the committed dashboard, which calls assess() without
+    it, does not embed a transient scheduler reading in a file that must be
+    byte-stable when nothing changed.
     """
     today = today or date.today()
     now = now or datetime.now(UTC)
@@ -187,6 +193,14 @@ def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER
         # does not require a run — see main() — can act on this.
         status = max(status, STALE, key=SEVERITY.index)
 
+    killed_tasks = list(killed_tasks)
+    if killed_tasks:
+        # The blind spot no in-run stamp can cover. On 2026-08-31 the daily task
+        # was killed at 12:16:51 having written nothing at all -- no log header,
+        # no start stamp -- so every other signal here was still describing the
+        # run that completed at 01:58 and this check said OK.
+        status = max(status, DEGRADED, key=SEVERITY.index)
+
     interrupted = _interrupted_run(last_run, now)
     if interrupted:
         # A run that began and never ended is a malfunction, not merely quiet --
@@ -209,6 +223,7 @@ def assess(threat_metas, today=None, last_run=None, stale_after_days=STALE_AFTER
         "last_run_at": (last_run or {}).get("finished_at"),
         "run_started_at": (last_run or {}).get("started_at"),
         "interrupted_run": interrupted,
+        "killed_tasks": killed_tasks,
         "days_since_run": days_since_run,
         "last_run_totals": totals or None,
         "stale_after_days": stale_after_days,
@@ -238,6 +253,11 @@ def banner(state):
     if state.get("interrupted_run"):
         parts.append(
             f"a run started {state['run_started_at']} and never finished"
+        )
+    for task in state.get("killed_tasks") or []:
+        parts.append(
+            f"scheduled task {task['task']} was {task['detail']} "
+            f"at {task['last_run']}"
         )
 
     totals = state["last_run_totals"] or {}
@@ -283,6 +303,12 @@ def _advice(state):
         said.append("A run was killed partway. Its unfinished items carry over to the next")
         said.append("run — only `written` marks an item seen — so the usual fix is to let")
         said.append("the next scheduled run pick them up rather than re-running by hand.")
+    if state.get("killed_tasks"):
+        said.append("A scheduled task was terminated rather than exiting on its own. The")
+        said.append("tasks run under a principal that requires an interactive session, so")
+        said.append("check `Get-ScheduledTask -TaskName ThreatIntel-Daily | Select -Expand")
+        said.append("Principal` — a LogonType of Interactive means the run dies with the")
+        said.append("login session. Re-run `scripts/register_tasks.ps1` to fix it.")
     totals = state["last_run_totals"] or {}
     if totals.get("failed") and not totals.get("written"):
         said.append("Every item in the last run failed, the 2026-08 outage signature.")
@@ -299,11 +325,13 @@ def check(vault_dir, data_dir, today=None):
     watchdog needs: the whole point is to answer "is the pipeline alive" at a
     moment when the pipeline is *not* running and therefore cannot answer.
     """
+    from . import scheduler
     from .notes import _read_frontmatter  # local: notes imports this module
 
     threats = sorted((Path(vault_dir) / "threats").glob("*.md"))
     metas = [_read_frontmatter(p) for p in threats]
-    return assess(metas, today=today, last_run=load_last_run(data_dir))
+    return assess(metas, today=today, last_run=load_last_run(data_dir),
+                  killed_tasks=scheduler.killed_tasks())
 
 
 def main(argv=None, today=None):
