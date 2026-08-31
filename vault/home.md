@@ -2,21 +2,32 @@
 title: Threat Intel Home
 type: dashboard
 tags: [dashboard]
-updated: 2026-08-27
+updated: 2026-08-31
 ---
 
 # Threat Intel Dashboard
 
-> **⚠ Pipeline health: DEGRADED** as of 2026-08-27 — newest threat note is 2026-08-27 (0 days old, threshold 3); a run started 2026-08-27T15:49:03.650648+00:00 and never finished; last run 2026-08-25T17:00:19.777652+00:00.
->
-> A run was killed partway. Its unfinished items carry over to the next
-> run — only `written` marks an item seen — so the usual fix is to let
-> the next scheduled run pick them up rather than re-running by hand.
+> **Pipeline health: OK** as of 2026-08-31 — newest threat note 2026-08-31.
 
 Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 
 ## Last 7 days
 
+- [[threats/2026-08-31-CVE-2026-8452-—-Citrix-NetScaler-ADC-and-Gateway-memory-buffer-flaw-causes-denial-of-service-(CISA-KEV)]] — **high** ⚑ flagged
+- [[threats/2026-08-31-CVE-2026-66384-—-JFrog-Artifactory-path-traversal-allows-writes-outside-the-Docker-cache-directory-(CISA-KEV)]] — **high** ⚑ flagged
+- [[threats/2026-08-31-CVE-2026-53362-—-Linux-kernel-IPv6-subsystem-privilege-escalation-(CISA-KEV)]] — **high** ⚑ flagged
+- [[threats/2026-08-31-CVE-2022-0995-—-Linux-kernel-out-of-bounds-write-enables-local-privilege-escalation-(CISA-KEV)]] — **high**
+- [[threats/2026-08-31-CVE-2019-1068-—-Microsoft-SQL-Server-Database-Engine-remote-code-execution-(CISA-KEV)]] — **high** ⚑ flagged
+- [[threats/2026-08-31-CVE-2015-5287-—-Red-Hat-ABRT-local-privilege-escalation-via-symlink-attack-(CISA-KEV)]] — **high**
+- [[threats/2026-08-31-Coinminer-payload-hashes-—-three-file-indicators-from-a-single-sample-(2026-08-31)]] — **medium** ⚑ flagged
+- [[threats/2026-08-31-Cobalt-Strike-C2-infrastructure-—-32-indicators-across-nine-hosts-(2026-08-31)]] — **high** ⚑ flagged
+- [[threats/2026-08-31-ClearFake-payload-delivery-infrastructure-—-56-indicators-observed-(2026-08-31)]] — **high** ⚑ flagged
+- [[threats/2026-08-31-Chaos-C2-infrastructure-—-one-host-serving-botnet-controllers-on-ports-80-and-443-(2026-08-31)]] — **medium** ⚑ flagged
+- [[threats/2026-08-31-Bashlite-C2-infrastructure-—-single-botnet-controller-on-a-high-non-standard-port-(2026-08-31)]] — **medium** ⚑ flagged
+- [[threats/2026-08-31-AsyncRAT-C2-infrastructure-—-seven-botnet-controllers-observed-(2026-08-31)]] — **medium** ⚑ flagged
+- [[threats/2026-08-31-Aisuru-botnet-C2-infrastructure-—-28-IP-port-indicators-across-15-hosts-(2026-08-31)]] — **medium** ⚑ flagged
+- [[threats/2026-08-31-AdaptixC2-C2-infrastructure-—-four-listeners-on-a-single-host-(2026-08-31)]] — **medium** ⚑ flagged
+- [[threats/2026-08-28-CVE-2023-49105-—-ownCloud-WebDAV-pre-signed-URL-authentication-bypass]] — **high**
 - [[threats/2026-08-27-CVE-2021-23758-—-Ajax.NET-Professional-Deserialization-of-Untrusted-Data-(KEV)]] — **high** ⚑ flagged
 - [[threats/2026-08-27-CVE-2015-3246-—-Red-Hat-Libuser-Race-Condition-Vulnerability-(KEV)]] — **high**
 - [[threats/2026-08-26-CVE-2026-60004-—-Gitea-diffpatch-Code-Injection-Allows-Git-Hook-Command-Execution]] — **high**
@@ -35,21 +46,19 @@ Auto-generated each pipeline run. Do not hand-edit — see `pipeline/notes.py`.
 - [[threats/2026-08-25-ClearFake-payload-delivery-infrastructure-—-121-IOCs-(2026-08-25)]] — **high** ⚑ flagged
 - [[threats/2026-08-25-AsyncRAT-C2-infrastructure-—-3-IP-port-indicators-(2026-08-25)]] — **medium**
 - [[threats/2026-08-25-Aisuru-botnet-C2-infrastructure-—-4-IP-port-indicators-(2026-08-25)]] — **medium** ⚑ flagged
-- [[threats/2026-08-23-Zimbra-Collaboration-Suite-(ZCS)-OS-Command-Injection-(CVE-2026-73570)]] — **critical**
-- [[threats/2026-08-23-TrueConf-Server-Code-Injection-(CVE-2026-72530)]] — **high** ⚑ flagged
 
 ## Review queue
 
-See [[review-queue]] — 38 flagged item(s).
+See [[review-queue]] — 50 flagged item(s).
 
 ## Stats
 
 | metric | value |
 |---|---|
-| total threat notes | 77 |
-| malware families tracked | 23 |
-| ATT&CK techniques seen | 43 |
-| last run | 2026-08-27 |
+| total threat notes | 92 |
+| malware families tracked | 24 |
+| ATT&CK techniques seen | 45 |
+| last run | 2026-08-31 |
 
 ## Live queries
 

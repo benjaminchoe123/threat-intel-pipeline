@@ -2,7 +2,7 @@
 title: Review Queue
 type: dashboard
 tags: [dashboard, review]
-updated: 2026-08-27
+updated: 2026-08-31
 ---
 
 # Review Queue — flagged low-confidence notes
@@ -11,6 +11,18 @@ Notes where Claude flagged uncertainty instead of guessing (per the low-confiden
 rule in `skills/threat-analyst.md`). Review each, correct or confirm, then remove
 `flagged: true` from the note's frontmatter; the next run drops it from this list.
 
+- [[threats/2026-08-31-CVE-2026-8452-—-Citrix-NetScaler-ADC-and-Gateway-memory-buffer-flaw-causes-denial-of-service-(CISA-KEV)]] — confidence: medium
+- [[threats/2026-08-31-CVE-2026-66384-—-JFrog-Artifactory-path-traversal-allows-writes-outside-the-Docker-cache-directory-(CISA-KEV)]] — confidence: medium
+- [[threats/2026-08-31-CVE-2026-53362-—-Linux-kernel-IPv6-subsystem-privilege-escalation-(CISA-KEV)]] — confidence: medium
+- [[threats/2026-08-31-CVE-2019-1068-—-Microsoft-SQL-Server-Database-Engine-remote-code-execution-(CISA-KEV)]] — confidence: medium
+- [[threats/2026-08-31-Coinminer-payload-hashes-—-three-file-indicators-from-a-single-sample-(2026-08-31)]] — confidence: medium
+- [[threats/2026-08-31-Cobalt-Strike-C2-infrastructure-—-32-indicators-across-nine-hosts-(2026-08-31)]] — confidence: medium
+- [[threats/2026-08-31-ClearFake-payload-delivery-infrastructure-—-56-indicators-observed-(2026-08-31)]] — confidence: medium
+- [[threats/2026-08-31-Chaos-C2-infrastructure-—-one-host-serving-botnet-controllers-on-ports-80-and-443-(2026-08-31)]] — confidence: medium
+- [[threats/2026-08-31-Bashlite-C2-infrastructure-—-single-botnet-controller-on-a-high-non-standard-port-(2026-08-31)]] — confidence: medium
+- [[threats/2026-08-31-AsyncRAT-C2-infrastructure-—-seven-botnet-controllers-observed-(2026-08-31)]] — confidence: medium
+- [[threats/2026-08-31-Aisuru-botnet-C2-infrastructure-—-28-IP-port-indicators-across-15-hosts-(2026-08-31)]] — confidence: medium
+- [[threats/2026-08-31-AdaptixC2-C2-infrastructure-—-four-listeners-on-a-single-host-(2026-08-31)]] — confidence: medium
 - [[threats/2026-08-27-CVE-2021-23758-—-Ajax.NET-Professional-Deserialization-of-Untrusted-Data-(KEV)]] — confidence: medium
 - [[threats/2026-08-25-SmartApeSG-ClickFix-campaign-delivers-two-remote-access-trojans]] — confidence: low
 - [[threats/2026-08-25-FAKEUPDATES-C2-infrastructure-—-1-domain-indicator-(2026-08-25)]] — confidence: medium

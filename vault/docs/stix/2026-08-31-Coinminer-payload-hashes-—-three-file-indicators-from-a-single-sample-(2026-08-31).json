@@ -1,0 +1,15 @@
+{
+    "type": "bundle",
+    "id": "bundle--20052f83-76a4-5153-bdf8-7189b38fb089",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--3e509469-8352-5387-a0e8-2bbf8d6bc377",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "Coinminer",
+            "is_family": true
+        }
+    ]
+}

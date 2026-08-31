@@ -1,0 +1,63 @@
+{
+    "type": "bundle",
+    "id": "bundle--bf229d36-fbf0-5dd7-95af-fd9712935bc4",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--beff006f-2245-5aba-87cf-a5598492ffe0",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "Bashlite",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "Non-Standard Port",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1571",
+                    "external_id": "T1571"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--8b4a2134-2e9a-5003-ab08-fa00b9392601",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "ip:port: 64.89.160.222:65481",
+            "description": "Bashlite botnet C2, ThreatFox confidence 100, first seen 2026-08-30 10:43:05 UTC",
+            "pattern": "[ipv4-addr:value = '64.89.160.222']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-31T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--b907b2f3-a724-5157-9456-96faf8230c75",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--8b4a2134-2e9a-5003-ab08-fa00b9392601",
+            "target_ref": "malware--beff006f-2245-5aba-87cf-a5598492ffe0"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--de7e412c-85ef-5d8b-9302-173ed406ef7a",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--beff006f-2245-5aba-87cf-a5598492ffe0",
+            "target_ref": "attack-pattern--157a44c3-fc7f-52f7-b377-dafafb5cf53f"
+        }
+    ]
+}

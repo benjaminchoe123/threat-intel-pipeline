@@ -1,0 +1,109 @@
+{
+    "type": "bundle",
+    "id": "bundle--5ce3c456-bbfa-5423-9bc0-b28cc4a51bca",
+    "objects": [
+        {
+            "type": "malware",
+            "spec_version": "2.1",
+            "id": "malware--a8ef90bf-3819-5a8d-9035-7a37f0dd021c",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "Chaos",
+            "is_family": true
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "Web Protocols",
+            "external_references": [
+                {
+                    "source_name": "mitre-attack",
+                    "url": "https://attack.mitre.org/techniques/T1071.001",
+                    "external_id": "T1071.001"
+                }
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--9009198c-ad23-52ce-baf3-39ee07a3d2e0",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "ip:port: 144.31.106.168:443",
+            "description": "Botnet C2, ThreatFox confidence 75, first seen 2026-08-30 19:43:36 UTC",
+            "pattern": "[ipv4-addr:value = '144.31.106.168']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-31T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--dbcf6f46-9d8e-5001-9c6e-6a3757d70ca1",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "ip:port: 144.31.106.168:80",
+            "description": "Botnet C2, ThreatFox confidence 75, first seen 2026-08-30 19:43:36 UTC",
+            "pattern": "[ipv4-addr:value = '144.31.106.168']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-31T00:00:00Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--9abba613-f9fc-5f20-8e91-2e4ca74a3d47",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "name": "ip: 144.31.106.168",
+            "description": "Host behind both indicators. VirusTotal: 4 malicious / 2 suspicious / 49 harmless / 36 undetected. AbuseIPDB: 0% abuse confidence, 0 reports in 90 days",
+            "pattern": "[ipv4-addr:value = '144.31.106.168']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-08-31T00:00:00Z"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--31f0dbcb-c6a1-5b59-a6c4-4c909b85cf54",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--9009198c-ad23-52ce-baf3-39ee07a3d2e0",
+            "target_ref": "malware--a8ef90bf-3819-5a8d-9035-7a37f0dd021c"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--16369ee6-b799-58a0-b0f1-4d48c987fbd8",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--dbcf6f46-9d8e-5001-9c6e-6a3757d70ca1",
+            "target_ref": "malware--a8ef90bf-3819-5a8d-9035-7a37f0dd021c"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--2c2dc42d-dd71-5916-bc5c-3c18a75c8bd9",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--9abba613-f9fc-5f20-8e91-2e4ca74a3d47",
+            "target_ref": "malware--a8ef90bf-3819-5a8d-9035-7a37f0dd021c"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--7e5f6059-f663-53bf-ba2a-9eefbb825bae",
+            "created": "2026-08-31T00:00:00.000Z",
+            "modified": "2026-08-31T00:00:00.000Z",
+            "relationship_type": "uses",
+            "source_ref": "malware--a8ef90bf-3819-5a8d-9035-7a37f0dd021c",
+            "target_ref": "attack-pattern--a364a2f9-e5ba-5faa-a465-de0e0b9b6420"
+        }
+    ]
+}
