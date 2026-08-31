@@ -4,6 +4,7 @@ import pytest
 
 from pipeline import config, publish
 from pipeline.publish import approve_draft
+from pipeline.runlock import RunLock
 from pipeline.verify_report import VerificationResult
 
 
@@ -97,7 +98,16 @@ def test_main_dispatches_auto_flag(tmp_path, monkeypatch):
     monkeypatch.setattr(publish, "auto_publish", fake_auto_publish)
     code = publish.main(["--auto"])
     assert code == 0
-    assert called["wid"] == publish.weekly_report.week_id(date.today())
+    assert called["wid"] == publish.auto_week_id()
+
+
+def test_auto_publish_targets_the_week_the_draft_covers():
+    """--auto used to ask week_id(date.today()), which names the week *containing*
+    today. Run on a Sunday that is right; deferred into Monday it names the week
+    that has only just begun, which is how 2026-W36 came to be drafted from W35's
+    notes. Anchored to the completed week, the two agree."""
+    assert publish.auto_week_id(today=date(2026, 8, 30)) == "2026-W35"  # on time
+    assert publish.auto_week_id(today=date(2026, 8, 31)) == "2026-W35"  # deferred
 
 
 def test_main_shows_verification_before_confirming(tmp_path, monkeypatch, capsys):
@@ -148,3 +158,16 @@ def test_main_aborts_without_confirmation(tmp_path, monkeypatch):
     code = publish.main(["2026-W29"], confirm=lambda prompt: "no")
     assert code == 1
     assert (tmp_path / "reports" / "drafts" / "2026-W29-DRAFT.md").exists()
+
+
+def test_auto_publish_waits_for_a_daily_run_rather_than_pushing_mid_write(tmp_path, monkeypatch):
+    """--auto git-adds and pushes the vault. A daily run writing notes underneath
+    would commit a half-written tree, so it takes the same lock the draft did."""
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(publish.weekly_report, "WEEKLY_LOCK_WAIT_SECONDS", 0)
+    monkeypatch.setattr(publish, "auto_publish", lambda wid: 0)
+
+    with RunLock(tmp_path / "run.lock"):
+        assert publish.main(["--auto"]) == 1  # loud, not a silent skip
+
+    assert publish.main(["--auto"]) == 0  # lock free again

@@ -116,3 +116,53 @@ def test_cli_takes_the_lock_and_runs_when_free(monkeypatch):
         run.cli([])
     assert exc.value.code == 0
     assert ran == [1]
+
+
+# --- the daily and the weekly need opposite answers to a held lock ---
+#
+# 2026-08-31: both scheduled tasks were deferred by StartWhenAvailable and fired
+# at the identical instant on wake (01:40:22). Only pipeline.run took the lock,
+# so the weekly drafted its report from a vault the daily was still writing into:
+# 19 notes at draft time, 22 by verification, and every count in the report wrong
+# by the difference. -MultipleInstances IgnoreNew does not help -- it is per-task.
+
+
+def test_waiting_acquire_takes_the_lock_once_the_holder_releases(tmp_path):
+    path = tmp_path / "run.lock"
+    holder = RunLock(path).acquire()
+    clock = iter([0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 3.0, 3.0])
+    released = []
+
+    def sleep(_seconds):
+        # The daily finishes while the weekly is waiting.
+        if not released:
+            holder.release()
+            released.append(True)
+
+    waiter = RunLock(path, wait_seconds=60)
+    assert waiter.acquire(now=lambda: next(clock), sleep=sleep) is waiter
+    assert released, "the waiter must actually have waited, not walked straight in"
+    waiter.release()
+
+
+def test_waiting_acquire_gives_up_loudly_rather_than_drafting_from_a_moving_vault(tmp_path):
+    """Timing out must raise. A weekly that quietly skipped would reproduce the
+    silent-missing-week failure from the other direction."""
+    path = tmp_path / "run.lock"
+    with RunLock(path):
+        clock = iter([0.0, 100.0, 100.0])
+        with pytest.raises(LockHeld):
+            RunLock(path, wait_seconds=60).acquire(
+                now=lambda: next(clock), sleep=lambda _s: None
+            )
+
+
+def test_default_lock_does_not_wait(tmp_path):
+    """The daily's policy is unchanged: one attempt, then raise, so run.cli()
+    can exit 0 and let the run already in flight do the work."""
+    path = tmp_path / "run.lock"
+    slept = []
+    with RunLock(path):
+        with pytest.raises(LockHeld):
+            RunLock(path).acquire(sleep=lambda s: slept.append(s))
+    assert slept == []

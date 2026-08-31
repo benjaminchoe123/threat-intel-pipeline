@@ -18,6 +18,7 @@ recoverable rather than a permanent outage.
 import errno
 import logging
 import os
+import time
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -32,13 +33,43 @@ class RunLock:
 
     with RunLock(path):
         ...
+
+    `wait_seconds` makes acquisition block instead of raising immediately. The
+    two schedulers need opposite answers to "someone else holds this":
+
+      * The daily run should give up (and exit 0). Another run is already doing
+        its job; a second one double-enriches and double-bills.
+      * The weekly report should wait. Nobody else is going to write it, so
+        giving up turns a collision into a silently missing week — the exact
+        outage the health work exists to make impossible.
+
+    Same primitive, opposite policy. Do not "tidy" them into agreement.
     """
 
-    def __init__(self, path):
+    def __init__(self, path, wait_seconds=0, poll_seconds=5.0):
         self.path = Path(path)
+        self.wait_seconds = wait_seconds
+        self.poll_seconds = poll_seconds
         self._fd = None
 
-    def acquire(self):
+    def acquire(self, now=time.monotonic, sleep=time.sleep):
+        """Take the lock, optionally waiting up to `wait_seconds` for it.
+
+        The deadline is checked *after* a failed attempt so that wait_seconds=0
+        behaves exactly as the non-blocking version always has: one try, then
+        raise. Timing is injected so the waiting path can be tested without one.
+        """
+        deadline = now() + self.wait_seconds
+        while True:
+            try:
+                return self._try_acquire()
+            except LockHeld:
+                if now() >= deadline:
+                    raise
+                log.info("waiting up to %ss for %s", self.wait_seconds, self.path)
+                sleep(min(self.poll_seconds, max(deadline - now(), 0)))
+
+    def _try_acquire(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         try:
             self._fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)

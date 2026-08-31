@@ -11,6 +11,7 @@ from datetime import date
 from pathlib import Path
 
 from . import audit, config, enrich, verify_report, weekly_report
+from .runlock import LockHeld, RunLock
 
 LINKEDIN_PROMPT = """Below is my approved weekly threat intelligence report. Write a LinkedIn
 post summarizing it: first person, ~120-180 words, plain English, no hashtag spam (max 3),
@@ -63,6 +64,17 @@ def _push_and_draft_linkedin(vault_dir, wid, git=_git, linkedin_runner=enrich.ru
     return final, post, linkedin_path
 
 
+def auto_week_id(today=None):
+    """The week `--auto` drafts and publishes, from one shared anchor.
+
+    The draft and the publish are two processes minutes apart, and each used to
+    call week_id(date.today()) for itself. A run starting at 23:59 on Sunday
+    would draft one week and then go looking for another. Anchored to the
+    completed week, both land on the same Sunday however long the gap.
+    """
+    return weekly_report.week_id(weekly_report.report_week_end(today or date.today()))
+
+
 def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
                   linkedin_runner=enrich.run_claude):
     """Unattended publish path, run right after the Sunday draft.
@@ -99,8 +111,16 @@ def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
 def main(argv=None, confirm=input):
     argv = argv if argv is not None else sys.argv[1:]
     if argv == ["--auto"]:
-        wid = weekly_report.week_id(date.today())
-        return auto_publish(wid)
+        # Under the same lock the draft used. This step git-adds and pushes the
+        # vault, so a daily run writing notes underneath it would commit a
+        # half-written tree. Waiting, not skipping: see RunLock's docstring.
+        try:
+            with RunLock(config.DATA_DIR / "run.lock",
+                         wait_seconds=weekly_report.WEEKLY_LOCK_WAIT_SECONDS):
+                return auto_publish(auto_week_id())
+        except LockHeld as e:
+            print(f"not published — {e}", file=sys.stderr)
+            return 1
 
     if len(argv) != 1:
         print("usage: python -m pipeline.publish <YYYY-Wnn>  |  python -m pipeline.publish --auto")

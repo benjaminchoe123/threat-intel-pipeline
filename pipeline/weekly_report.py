@@ -4,11 +4,17 @@ Writes vault/reports/drafts/YYYY-Wnn-DRAFT.md — gitignored, so nothing reaches
 GitHub until a human approves it via pipeline.publish.
 """
 
+import sys
 from datetime import date, timedelta
 from pathlib import Path
 
 from . import audit, config, enrich, health
 from .notes import _read_frontmatter
+from .runlock import LockHeld, RunLock
+
+# Long enough to outlast a daily run (15 items, tens of seconds each), short
+# enough that a wedged run does not hold the weekly past its usefulness.
+WEEKLY_LOCK_WAIT_SECONDS = 45 * 60
 
 REPORT_INSTRUCTIONS = """Draft a weekly threat intelligence report for a small-organization
 audience (an IT lead who is not a security specialist), based ONLY on the threat notes
@@ -37,14 +43,51 @@ def week_id(day):
     return f"{iso.year}-W{iso.week:02d}"
 
 
+def report_week_end(day):
+    """The Sunday of the most recent *completed* ISO week.
+
+    The week a report covers is a property of the notes it summarises, not of
+    the moment the machine happened to wake up. `register_tasks.ps1` sets
+    -StartWhenAvailable, so the Sunday task fires late whenever the desktop was
+    off — and on 2026-08-31 it fired on the Monday that *begins* ISO week 36,
+    labelled itself 2026-W36, and summarised the week before it. The verifier
+    refused to publish and said exactly why: "ISO week 36 of 2026 begins
+    2026-08-31, so all but the final day's notes fall in W35."
+
+    Same defect as STIX `created = now` and the Navigator layer title: run
+    wall-clock leaking into content identity. Anchoring to the completed week
+    means a deferred run produces the report it would have produced on time.
+
+    ISO weekdays are Mon=1..Sun=7, so `isoweekday() % 7` is the number of days
+    back to the Sunday on or before `day` — zero when `day` is itself a Sunday.
+    """
+    return day - timedelta(days=day.isoweekday() % 7)
+
+
+def week_window(today=None):
+    """(first, last) dates of the week being reported on, both inclusive."""
+    end = report_week_end(today or date.today())
+    return end - timedelta(days=6), end
+
+
 def collect_week_notes(vault_dir, today=None):
+    """The notes dated inside the completed week being reported on.
+
+    A closed Mon–Sun window rather than a trailing seven days from `today`.
+    That is what makes the label honest, and it also settles the concurrency
+    problem structurally: the daily run writes *today's* notes, and today is
+    always after a completed week has closed, so a daily running underneath the
+    weekly cannot change the set the weekly is summarising. On 2026-08-31 it
+    could — the draft saw 19 notes and verification, eleven minutes later, saw
+    22, and the whole publish failed on the difference.
+    """
     vault_dir = Path(vault_dir)
-    today = today or date.today()
-    cutoff = (today - timedelta(days=7)).isoformat()
+    first, last = week_window(today)
+    first, last = first.isoformat(), last.isoformat()
     metas = []
     for path in sorted((vault_dir / "threats").glob("*.md")):
         meta = _read_frontmatter(path)
-        if str(meta.get("date", "")) >= cutoff:
+        if first <= str(meta.get("date", "")) <= last:
             meta["_body"] = path.read_text(encoding="utf-8")
             metas.append(meta)
     return metas
@@ -65,7 +108,7 @@ def draft_report(vault_dir, today=None, runner=enrich.run_claude, todo_path=None
     Brain todo, so tests and library callers can never touch it."""
     vault_dir = Path(vault_dir)
     today = today or date.today()
-    wid = week_id(today)
+    wid = week_id(report_week_end(today))
     metas = collect_week_notes(vault_dir, today)
     if not metas:
         # A quiet week and a starved pipeline both arrive here, and this line
@@ -75,7 +118,8 @@ def draft_report(vault_dir, today=None, runner=enrich.run_claude, todo_path=None
             today=today,
             last_run=health.load_last_run(config.DATA_DIR),
         )
-        print(f"{wid}: no threat notes in the last 7 days — no draft written")
+        first, last = week_window(today)
+        print(f"{wid}: no threat notes dated {first}..{last} — no draft written")
         print(health.banner(state))
         audit.log_enrichment(
             config.AUDIT_DIR,
@@ -120,5 +164,28 @@ def _add_review_todo(wid, path, todo_path):
         print(f"could not update todo list: {e}")
 
 
+def main():
+    """Draft under the run lock, waiting for a daily run rather than racing it.
+
+    The closed week window already keeps *new* notes out of a completed week's
+    report, so this is the second line of defence: it also covers a run that
+    edits or backfills a note inside the window, and it stops two `claude`
+    workloads competing for the same rate limit.
+
+    Waiting, not skipping. A daily that finds the lock held exits 0 because
+    someone else is doing its job; nobody else is going to write this report.
+    """
+    with RunLock(config.DATA_DIR / "run.lock", wait_seconds=WEEKLY_LOCK_WAIT_SECONDS):
+        return draft_report(
+            config.VAULT_DIR,
+            todo_path=Path(config.BRAIN_TODO) if config.BRAIN_TODO else None,
+        )
+
+
 if __name__ == "__main__":
-    draft_report(config.VAULT_DIR, todo_path=Path(config.BRAIN_TODO) if config.BRAIN_TODO else None)
+    try:
+        main()
+    except LockHeld as e:
+        # Loud, non-zero: a missing weekly report must never look like a quiet week.
+        print(f"weekly report not drafted — {e}", file=sys.stderr)
+        sys.exit(1)
