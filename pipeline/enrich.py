@@ -73,6 +73,55 @@ class EnrichmentError(RuntimeError):
     """The enrichment engine did not return a usable result."""
 
 
+class EngineUnavailable(EnrichmentError):
+    """The engine did no work at all — auth, quota, or a usage limit.
+
+    Distinct from a failure to produce a usable note, because the right response
+    is different: a bad prompt is worth retrying on the next item, an engine
+    that is not answering anyone is not. Continuing burns the whole item budget
+    one identical failure at a time.
+    """
+
+
+def _failure(result):
+    """Build the error for a non-zero `claude -p`, reporting what it actually said.
+
+    Both streams, always. Reporting stderr alone hid the entire 2026-08
+    enrichment outage: `claude -p --output-format json` writes its payload to
+    stdout, error payloads included, so every failure for two weeks recorded
+    itself as "claude -p failed (1): " with nothing after the colon.
+
+    That fixed the stream and left the truncation, which is its own version of
+    the same bug. `is_error` and `result` are the two fields carrying the
+    message and they sit late in the payload, so a 300-character head of raw
+    JSON reliably cuts off just before the part worth reading — as it did for
+    the 2026-08-31 DCRat failure, which recorded a `usage` block and nothing
+    about why. Parse first; fall back to the raw head only when it will not.
+    """
+    prefix = f"claude -p failed ({result.returncode})"
+    try:
+        payload = json.loads(result.stdout)
+    except (json.JSONDecodeError, TypeError):
+        return EnrichmentError(
+            f"{prefix}: stderr={result.stderr[:300]!r} stdout={result.stdout[:300]!r}"
+        )
+
+    detail = str(payload.get("result") or payload.get("error") or "").strip()
+    usage = payload.get("usage") or {}
+    attempted = (usage.get("input_tokens") or 0) + (usage.get("output_tokens") or 0)
+    stderr = f" stderr={result.stderr[:200]!r}" if result.stderr.strip() else ""
+
+    if attempted == 0:
+        # No tokens in or out: nothing was ever asked of the model. A malformed
+        # prompt still burns input tokens, so this is the engine refusing rather
+        # than the prompt failing — auth, quota, or a usage limit.
+        return EngineUnavailable(
+            f"{prefix}: engine did no work (0 tokens, "
+            f"stop_reason={payload.get('stop_reason')!r}): {detail or '<no detail>'}{stderr}"
+        )
+    return EnrichmentError(f"{prefix}: {detail or '<no detail>'}{stderr}")
+
+
 def run_claude(prompt, timeout=300):
     """Run headless Claude Code. Returns (note_text, engine_meta)."""
     try:
@@ -88,14 +137,7 @@ def run_claude(prompt, timeout=300):
     except subprocess.TimeoutExpired as e:
         raise EnrichmentError(f"claude -p timed out after {timeout}s") from e
     if result.returncode != 0:
-        # Both streams, always. Reporting stderr alone hid the entire 2026-08
-        # enrichment outage: `claude -p --output-format json` writes its payload to
-        # stdout, error payloads included, so every failure for two weeks recorded
-        # itself as "claude -p failed (1): " with nothing after the colon.
-        raise EnrichmentError(
-            f"claude -p failed ({result.returncode}): "
-            f"stderr={result.stderr[:300]!r} stdout={result.stdout[:300]!r}"
-        )
+        raise _failure(result)
     try:
         payload = json.loads(result.stdout)
     except json.JSONDecodeError as e:

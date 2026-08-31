@@ -136,6 +136,12 @@ def process_item(item, state, skill_text, today, runner=None, reputation_fn=None
         record["traceback"] = traceback.format_exc()
         log.exception("enrichment failed for %s:%s", item["source"], item["external_id"])
         outcome = "failed"
+        # Re-raised so the caller can stop: an engine doing no work for one item
+        # will do no work for the next fourteen. `finally` still runs first, so
+        # this loses nothing from the audit trail. The item stays unrecorded in
+        # state and carries over, like any other failure.
+        if isinstance(e, enrich.EngineUnavailable):
+            raise
     finally:
         record["outcome"] = outcome
         audit.log_enrichment(config.AUDIT_DIR, record)
@@ -180,9 +186,12 @@ def main(argv=None):
     totals = {"written": 0, "quarantined": 0, "seen": 0, "updated": 0, "failed": 0,
               "skipped_empty": 0}
     enriched = 0
+    engine_down = False
     with State(config.STATE_DB) as state, ReputationCache(config.STATE_DB) as rep_cache:
         reputation_fn = lambda item: reputation.default_reputation(item, cache=rep_cache)  # noqa: E731
         for name in sources:
+            if engine_down:
+                break  # nothing to enrich with; fetching more feeds is wasted work
             if enriched >= args.limit:
                 break  # cap already hit: don't pay the HTTP cost of more feeds
             try:
@@ -216,8 +225,17 @@ def main(argv=None):
                     break
                 log.info("enriching %s:%s — %s", item["source"], item["external_id"],
                          item["title"])
-                totals[process_item(item, state, skill_text, today,
-                                    reputation_fn=reputation_fn)] += 1
+                try:
+                    totals[process_item(item, state, skill_text, today,
+                                        reputation_fn=reputation_fn)] += 1
+                except enrich.EngineUnavailable as e:
+                    # On 2026-08-31 an item failed with zero tokens in and out.
+                    # Every remaining item would have failed the same way, each
+                    # one costing a subprocess and a retry to learn it again.
+                    log.error("engine unavailable — abandoning the run: %s", e)
+                    totals["failed"] += 1
+                    engine_down = True
+                    break
                 enriched += 1
 
     # Heartbeat first, dashboard second: the banner reports on the run that is

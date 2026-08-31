@@ -329,3 +329,45 @@ def test_run_writes_a_start_heartbeat_before_enriching(monkeypatch):
     assert finished["finished_at"] > finished["started_at"], (
         "a completed run must record a finish newer than its start"
     )
+
+
+# --- an engine that is answering nobody must stop the run, not drain it ---
+
+
+def test_engine_unavailable_still_writes_its_audit_record(tmp_path):
+    """It propagates, but `finally` runs first. Losing the record would hide the
+    one failure that explains why a whole run stopped."""
+    def boom(prompt):
+        raise run.enrich.EngineUnavailable("claude -p failed (1): engine did no work")
+
+    with pytest.raises(run.enrich.EngineUnavailable):
+        run.process_item(ITEM, State(tmp_path / "s.db"), "skill", "2026-07-15",
+                         runner=boom, reputation_fn=lambda i, cache=None: (None, []))
+
+    records = _audit_records()
+    assert len(records) == 1
+    assert records[0]["error_type"] == "EngineUnavailable"
+    assert records[0]["outcome"] == "failed"
+
+
+def test_engine_unavailable_abandons_the_run_after_one_item(tmp_path, monkeypatch):
+    """On 2026-08-31 an item failed with zero tokens in and out. Every remaining
+    item would have failed identically, each costing a subprocess and a retry to
+    learn it again."""
+    attempts = []
+
+    def boom(prompt):
+        attempts.append(1)
+        raise run.enrich.EngineUnavailable("claude -p failed (1): engine did no work")
+
+    monkeypatch.setattr(run.enrich, "run_claude", boom)
+    monkeypatch.setattr(run.reputation, "default_reputation", lambda i, cache=None: (None, []))
+    monkeypatch.setattr(run, "SOURCES", {
+        "kev": lambda: [dict(ITEM, external_id=f"CVE-2026-{n:04d}",
+                             content_hash=f"h{n}") for n in range(5)],
+    })
+
+    totals = run.main([])
+    assert len(attempts) == 1, "the run kept calling an engine that was not answering"
+    assert totals["failed"] == 1
+    assert totals["written"] == 0

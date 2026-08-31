@@ -1,5 +1,7 @@
 """Crash-safety fixes for defects confirmed against the live install."""
 
+import json
+
 import pytest
 
 from pipeline import enrich, notes
@@ -191,3 +193,65 @@ def test_matching_source_and_date_pass():
 def test_validation_without_item_context_still_works():
     ok, errors, _ = enrich.validate_note(VALID)
     assert ok, errors
+
+
+# --- a non-zero exit must report what the engine said, not the first 300 bytes ---
+
+
+def test_failure_reports_the_message_not_a_truncated_json_head(monkeypatch):
+    """The 2026-08-31 DCRat failure recorded a `usage` block and nothing about
+    why. `is_error` and `result` sit late in the payload, so a 300-character head
+    of raw JSON cuts off just before the only part worth reading."""
+    payload = json.dumps({
+        "duration_api_ms": 0, "stop_reason": "stop_sequence",
+        "session_id": "0d04a18d-e42b-43bf-823c-43d99c2dcdce",
+        "total_cost_usd": 0,
+        "usage": {"output_tokens_details": {"thinking_tokens": 0}, "input_tokens": 400,
+                  "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0,
+                  "output_tokens": 12, "server_tool_use": {"web_search_requests": 0}},
+        "result": "Error: the model refused the request",
+    })
+    assert len(payload) > 300, "the message must sit past the old truncation point"
+    monkeypatch.setattr(enrich.subprocess, "run",
+                        lambda *a, **k: FakeCompleted(payload, returncode=1))
+    with pytest.raises(enrich.EnrichmentError, match="the model refused the request"):
+        enrich.run_claude("prompt")
+
+
+def test_zero_token_failure_is_typed_as_the_engine_being_unavailable(monkeypatch):
+    """A malformed prompt still burns input tokens. Zero in and zero out means
+    nothing was ever asked of the model -- auth, quota or a usage limit -- and
+    the next fifteen items will fail identically."""
+    payload = json.dumps({
+        "stop_reason": "stop_sequence", "total_cost_usd": 0,
+        "usage": {"input_tokens": 0, "output_tokens": 0},
+        "result": "",
+    })
+    monkeypatch.setattr(enrich.subprocess, "run",
+                        lambda *a, **k: FakeCompleted(payload, returncode=1))
+    with pytest.raises(enrich.EngineUnavailable, match="did no work"):
+        enrich.run_claude("prompt")
+
+
+def test_a_failure_that_did_work_is_not_typed_as_unavailable(monkeypatch):
+    """The other half: tokens were spent, so the engine is answering and the next
+    item is worth trying. Must not abort the run."""
+    payload = json.dumps({
+        "usage": {"input_tokens": 900, "output_tokens": 4},
+        "result": "Error: could not complete",
+    })
+    monkeypatch.setattr(enrich.subprocess, "run",
+                        lambda *a, **k: FakeCompleted(payload, returncode=1))
+    with pytest.raises(enrich.EnrichmentError) as caught:
+        enrich.run_claude("prompt")
+    assert not isinstance(caught.value, enrich.EngineUnavailable)
+
+
+def test_unparseable_stdout_still_falls_back_to_both_raw_streams(monkeypatch):
+    """The 2026-08 outage was stderr-only reporting. Losing the raw fallback when
+    the payload will not parse would reintroduce it."""
+    monkeypatch.setattr(enrich.subprocess, "run",
+                        lambda *a, **k: FakeCompleted("<html>502</html>", returncode=1,
+                                                      stderr="proxy exploded"))
+    with pytest.raises(enrich.EnrichmentError, match="502"):
+        enrich.run_claude("prompt")
