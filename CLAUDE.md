@@ -58,6 +58,8 @@ drafted for human approval before publishing to GitHub + LinkedIn.
   the sightings from notes the enrichment did not flag)
 - MISP push (optional, needs `MISP_URL`/`MISP_API_KEY`): wired into `pipeline.run` automatically; see `docs/MISP-SETUP.md`
 - Refresh the ATT&CK catalog after a MITRE release: `python -m pipeline.attack --refresh`
+- Health, without running anything: `python -m pipeline.health` (0 healthy, 1 not)
+- Register/repair the scheduled tasks: `scripts/register_tasks.ps1` (**needs an elevated prompt** — see `docs/OPERATIONS.md`)
 - Tests: `python -m pytest tests/` · Lint: `python -m ruff check pipeline/ tests/`
 - venv: `.venv\Scripts\Activate.ps1`
 
@@ -72,6 +74,39 @@ drafted for human approval before publishing to GitHub + LinkedIn.
 - Only `written` marks an item seen. `quarantined`/`failed` carry over so a fix can rescue
   them; quarantine is a queue, not a dead end.
 - `python -m pipeline.run` takes a lock. Two concurrent runs double-enrich and double-bill.
+  The weekly takes the **same** lock, with the opposite policy on finding it held: the daily
+  gives up and exits 0 because another run is already doing its job, while the weekly waits,
+  because nobody else is going to write that report and skipping would turn a collision into
+  a silently missing week. Both are pinned by tests — do not tidy them into agreement.
+  `-MultipleInstances IgnoreNew` does not cover this: it is per-task, and `-StartWhenAvailable`
+  fires both deferred triggers at the same instant on wake, which is what happened on
+  2026-08-31.
+- **A report's week comes from the notes it summarises, never from `date.today()`.** The same
+  wall-clock-into-content defect as the STIX timestamps above. `report_week_end()` anchors to
+  the most recent *completed* ISO week, so a run deferred into Monday produces the report it
+  would have produced on Sunday, and `collect_week_notes` uses that closed Mon–Sun window
+  rather than a trailing seven days. That window is also what stops a concurrent daily from
+  changing what a weekly is summarising: today's notes fall after a completed week has closed.
+  `publish --auto` derives the week from the same anchor so a run straddling midnight cannot
+  draft one week and publish another.
+- Health has **three** independent signals and each is blind to something the others catch:
+  note staleness (survives the pipeline not running), the heartbeat (a start with no finish is
+  a run that died partway), and `pipeline.scheduler` (the OS's own record — the only observer
+  of a run that died *before* it could write anything). Only NTSTATUS-range results
+  (`>= 0xC0000000`) count as failures there; the daily exits 1 whenever one item fails, and a
+  banner that is red most weeks is one nobody reads. `assess()` stays pure and takes the
+  reading as an argument, which also keeps transient scheduler state out of the committed
+  dashboard.
+- A `claude -p` failure that spent **zero tokens** is `EngineUnavailable`, not a normal
+  enrichment failure: a bad prompt still burns input tokens, so zero means auth, quota or a
+  usage limit. The run abandons itself on the first one rather than rediscovering it fourteen
+  more times at a subprocess and a retry each. Errors report the parsed `result`/`is_error`,
+  never a truncated head of raw JSON — those fields sit late in the payload, which is how the
+  2026-08-31 failure recorded a `usage` block and nothing about why.
+- Scheduled tasks are registered **S4U** (run whether or not the user is logged on). The
+  default, `Interactive`, ties the run to the login session and kills it with
+  `0xC000013A` — three times before this was found. Registering needs an elevated prompt; see
+  `docs/OPERATIONS.md`.
 - Generated artifacts must be **byte-stable when nothing changed**. `pipeline.stix` and
   `pipeline.navigator` rebuild every file from scratch on every ingest, so any wall-clock
   value in the output restamps ~80 unchanged notes as modified today. That is not diff
