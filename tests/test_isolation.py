@@ -48,3 +48,10 @@ def test_draft_report_does_not_write_to_production_audit_log(tmp_path):
     assert written, "the weekly report must still write an audit record"
     assert Path(config.AUDIT_DIR) != production_audit
     assert production_audit not in Path(written[0]).parents
+
+
+def test_newsletter_pages_dir_is_isolated(tmp_path):
+    """A publish test once wrote a fake issue into the real docs/_posts/."""
+    from pipeline import newsletter
+
+    assert newsletter.DOCS_DIR == tmp_path / "docs"

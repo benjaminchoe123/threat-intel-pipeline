@@ -30,6 +30,11 @@ def isolate_production_paths(tmp_path, monkeypatch):
     """Point every writable config path at tmp_path for the duration of a test."""
     for attr, relative in _WRITABLE_PATHS.items():
         monkeypatch.setattr(config, attr, tmp_path.joinpath(*relative.split("/")))
+    # Not in config, so the loop above cannot reach it — and on the day it was
+    # added, a publish test wrote a fake "issue #1" into the live Pages folder.
+    from pipeline import newsletter
+
+    monkeypatch.setattr(newsletter, "DOCS_DIR", tmp_path / "docs")
     return tmp_path
 
 
