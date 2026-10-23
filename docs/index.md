@@ -13,6 +13,7 @@ Built by an aspiring SOC analyst as a working exercise in threat intel triage: e
 design decision optimizes for **honest, auditable analysis** — the pipeline is engineered
 so the AI can say "I don't know," and a human is always the last gate before publication.
 
+**[Read the Signal & Noise newsletter](newsletter/)** — the weekly report, one issue per week ([RSS](feed.xml)) ·
 [View the source on GitHub](https://github.com/benjaminchoe123/threat-intel-pipeline) ·
 [Read the full README](https://github.com/benjaminchoe123/threat-intel-pipeline#readme)
 

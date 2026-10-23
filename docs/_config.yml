@@ -1,0 +1,12 @@
+# GitHub Pages (legacy build, branch main, folder /docs). Kept minimal on
+# purpose: no theme override, one whitelisted plugin.
+title: Threat Intel Pipeline
+description: >-
+  Signal & Noise — a weekly, plain-English threat report for small orgs and IT
+  generalists, drafted by an open-source automated pipeline and gated before it ships.
+url: https://benjaminchoe123.github.io
+baseurl: /threat-intel-pipeline
+plugins:
+  - jekyll-feed   # posts in _posts/ -> /feed.xml, the newsletter's subscribe path
+feed:
+  posts_limit: 20

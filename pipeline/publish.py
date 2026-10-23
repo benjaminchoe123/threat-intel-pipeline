@@ -10,7 +10,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from . import audit, config, enrich, verify_report, weekly_report
+from . import audit, config, enrich, newsletter, verify_report, weekly_report
 from .runlock import LockHeld, RunLock
 
 LINKEDIN_PROMPT = """Below is my approved weekly threat intelligence report. Write a LinkedIn
@@ -53,6 +53,14 @@ def _push_and_draft_linkedin(vault_dir, wid, git=_git, linkedin_runner=enrich.ru
     """
     final = approve_draft(vault_dir, wid)
     git("add", str(final))
+    # The newsletter issue rides in the same commit, so the report and its
+    # issue go live together. Best-effort: the report is what was approved and
+    # verified, and a page that fails to build must not hold it back.
+    try:
+        git("add", str(newsletter.build_issue_page(vault_dir, wid)))
+    except Exception as e:
+        print(f"newsletter issue not written for {wid}: {e} — the report still "
+              f"publishes; rebuild with `python -m pipeline.newsletter --github-all`")
     git("commit", "-m", f"Publish weekly threat report {wid}")
     git("push")
 

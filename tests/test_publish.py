@@ -222,3 +222,33 @@ def test_auto_publish_waits_for_a_daily_run_rather_than_pushing_mid_write(tmp_pa
         assert publish.main(["--auto"]) == 1  # loud, not a silent skip
 
     assert publish.main(["--auto"]) == 0  # lock free again
+
+
+def test_publishing_a_report_also_publishes_its_newsletter_issue(tmp_path, monkeypatch):
+    _write_draft(tmp_path, "2026-W29")
+    monkeypatch.setattr(publish.newsletter, "DOCS_DIR", tmp_path / "docs")
+    calls = []
+    publish._push_and_draft_linkedin(tmp_path, "2026-W29", git=lambda *a: calls.append(a),
+                                     linkedin_runner=lambda p: ("post", {}))
+    page = tmp_path / "docs" / "_posts" / "2026-07-19-signal-noise-2026-W29.md"
+    assert page.exists()
+    adds = [c for c in calls if c[0] == "add"]
+    assert ("add", str(page)) in adds
+    # one commit carries both, and it comes before the push
+    assert [c[0] for c in calls].index("commit") > calls.index(("add", str(page)))
+    assert [c[0] for c in calls][-1] == "push"
+
+
+def test_a_newsletter_failure_never_blocks_the_report(tmp_path, monkeypatch):
+    _write_draft(tmp_path, "2026-W29")
+
+    def boom(*a, **k):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(publish.newsletter, "build_issue_page", boom)
+    calls = []
+    final, _, _ = publish._push_and_draft_linkedin(
+        tmp_path, "2026-W29", git=lambda *a: calls.append(a),
+        linkedin_runner=lambda p: ("post", {}))
+    assert final.exists()
+    assert any(c[0] == "push" for c in calls)
