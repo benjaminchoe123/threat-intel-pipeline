@@ -214,3 +214,21 @@ def test_draft_and_publish_agree_across_midnight(tmp_path):
         runner=lambda p: ("# Weekly Threat Report\n\ncontent\n", {"duration_ms": 1}),
     )
     assert publish.auto_week_id(today=date(2026, 8, 31)) == drafted.stem.removesuffix("-DRAFT")
+
+
+def test_an_already_published_week_is_not_drafted_again(tmp_path):
+    """A second Sunday run — a task retry or a manual one — used to redraft a
+    week that was already public, spend a verification pass on it, and then
+    crash in approve_draft refusing to overwrite the published report."""
+    _write(tmp_path, "recent.md", title="Recent", severity="high",
+           date="2026-07-08", summary="Fresh threat.")
+    (tmp_path / "reports").mkdir(parents=True)
+    (tmp_path / "reports" / "2026-W28.md").write_text("published", encoding="utf-8")
+
+    def runner(prompt):
+        raise AssertionError("must not spend a Claude call on a published week")
+
+    assert draft_report(tmp_path, today=date(2026, 7, 15), runner=runner) is None
+    assert not (tmp_path / "reports" / "drafts" / "2026-W28-DRAFT.md").exists()
+    records = "".join(p.read_text(encoding="utf-8") for p in config.AUDIT_DIR.glob("*.jsonl"))
+    assert '"already_published"' in records

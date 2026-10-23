@@ -109,6 +109,15 @@ def draft_report(vault_dir, today=None, runner=enrich.run_claude, todo_path=None
     vault_dir = Path(vault_dir)
     today = today or date.today()
     wid = week_id(report_week_end(today))
+    if (vault_dir / "reports" / f"{wid}.md").exists():
+        # Already public. A rerun (task retry, manual run) must not spend a
+        # draft and a verification pass on it only to crash in approve_draft.
+        print(f"{wid} is already published — no draft written")
+        audit.log_enrichment(
+            config.AUDIT_DIR,
+            {"type": "weekly_report_skipped", "week": wid, "reason": "already_published"},
+        )
+        return None
     metas = collect_week_notes(vault_dir, today)
     if not metas:
         # A quiet week and a starved pipeline both arrive here, and this line

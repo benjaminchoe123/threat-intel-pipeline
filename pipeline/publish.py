@@ -107,6 +107,9 @@ def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
     if not draft.exists():
         print(f"no draft found at {draft} — nothing to auto-publish")
         return 0
+    if (vault_dir / "reports" / f"{wid}.md").exists():
+        print(f"{wid} is already published — leaving {draft.name} for review")
+        return 0
 
     week_notes = weekly_report.collect_week_notes(vault_dir)
     if len(week_notes) < min_notes:

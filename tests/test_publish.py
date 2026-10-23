@@ -300,3 +300,16 @@ def test_publishing_posts_nowhere_but_github(tmp_path, monkeypatch):
     assert final.exists()
     assert not (tmp_path / "reports" / "linkedin-drafts").exists()
     assert not hasattr(publish, "LINKEDIN_PROMPT")
+
+
+def test_auto_publish_leaves_an_already_published_week_alone(tmp_path):
+    """A stale draft beside a published report (from a rerun, or a draft written
+    before this guard existed) must not reach approve_draft's overwrite refusal."""
+    _write_draft(tmp_path, "2026-W29")
+    (tmp_path / "reports" / "2026-W29.md").write_text("published", encoding="utf-8")
+    calls = []
+    code = publish.auto_publish(
+        "2026-W29", vault_dir=tmp_path, git=lambda *a: calls.append(a), min_notes=0,
+        verifier=lambda *a: pytest.fail("no verification for a published week"))
+    assert code == 0 and calls == []
+    assert (tmp_path / "reports" / "2026-W29.md").read_text(encoding="utf-8") == "published"
