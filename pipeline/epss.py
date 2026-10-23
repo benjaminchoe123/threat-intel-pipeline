@@ -105,11 +105,12 @@ def block_for_item(item, session=None, cache=None):
     if not cves:
         return None, []
 
-    found, missing = {}, []
+    found, missing, hits = {}, [], set()
     for cve in cves:
         cached = cache.get("epss", cve) if cache else None
         if cached is not None:
             found[cve] = cached
+            hits.add(cve)
         else:
             missing.append(cve)
 
@@ -125,5 +126,5 @@ def block_for_item(item, session=None, cache=None):
         score = found.get(cve)
         lines.append(_format_line(cve, score))
         results.append({"service": "epss", "ioc": cve, "found": score is not None,
-                        **(score or {})})
+                        **({"cached": True} if cve in hits else {}), **(score or {})})
     return "\n".join(lines), results

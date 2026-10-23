@@ -69,6 +69,12 @@ drafted for human approval before publishing to GitHub + LinkedIn.
   pytest writes into the real audit log — that already happened once.
 - Reputation is prompt context, never a precondition: a provider failure must degrade the
   note, not stop the run.
+- The unattended publish holds any week under `MIN_NOTES_FOR_AUTO_PUBLISH` (8) **before**
+  verification and exits 0. The verifier proves a draft is faithful to its notes; it cannot
+  say whether two notes are a week (2026-W42 shipped on two). A day-coverage rule was
+  considered and rejected: on this desktop, real 20-40 note weeks span only 2-3 days.
+- `pipeline.cverecord` (CVE.org, keyless) gives KEV notes affected versions and CISA SSVC.
+  A missing record or failed lookup means versions are *unknown*, never unaffected.
 - A feed returning zero items must be distinguishable from a feed that is broken. abuse.ch
   signals failure in `query_status` with HTTP 200 — check the envelope, never the status.
 - Only `written` marks an item seen. `quarantined`/`failed` carry over so a fix can rescue

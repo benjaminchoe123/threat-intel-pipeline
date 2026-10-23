@@ -62,7 +62,7 @@ def test_auto_publish_pushes_when_verification_passes(tmp_path):
         return "linkedin post text", {}
 
     code = publish.auto_publish("2026-W29", vault_dir=tmp_path, verifier=fake_verifier,
-                                 git=fake_git, linkedin_runner=fake_linkedin)
+                                 git=fake_git, linkedin_runner=fake_linkedin, min_notes=0)
     assert code == 0
     assert ("add", str(tmp_path / "reports" / "2026-W29.md")) in calls
     assert any(c[0] == "commit" for c in calls)
@@ -80,11 +80,62 @@ def test_auto_publish_never_touches_git_when_verification_fails(tmp_path):
         return VerificationResult(passed=False, entity_mismatches=["bad cve"], claim_results=[])
 
     code = publish.auto_publish("2026-W29", vault_dir=tmp_path, verifier=fake_verifier,
-                                 git=lambda *a: calls.append(a))
+                                 git=lambda *a: calls.append(a), min_notes=0)
     assert code == 1
     assert calls == []
     assert (tmp_path / "reports" / "drafts" / "2026-W29-DRAFT.md").exists()
     assert not (tmp_path / "reports" / "2026-W29.md").exists()
+
+
+def _fake_week(monkeypatch, count):
+    notes = [{"date": "2026-10-16", "_body": f"note {i}"} for i in range(count)]
+    monkeypatch.setattr(publish.weekly_report, "collect_week_notes",
+                        lambda vault_dir: notes)
+
+
+def test_auto_publish_holds_a_thin_week_without_asking_the_verifier(tmp_path, monkeypatch):
+    """2026-W42 went out unattended on two notes. The gate checks that a draft is
+    faithful to its notes; it cannot say whether two notes are a week. A thin
+    week is held for a human, never verified-and-pushed."""
+    _write_draft(tmp_path, "2026-W42")
+    _fake_week(monkeypatch, 2)
+    calls, verified = [], []
+
+    def fake_verifier(draft_text, week_notes):
+        verified.append(True)
+        return VerificationResult(passed=True, entity_mismatches=[], claim_results=[])
+
+    code = publish.auto_publish("2026-W42", vault_dir=tmp_path, verifier=fake_verifier,
+                                 git=lambda *a: calls.append(a), min_notes=8)
+    assert code == 0  # a deliberate hold, not a failure
+    assert verified == [] and calls == []
+    assert (tmp_path / "reports" / "drafts" / "2026-W42-DRAFT.md").exists()
+    records = "".join(p.read_text(encoding="utf-8") for p in config.AUDIT_DIR.glob("*.jsonl"))
+    assert '"auto_publish_held"' in records
+    assert '"notes": 2' in records
+
+
+def test_auto_publish_proceeds_at_the_floor(tmp_path, monkeypatch):
+    _write_draft(tmp_path, "2026-W43")
+    _fake_week(monkeypatch, 8)
+    verified = []
+
+    def fake_verifier(draft_text, week_notes):
+        verified.append(len(week_notes))
+        return VerificationResult(passed=False, entity_mismatches=["x"], claim_results=[])
+
+    publish.auto_publish("2026-W43", vault_dir=tmp_path, verifier=fake_verifier,
+                         git=lambda *a: None, min_notes=8)
+    assert verified == [8]
+
+
+def test_auto_publish_floor_defaults_to_config(tmp_path, monkeypatch):
+    _write_draft(tmp_path, "2026-W42")
+    _fake_week(monkeypatch, config.MIN_NOTES_FOR_AUTO_PUBLISH - 1)
+    code = publish.auto_publish(
+        "2026-W42", vault_dir=tmp_path, git=lambda *a: None,
+        verifier=lambda *a: pytest.fail("verifier must not run below the floor"))
+    assert code == 0
 
 
 def test_main_dispatches_auto_flag(tmp_path, monkeypatch):

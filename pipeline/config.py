@@ -43,6 +43,10 @@ def _positive_int(name, default):
 
 LOOKBACK_DAYS = _positive_int("LOOKBACK_DAYS", 7)
 MAX_ENRICH_PER_RUN = _positive_int("MAX_ENRICH_PER_RUN", 15)
+# Below this many notes the unattended path holds the draft for a human instead
+# of verifying and pushing it. 2026-W42 auto-published on 2 notes; every week of
+# real activity so far has had 15+, and every starved one 6 or fewer.
+MIN_NOTES_FOR_AUTO_PUBLISH = _positive_int("MIN_NOTES_FOR_AUTO_PUBLISH", 8)
 ABUSECH_AUTH_KEY = os.getenv("ABUSECH_AUTH_KEY", "")
 VT_API_KEY = os.getenv("VT_API_KEY", "")
 ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "")

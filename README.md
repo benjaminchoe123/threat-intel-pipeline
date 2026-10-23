@@ -249,6 +249,7 @@ filename bugs the suite now covers were invisible to Linux-only CI.
 **Enrichment**
 
 - [FIRST EPSS](https://www.first.org/epss/) — exploitation probability (no API key)
+- [CVE.org records](https://www.cve.org/) — vendor's affected version ranges, CVSS, and CISA's SSVC (Vulnrichment) assessment for each CVE (no API key)
 - [VirusTotal](https://www.virustotal.com/) — engine verdicts
 - [AbuseIPDB](https://www.abuseipdb.com/) — community abuse scores
 - [GreyNoise Community](https://www.greynoise.io/) — scanner vs. targeted infrastructure

@@ -27,14 +27,21 @@ Produce the note now, exactly per the output format in the analyst instructions.
 
 REPUTATION_SECTION = """
 <reputation-data>
-Automated reputation lookups for a sample of this item's IOCs (VirusTotal \
-engine verdicts; AbuseIPDB abuse-report scores):
+Automated lookups for this item (VirusTotal engine verdicts, AbuseIPDB abuse \
+scores, GreyNoise scanner status, EPSS exploitation probability, and the official \
+CVE record — whichever apply):
 {block}
 </reputation-data>
 
 Use the reputation data to inform severity and confidence. "not found" means \
 VirusTotal has no record of the IOC — that is common for fresh indicators and \
 does not mean it is benign.
+
+The CVE record is the vendor's (CNA's) published record from CVE.org, plus \
+CISA's SSVC assessment. Its affected version ranges and vendor advisory links \
+are source facts: put them under "Affected products / versions" and cite them \
+there, rather than writing "Unknown — not stated in source". A lookup that \
+failed or found no record means versions are unknown, not that none are affected.
 """
 
 

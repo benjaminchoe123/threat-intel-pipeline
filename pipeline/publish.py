@@ -76,21 +76,37 @@ def auto_week_id(today=None):
 
 
 def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
-                  linkedin_runner=enrich.run_claude):
+                  linkedin_runner=enrich.run_claude, min_notes=None):
     """Unattended publish path, run right after the Sunday draft.
 
     Never touches git unless verifier() passes — a failed check leaves the
     draft exactly where it was (same "quarantine is a queue, not a dead end"
     posture the rest of the pipeline uses for a bad enrichment) and logs why,
     so a failure is never a silent no-op.
+
+    A week below `min_notes` is held before verification. The verifier answers
+    "is this draft faithful to its notes?" and a two-note draft can pass that
+    honestly — 2026-W42 did — while still not being a week of intelligence.
+    Holding returns 0: it is the pipeline declining, not failing, and the
+    human path (`publish <week>`) can still ship it.
     """
     vault_dir = Path(vault_dir) if vault_dir else config.VAULT_DIR
+    min_notes = config.MIN_NOTES_FOR_AUTO_PUBLISH if min_notes is None else min_notes
     draft = vault_dir / "reports" / "drafts" / f"{wid}-DRAFT.md"
     if not draft.exists():
         print(f"no draft found at {draft} — nothing to auto-publish")
         return 0
 
     week_notes = weekly_report.collect_week_notes(vault_dir)
+    if len(week_notes) < min_notes:
+        audit.log_enrichment(config.AUDIT_DIR, {
+            "type": "auto_publish_held", "week": wid,
+            "notes": len(week_notes), "min_notes": min_notes,
+        })
+        print(f"{wid} held for review — {len(week_notes)} note(s), below the "
+              f"auto-publish floor of {min_notes}; draft untouched")
+        return 0
+
     result = verifier(draft.read_text(encoding="utf-8"), week_notes)
     audit.log_enrichment(config.AUDIT_DIR, {
         "type": "auto_publish_verification", "week": wid,

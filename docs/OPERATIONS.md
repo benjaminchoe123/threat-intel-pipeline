@@ -75,6 +75,37 @@ Set-ScheduledTask -TaskName ThreatIntel-Weekly -Principal $p
 …and accept the kills as a known cost. They are no longer invisible either way —
 see below.
 
+## Authentication that survives unattended weeks
+
+`claude -p` normally authenticates from the interactive login in
+`~/.claude/.credentials.json`: an 8-hour access token that only refreshes when
+someone uses Claude Code interactively. Twice that ran out with nobody at the
+desktop — 2026-08-04 → 08-23 and 2026-09-16 → 10-09 — and every unattended run
+failed until the next login.
+
+`claude setup-token` issues a long-lived (about a year) subscription token for
+exactly this case, with no API billing. From an ordinary terminal:
+
+```powershell
+claude setup-token          # approve in the browser, copy the token it prints
+```
+
+Put it in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`. `pipeline.config` loads `.env`
+into the environment and `enrich.run_claude` starts `claude` with that
+environment, so no code change is involved. It also removes the run's dependency
+on the per-user credentials file, which is the part of S4U most worth doubting.
+
+Prove it before trusting it — there are open reports of setup-token returning
+`401 Invalid bearer token` under `claude -p`:
+
+```powershell
+.venv\Scripts\python.exe -c "from pipeline import enrich; print(enrich.run_claude('Reply with OK')[0])"
+```
+
+If that fails with a 401, delete the line and fall back to the metered API-key
+decision (2026-08-23). Note the token's expiry date somewhere you will see it:
+when it lapses, health reports the run as abandoned on `EngineUnavailable`.
+
 ## Checking health without running anything
 
 ```powershell

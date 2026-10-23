@@ -11,12 +11,13 @@ is not a reason to skip AbuseIPDB.
 
 import logging
 
-from . import abuseipdb, epss, greynoise, vt
+from . import abuseipdb, cverecord, epss, greynoise, vt
 
 log = logging.getLogger(__name__)
 
 
-def reputation_for_item(item, vt_fn, abuse_fn, epss_fn=None, greynoise_fn=None):
+def reputation_for_item(item, vt_fn, abuse_fn, epss_fn=None, greynoise_fn=None,
+                        cve_record_fn=None):
     """Compose per-service blocks into one prompt block and one audit list.
 
     Returns (block, results). A provider that fails contributes an explicit
@@ -28,6 +29,8 @@ def reputation_for_item(item, vt_fn, abuse_fn, epss_fn=None, greynoise_fn=None):
         providers.append(("GreyNoise", greynoise_fn))
     if epss_fn is not None:
         providers.append(("EPSS", epss_fn))
+    if cve_record_fn is not None:
+        providers.append(("CVE record", cve_record_fn))
 
     sections, results = [], []
     for label, fn in providers:
@@ -64,4 +67,6 @@ def default_reputation(item, cache=None):
         # No API key, so EPSS always runs — it is the only reputation source that
         # applies to KEV and MTA items, which have no IOC list for the others.
         epss_fn=lambda i: epss.block_for_item(i, cache=cache),
+        # Also keyless. The CNA's version ranges are what KEV notes lacked.
+        cve_record_fn=lambda i: cverecord.block_for_item(i, cache=cache),
     )

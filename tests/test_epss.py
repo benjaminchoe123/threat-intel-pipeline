@@ -171,3 +171,17 @@ def test_only_uncached_cves_are_requested(tmp_path):
         block, _ = epss.block_for_item(item, session=session, cache=cache)
     assert session.calls[0][1]["cve"] == "CVE-2021-0002"
     assert "CVE-2021-0001" in block and "CVE-2021-0002" in block
+
+
+def test_cache_hits_are_marked_cached_in_results(tmp_path):
+    """VT, AbuseIPDB and GreyNoise mark a cache hit `cached: True`; EPSS did not,
+    so pipeline.stats counted every EPSS hit as a miss and the cache hit rate
+    read lower than the truth."""
+    session = FakeSession(_payload(("CVE-2021-0002", "0.2", "0.6")))
+    item = {"source": "mta", "raw": {"t": "CVE-2021-0001 and CVE-2021-0002"}}
+    with ReputationCache(tmp_path / "c.db") as cache:
+        cache.put("epss", "CVE-2021-0001", {"epss": 0.1, "percentile": 0.5, "date": "2026-07-15"})
+        _, results = epss.block_for_item(item, session=session, cache=cache)
+    by_cve = {r["ioc"]: r for r in results}
+    assert by_cve["CVE-2021-0001"].get("cached") is True
+    assert not by_cve["CVE-2021-0002"].get("cached")
