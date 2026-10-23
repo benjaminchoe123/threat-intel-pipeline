@@ -34,8 +34,7 @@ flowchart LR
     ENRICH -.every call.-> AUDIT["Audit log (JSONL)<br/>source vs. claim"]
     VAULT --> WEEKLY["Weekly report draft<br/>(Sundays)"]
     WEEKLY --> HUMAN{{"Human review<br/>& approval"}}
-    HUMAN -->|approved| GH["GitHub push"]
-    HUMAN -->|approved| LI["LinkedIn draft<br/>→ clipboard"]
+    HUMAN -->|approved| GH["GitHub push<br/>report + newsletter issue"]
 ```
 
 ## What makes this different from a scraper + LLM
@@ -59,9 +58,10 @@ flowchart LR
 - **Full audit trail.** Every enrichment appends a JSONL record pairing the raw source
   snapshot with the model's exact output, so "what Claude claimed vs. what the source
   said" is always answerable.
-- **Human-gated publishing.** Report drafts are gitignored; `pipeline/publish.py` requires
-  an interactive confirmation, and LinkedIn posting is deliberately manual (draft to
-  clipboard) — nothing reaches the public without a person deciding it should.
+- **Gated publishing, one destination.** Report drafts are gitignored. Nothing publishes
+  unless it passes verification against its source notes (or a person confirms it by hand),
+  and a week with too little data is held rather than padded. GitHub is the only place it
+  goes — there is no social-media posting step.
 - **Volume-bounded by design.** IOC firehoses (ThreatFox/URLhaus) are aggregated per
   malware-family-per-day; enrichment is capped per run with carry-over, so the vault grows
   with signal, not noise.
@@ -218,8 +218,8 @@ Requires [Claude Code](https://claude.com/claude-code) installed and logged in
 (enrichment runs `claude -p` headless — no API key needed).
 
 Weekly flow: Sunday's task drafts `vault/reports/drafts/YYYY-Wnn-DRAFT.md` → edit it →
-`python -m pipeline.publish YYYY-Wnn` (interactive confirm → git push → LinkedIn draft on
-clipboard).
+`python -m pipeline.publish YYYY-Wnn` (interactive confirm → git push of the report and its
+[Signal & Noise](https://benjaminchoe123.github.io/threat-intel-pipeline/newsletter/) issue).
 
 ## Tests
 

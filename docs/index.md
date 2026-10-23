@@ -71,5 +71,5 @@ directly on GitHub for the current set.)*
 - **Failure is loud, not silent.** A dead feed, a malformed entry, or a bad model output
   quarantines the item instead of corrupting the record — see the
   ["what went wrong, and what it taught me"](https://github.com/benjaminchoe123/threat-intel-pipeline#readme) section of the README.
-- **A human is always the last gate.** Nothing reaches LinkedIn or a public report without
-  explicit review and approval.
+- **Nothing ships unchecked.** No report or newsletter issue goes public without passing
+  verification against its source notes, and thin weeks are held rather than padded.

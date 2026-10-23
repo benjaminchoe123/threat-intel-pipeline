@@ -3,7 +3,8 @@
 Automated threat intelligence pipeline: Python ingests public feeds (CISA KEV, abuse.ch
 URLhaus/ThreatFox, malware-traffic-analysis.net RSS) daily, Claude (headless `claude -p`)
 enriches each item into structured Obsidian notes in `vault/`, a weekly analyst report is
-drafted for human approval before publishing to GitHub + LinkedIn.
+drafted, verified, and published to GitHub with its Signal & Noise newsletter issue.
+GitHub is the only destination: never add LinkedIn or any social posting.
 
 ## Ground rules
 

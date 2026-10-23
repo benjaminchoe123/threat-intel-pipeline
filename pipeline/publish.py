@@ -1,5 +1,8 @@
-"""Approval-gated publishing: promote an edited draft to vault/reports/,
-push to GitHub, and put a LinkedIn summary on the clipboard.
+"""Approval-gated publishing: promote an edited draft to vault/reports/ and
+push it to GitHub with its Signal & Noise newsletter issue.
+
+GitHub is the only destination. There is deliberately no LinkedIn or other
+social step: posting anywhere under the author's name is his to do by hand.
 
 Run interactively by the human: python -m pipeline.publish 2026-W29
 Nothing in the pipeline calls this automatically — that is the point.
@@ -10,17 +13,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from . import audit, config, enrich, newsletter, verify_report, weekly_report
+from . import audit, config, newsletter, verify_report, weekly_report
 from .runlock import LockHeld, RunLock
-
-LINKEDIN_PROMPT = """Below is my approved weekly threat intelligence report. Write a LinkedIn
-post summarizing it: first person, ~120-180 words, plain English, no hashtag spam (max 3),
-no emojis, mention it's from my automated threat-intel pipeline project, and end by inviting
-people to read the full report on my GitHub. Return ONLY the post text.
-
-<report>
-{report}
-</report>"""
 
 
 def approve_draft(vault_dir, wid):
@@ -60,13 +54,8 @@ def _push(git):
         git("push")
 
 
-def _push_and_draft_linkedin(vault_dir, wid, git=_git, linkedin_runner=enrich.run_claude):
-    """Shared tail of both publish paths: commit, push, draft the LinkedIn text.
-
-    LinkedIn text used to only go to the clipboard via clip.exe, which needs an
-    interactive session and doesn't exist when Task Scheduler runs this
-    unattended — it's now always written to a file too.
-    """
+def _publish_issue(vault_dir, wid, git=_git):
+    """Shared tail of both publish paths: approve, commit, push. Returns the report."""
     final = approve_draft(vault_dir, wid)
     paths = [str(final)]
     # The newsletter issue rides in the same commit, so the report and its
@@ -83,20 +72,7 @@ def _push_and_draft_linkedin(vault_dir, wid, git=_git, linkedin_runner=enrich.ru
     # one `git add` away from it.
     git("commit", "-m", f"Publish weekly threat report {wid}", "--", *paths)
     _push(git)
-
-    # The issue is public from here on. A LinkedIn failure is reported, but it
-    # must not turn a published week into a failed one.
-    try:
-        post, _ = linkedin_runner(
-            LINKEDIN_PROMPT.format(report=final.read_text(encoding="utf-8")))
-    except Exception as e:
-        print(f"LinkedIn draft not written for {wid}: {e} — {final.name} is published")
-        return final, None, None
-    linkedin_dir = Path(vault_dir) / "reports" / "linkedin-drafts"
-    linkedin_dir.mkdir(parents=True, exist_ok=True)
-    linkedin_path = linkedin_dir / f"{wid}.md"
-    linkedin_path.write_text(post, encoding="utf-8")
-    return final, post, linkedin_path
+    return final
 
 
 def auto_week_id(today=None):
@@ -111,7 +87,7 @@ def auto_week_id(today=None):
 
 
 def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
-                  linkedin_runner=enrich.run_claude, min_notes=None):
+                 min_notes=None):
     """Unattended publish path, run right after the Sunday draft.
 
     Never touches git unless verifier() passes — a failed check leaves the
@@ -152,11 +128,8 @@ def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
         print(f"verification failed — {wid} left unpublished, draft untouched")
         return 1
 
-    final, post, linkedin_path = _push_and_draft_linkedin(
-        vault_dir, wid, git=git, linkedin_runner=linkedin_runner
-    )
-    print(f"auto-published {final.name} to GitHub"
-          + (f"; LinkedIn draft at {linkedin_path}" if linkedin_path else ""))
+    final = _publish_issue(vault_dir, wid, git=git)
+    print(f"auto-published {final.name} and its newsletter issue to GitHub")
     return 0
 
 
@@ -190,20 +163,14 @@ def main(argv=None, confirm=input):
     print(result.report())
     print()
 
-    print(f"About to publish {wid}: commit + push to GitHub and draft a LinkedIn post.")
+    print(f"About to publish {wid} and its newsletter issue: commit + push to GitHub.")
     print(f"Have you reviewed and edited {draft}?")
     if confirm("Type 'publish' to confirm: ").strip().lower() != "publish":
         print("aborted — nothing published")
         return 1
 
-    final, post, linkedin_path = _push_and_draft_linkedin(config.VAULT_DIR, wid)
-    print(f"pushed {final.name} to GitHub")
-    if post is None:
-        return 0
-    print(f"LinkedIn draft saved to {linkedin_path}")
-    subprocess.run(["clip.exe"], input=post, text=True, encoding="utf-8")
-    print("\nAlso copied to clipboard — paste and post when ready:\n")
-    print(post)
+    final = _publish_issue(config.VAULT_DIR, wid)
+    print(f"pushed {final.name} and its newsletter issue to GitHub")
     return 0
 
 

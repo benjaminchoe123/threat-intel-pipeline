@@ -58,17 +58,12 @@ def test_auto_publish_pushes_when_verification_passes(tmp_path):
     def fake_git(*args):
         calls.append(args)
 
-    def fake_linkedin(prompt):
-        return "linkedin post text", {}
-
     code = publish.auto_publish("2026-W29", vault_dir=tmp_path, verifier=fake_verifier,
-                                 git=fake_git, linkedin_runner=fake_linkedin, min_notes=0)
+                                 git=fake_git, min_notes=0)
     assert code == 0
     assert any(c[0] == "add" and str(tmp_path / "reports" / "2026-W29.md") in c for c in calls)
     assert any(c[0] == "commit" for c in calls)
     assert any(c[0] == "push" for c in calls)
-    linkedin_path = tmp_path / "reports" / "linkedin-drafts" / "2026-W29.md"
-    assert linkedin_path.read_text(encoding="utf-8") == "linkedin post text"
     assert not (tmp_path / "reports" / "drafts" / "2026-W29-DRAFT.md").exists()
 
 
@@ -187,12 +182,8 @@ def test_main_publishes_on_confirm_after_verification(tmp_path, monkeypatch):
         lambda draft, notes: VerificationResult(passed=True, entity_mismatches=[],
                                                  claim_results=[]),
     )
-    monkeypatch.setattr(publish, "_push_and_draft_linkedin",
-                        lambda vault_dir, wid, **kw: (
-                            tmp_path / "reports" / f"{wid}.md", "post text",
-                            tmp_path / "reports" / "linkedin-drafts" / f"{wid}.md",
-                        ))
-    monkeypatch.setattr(publish.subprocess, "run", lambda *a, **kw: None)
+    monkeypatch.setattr(publish, "_publish_issue",
+                        lambda vault_dir, wid, **kw: tmp_path / "reports" / f"{wid}.md")
 
     code = publish.main(["2026-W29"], confirm=lambda prompt: "publish")
     assert code == 0
@@ -228,8 +219,7 @@ def test_publishing_a_report_also_publishes_its_newsletter_issue(tmp_path, monke
     _write_draft(tmp_path, "2026-W29")
     monkeypatch.setattr(publish.newsletter, "DOCS_DIR", tmp_path / "docs")
     calls = []
-    publish._push_and_draft_linkedin(tmp_path, "2026-W29", git=lambda *a: calls.append(a),
-                                     linkedin_runner=lambda p: ("post", {}))
+    publish._publish_issue(tmp_path, "2026-W29", git=lambda *a: calls.append(a))
     page = tmp_path / "docs" / "_posts" / "2026-07-19-signal-noise-2026-W29.md"
     assert page.exists()
     names = [c[0] for c in calls]
@@ -248,19 +238,16 @@ def test_a_newsletter_failure_never_blocks_the_report(tmp_path, monkeypatch):
 
     monkeypatch.setattr(publish.newsletter, "build_issue_page", boom)
     calls = []
-    final, _, _ = publish._push_and_draft_linkedin(
-        tmp_path, "2026-W29", git=lambda *a: calls.append(a),
-        linkedin_runner=lambda p: ("post", {}))
+    final = publish._publish_issue(tmp_path, "2026-W29", git=lambda *a: calls.append(a))
     assert final.exists()
     assert any(c[0] == "push" for c in calls)
 
 
 # --- the weekly push publishes the issue and nothing else -----------------
 
-def _run_tail(tmp_path, git, linkedin=lambda p: ("post", {})):
+def _run_tail(tmp_path, git):
     _write_draft(tmp_path, "2026-W29")
-    return publish._push_and_draft_linkedin(tmp_path, "2026-W29", git=git,
-                                            linkedin_runner=linkedin)
+    return publish._publish_issue(tmp_path, "2026-W29", git=git)
 
 
 def test_commit_is_limited_to_the_report_and_its_issue(tmp_path):
@@ -301,12 +288,15 @@ def test_a_push_that_still_fails_is_raised_not_swallowed(tmp_path):
         _run_tail(tmp_path, git)
 
 
-def test_linkedin_failure_after_a_push_does_not_fail_the_publish(tmp_path):
-    """The issue is already public by then; reporting the week as failed
-    would be false."""
-    def linkedin(prompt):
-        raise RuntimeError("claude -p failed")
+def test_publishing_posts_nowhere_but_github(tmp_path, monkeypatch):
+    """GitHub is the only destination, by the author's decision (2026-10-22).
+    Publishing used to spend a Claude call drafting a LinkedIn post; it must
+    make no model call and write no social draft of any kind."""
+    from pipeline import enrich
 
-    final, post, path = _run_tail(tmp_path, lambda *a: None, linkedin)
+    monkeypatch.setattr(enrich, "run_claude",
+                        lambda *a, **k: pytest.fail("publishing must not call Claude"))
+    final = _run_tail(tmp_path, lambda *a: None)
     assert final.exists()
-    assert post is None and path is None
+    assert not (tmp_path / "reports" / "linkedin-drafts").exists()
+    assert not hasattr(publish, "LINKEDIN_PROMPT")
