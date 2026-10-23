@@ -14,7 +14,7 @@ GitHub is the only destination: never add LinkedIn or any social posting.
 - Every enrichment is audit-logged to `logs/audit/YYYY-MM-DD.jsonl` (source snapshot vs.
   Claude output). Never skip or weaken the audit trail.
 - Publishing happens two ways: explicit human approval via `python -m pipeline.publish
-  <week>`, or the unattended `python -m pipeline.publish --auto` path the Sunday scheduled
+  <week>`, or the unattended `python -m pipeline.publish --auto` path the weekly (Friday 00:45) scheduled
   task runs automatically. Auto-publish is gated by `pipeline.verify_report`. A verification
   failure blocks the push entirely and leaves the draft untouched for manual review — it
   never fails silently. Never weaken or bypass this check, and never let a broken

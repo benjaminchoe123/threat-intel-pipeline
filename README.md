@@ -32,7 +32,7 @@ flowchart LR
     VALIDATE -->|valid| VAULT["Obsidian vault<br/>threats / families /<br/>techniques / actors"]
     VALIDATE -->|invalid ×2| QUAR["Quarantine"]
     ENRICH -.every call.-> AUDIT["Audit log (JSONL)<br/>source vs. claim"]
-    VAULT --> WEEKLY["Weekly report draft<br/>(Sundays)"]
+    VAULT --> WEEKLY["Weekly report draft<br/>(Fridays 00:45)"]
     WEEKLY --> HUMAN{{"Human review<br/>& approval"}}
     HUMAN -->|approved| GH["GitHub push<br/>report + newsletter issue"]
 ```
@@ -211,13 +211,13 @@ python -m venv .venv; .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 copy .env.example .env          # add free API keys: abuse.ch, VirusTotal, AbuseIPDB (all optional)
 python -m pipeline.run --source kev --limit 3   # first run, bounded
-scripts\register_tasks.ps1      # daily 08:00 + Sunday 09:00 via Windows Task Scheduler
+scripts\register_tasks.ps1      # daily 08:00 + Friday 00:45 via Windows Task Scheduler
 ```
 
 Requires [Claude Code](https://claude.com/claude-code) installed and logged in
 (enrichment runs `claude -p` headless — no API key needed).
 
-Weekly flow: Sunday's task drafts `vault/reports/drafts/YYYY-Wnn-DRAFT.md` → edit it →
+Weekly flow: the Friday 00:45 task drafts the last completed Mon–Sun week into `vault/reports/drafts/YYYY-Wnn-DRAFT.md` → edit it →
 `python -m pipeline.publish YYYY-Wnn` (interactive confirm → git push of the report and its
 [Signal & Noise](https://benjaminchoe123.github.io/threat-intel-pipeline/newsletter/) issue).
 

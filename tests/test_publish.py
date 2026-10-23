@@ -313,3 +313,13 @@ def test_auto_publish_leaves_an_already_published_week_alone(tmp_path):
         verifier=lambda *a: pytest.fail("no verification for a published week"))
     assert code == 0 and calls == []
     assert (tmp_path / "reports" / "2026-W29.md").read_text(encoding="utf-8") == "published"
+
+
+def test_the_friday_0045_run_publishes_the_week_that_just_closed():
+    """The weekly moved from Sunday 09:00 to Friday 00:45 (2026-10-22). A
+    Friday-morning run must still publish the last *completed* Mon-Sun week,
+    and a run deferred to Friday afternoon must agree with it."""
+    assert publish.auto_week_id(today=date(2026, 10, 30)) == "2026-W43"  # Fri 00:45
+    assert publish.auto_week_id(today=date(2026, 10, 31)) == "2026-W43"  # deferred to Sat
+    first, last = publish.weekly_report.week_window(date(2026, 10, 30))
+    assert (first, last) == (date(2026, 10, 19), date(2026, 10, 25))

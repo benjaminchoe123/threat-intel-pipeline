@@ -1,12 +1,13 @@
 # Registers the two scheduled tasks (run once, as the logged-in user).
 #   ThreatIntel-Daily  — every day 08:00
-#   ThreatIntel-Weekly — Sundays 09:00
+#   ThreatIntel-Weekly — Fridays 00:45 (the moment Thursday ends). It publishes the
+#   last completed Mon–Sun week; moved from Sunday 09:00 on 2026-10-22 by choice.
 # StartWhenAvailable=true → missed runs (PC off/asleep) fire as soon as it's back.
 # RestartCount=2 → a run that dies partway retries instead of waiting a full day.
 #   On 2026-08-27 the daily run exited 0xC000013A (STATUS_CONTROL_C_EXIT) about a
 #   minute in, having enriched two of three KEV items. Unfinished items carry over,
 #   so nothing was lost — but with no retry the next attempt was 20 hours away, and
-#   for the Sunday task that would have meant no weekly report at all that week.
+#   for the weekly task that would have meant no weekly report at all that week.
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 
@@ -42,10 +43,10 @@ Register-ScheduledTask -TaskName "ThreatIntel-Daily" -Action $daily `
 $weekly = New-ScheduledTaskAction -Execute "powershell.exe" `
     -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$repo\scripts\run_weekly.ps1`""
 Register-ScheduledTask -TaskName "ThreatIntel-Weekly" -Action $weekly `
-    -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 9:00am) `
+    -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Friday -At 12:45am) `
     -Settings $settings -Principal $principal -Force | Out-Null
 
-Write-Host "Registered ThreatIntel-Daily (daily 08:00) and ThreatIntel-Weekly (Sun 09:00)"
+Write-Host "Registered ThreatIntel-Daily (daily 08:00) and ThreatIntel-Weekly (Fri 00:45)"
 Write-Host "as S4U (run whether or not you are logged on), each retrying twice at"
 Write-Host "20-minute intervals if a run dies partway."
 Write-Host ""

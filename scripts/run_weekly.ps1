@@ -1,4 +1,4 @@
-# Sunday weekly-report draft, then a verification-gated auto-publish attempt.
+# Weekly-report draft (Fridays 00:45), then a verification-gated auto-publish attempt.
 # Invoked by Task Scheduler (see register_tasks.ps1).
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot

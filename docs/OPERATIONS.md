@@ -5,7 +5,7 @@
 | Task | Schedule | Entry point |
 |---|---|---|
 | `ThreatIntel-Daily` | daily 08:00 | `scripts/run_daily.ps1` → `python -m pipeline.run` |
-| `ThreatIntel-Weekly` | Sundays 09:00 | `scripts/run_weekly.ps1` → draft, then `publish --auto` |
+| `ThreatIntel-Weekly` | Fridays 00:45 (end of Thursday) | `scripts/run_weekly.ps1` → draft, then `publish --auto` |
 
 Both use `-StartWhenAvailable`, so a run missed because the machine was off fires
 as soon as it comes back. `WakeToRun` is deliberately off: waking someone's
