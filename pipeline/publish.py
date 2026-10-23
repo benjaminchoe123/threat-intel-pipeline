@@ -44,6 +44,22 @@ def _git(*args):
     return result.stdout
 
 
+def _push(git):
+    """Push, rebasing once onto the remote if it moved.
+
+    Dependabot merges land on GitHub, not here, so the first Sunday after one
+    the local branch is behind and a plain push is rejected. --autostash
+    because the vault always has uncommitted generated files. A second failure
+    is raised: an issue that did not reach GitHub must not be reported as sent.
+    """
+    try:
+        git("push")
+    except RuntimeError as e:
+        print(f"push rejected ({e}); rebasing onto origin and retrying once")
+        git("pull", "--rebase", "--autostash")
+        git("push")
+
+
 def _push_and_draft_linkedin(vault_dir, wid, git=_git, linkedin_runner=enrich.run_claude):
     """Shared tail of both publish paths: commit, push, draft the LinkedIn text.
 
@@ -52,19 +68,30 @@ def _push_and_draft_linkedin(vault_dir, wid, git=_git, linkedin_runner=enrich.ru
     unattended — it's now always written to a file too.
     """
     final = approve_draft(vault_dir, wid)
-    git("add", str(final))
+    paths = [str(final)]
     # The newsletter issue rides in the same commit, so the report and its
     # issue go live together. Best-effort: the report is what was approved and
     # verified, and a page that fails to build must not hold it back.
     try:
-        git("add", str(newsletter.build_issue_page(vault_dir, wid)))
+        paths.append(str(newsletter.build_issue_page(vault_dir, wid)))
     except Exception as e:
         print(f"newsletter issue not written for {wid}: {e} — the report still "
               f"publishes; rebuild with `python -m pipeline.newsletter --github-all`")
-    git("commit", "-m", f"Publish weekly threat report {wid}")
-    git("push")
+    git("add", *paths)
+    # Path-limited: this commit is the week's issue and nothing else. A bare
+    # commit takes the whole index, and the vault's unpublished backlog lives
+    # one `git add` away from it.
+    git("commit", "-m", f"Publish weekly threat report {wid}", "--", *paths)
+    _push(git)
 
-    post, _ = linkedin_runner(LINKEDIN_PROMPT.format(report=final.read_text(encoding="utf-8")))
+    # The issue is public from here on. A LinkedIn failure is reported, but it
+    # must not turn a published week into a failed one.
+    try:
+        post, _ = linkedin_runner(
+            LINKEDIN_PROMPT.format(report=final.read_text(encoding="utf-8")))
+    except Exception as e:
+        print(f"LinkedIn draft not written for {wid}: {e} — {final.name} is published")
+        return final, None, None
     linkedin_dir = Path(vault_dir) / "reports" / "linkedin-drafts"
     linkedin_dir.mkdir(parents=True, exist_ok=True)
     linkedin_path = linkedin_dir / f"{wid}.md"
@@ -128,7 +155,8 @@ def auto_publish(wid, vault_dir=None, verifier=verify_report.verify, git=_git,
     final, post, linkedin_path = _push_and_draft_linkedin(
         vault_dir, wid, git=git, linkedin_runner=linkedin_runner
     )
-    print(f"auto-published {final.name} to GitHub; LinkedIn draft at {linkedin_path}")
+    print(f"auto-published {final.name} to GitHub"
+          + (f"; LinkedIn draft at {linkedin_path}" if linkedin_path else ""))
     return 0
 
 
@@ -169,7 +197,10 @@ def main(argv=None, confirm=input):
         return 1
 
     final, post, linkedin_path = _push_and_draft_linkedin(config.VAULT_DIR, wid)
-    print(f"pushed {final.name} to GitHub; LinkedIn draft saved to {linkedin_path}")
+    print(f"pushed {final.name} to GitHub")
+    if post is None:
+        return 0
+    print(f"LinkedIn draft saved to {linkedin_path}")
     subprocess.run(["clip.exe"], input=post, text=True, encoding="utf-8")
     print("\nAlso copied to clipboard — paste and post when ready:\n")
     print(post)
