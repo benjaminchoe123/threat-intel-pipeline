@@ -14,5 +14,5 @@ stix2~=3.0
 pymisp~=2.5
 
 # Dev
-pytest~=9.1
+pytest~=9.2
 ruff~=0.16
